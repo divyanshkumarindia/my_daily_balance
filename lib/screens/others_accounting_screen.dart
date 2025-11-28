@@ -38,6 +38,38 @@ class _OthersAccountingScreenState extends State<OthersAccountingScreen> {
     periodEndController = TextEditingController(text: model.periodEndDate);
   }
 
+  String _formatDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}-${d.month.toString().padLeft(2, '0')}-${d.year}';
+
+  Future<void> _pickDateFor(BuildContext ctx, TextEditingController controller,
+      Function(String) onSet,
+      {DateTime? initial}) async {
+    final now = DateTime.now();
+    DateTime init = initial ?? now;
+    if (controller.text.isNotEmpty) {
+      try {
+        final parts = controller.text.split('-');
+        if (parts.length == 3) {
+          init = DateTime(
+              int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        }
+      } catch (_) {}
+    }
+    final picked = await showDatePicker(
+      context: ctx,
+      initialDate: init,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      final s = _formatDate(picked);
+      setState(() {
+        controller.text = s;
+      });
+      onSet(s);
+    }
+  }
+
   @override
   void dispose() {
     periodController.dispose();
@@ -152,6 +184,12 @@ class _OthersAccountingScreenState extends State<OthersAccountingScreen> {
                         Expanded(
                           child: TextField(
                             controller: periodStartController,
+                            readOnly: true,
+                            onTap: () => _pickDateFor(
+                                context,
+                                periodStartController,
+                                (s) => model.setPeriodRange(
+                                    s, model.periodEndDate)),
                             decoration: InputDecoration(
                               hintText: 'dd-mm-yyyy',
                               hintStyle: TextStyle(
@@ -168,16 +206,21 @@ class _OthersAccountingScreenState extends State<OthersAccountingScreen> {
                                   ? const Color(0xFFF9FAFB)
                                   : const Color(0xFF111827),
                             ),
-                            onChanged: (v) =>
-                                model.setPeriodRange(v, model.periodEndDate),
                           ),
                         ),
-                        Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: isDark
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFF9CA3AF),
+                        InkWell(
+                          onTap: () => _pickDateFor(
+                              context,
+                              periodStartController,
+                              (s) =>
+                                  model.setPeriodRange(s, model.periodEndDate)),
+                          child: Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: isDark
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFF9CA3AF),
+                          ),
                         ),
                       ],
                     ),
@@ -202,6 +245,12 @@ class _OthersAccountingScreenState extends State<OthersAccountingScreen> {
                         Expanded(
                           child: TextField(
                             controller: periodEndController,
+                            readOnly: true,
+                            onTap: () => _pickDateFor(
+                                context,
+                                periodEndController,
+                                (s) => model.setPeriodRange(
+                                    model.periodStartDate, s)),
                             decoration: InputDecoration(
                               hintText: 'dd-mm-yyyy',
                               hintStyle: TextStyle(
@@ -218,16 +267,21 @@ class _OthersAccountingScreenState extends State<OthersAccountingScreen> {
                                   ? const Color(0xFFF9FAFB)
                                   : const Color(0xFF111827),
                             ),
-                            onChanged: (v) =>
-                                model.setPeriodRange(model.periodStartDate, v),
                           ),
                         ),
-                        Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: isDark
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFF9CA3AF),
+                        InkWell(
+                          onTap: () => _pickDateFor(
+                              context,
+                              periodEndController,
+                              (s) => model.setPeriodRange(
+                                  model.periodStartDate, s)),
+                          child: Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: isDark
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFF9CA3AF),
+                          ),
                         ),
                       ],
                     ),
@@ -255,6 +309,9 @@ class _OthersAccountingScreenState extends State<OthersAccountingScreen> {
               Expanded(
                 child: TextField(
                   controller: periodController,
+                  readOnly: true,
+                  onTap: () => _pickDateFor(
+                      context, periodController, (s) => model.setPeriodDate(s)),
                   decoration: InputDecoration(
                     hintText: 'dd-mm-yyyy',
                     hintStyle: TextStyle(
@@ -271,14 +328,18 @@ class _OthersAccountingScreenState extends State<OthersAccountingScreen> {
                         ? const Color(0xFFF9FAFB)
                         : const Color(0xFF111827),
                   ),
-                  onChanged: (v) => model.setPeriodDate(v),
                 ),
               ),
-              Icon(
-                Icons.calendar_today,
-                size: 16,
-                color:
-                    isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF),
+              InkWell(
+                onTap: () => _pickDateFor(
+                    context, periodController, (s) => model.setPeriodDate(s)),
+                child: Icon(
+                  Icons.calendar_today,
+                  size: 16,
+                  color: isDark
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFF9CA3AF),
+                ),
               ),
             ],
           ),

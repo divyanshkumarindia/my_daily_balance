@@ -14,7 +14,6 @@ class AccountingScreen extends StatefulWidget {
 class _AccountingScreenState extends State<AccountingScreen> {
   late AccountingModel model;
 
-  // Local UI state copied from your design
   bool isOpeningBalancesExpanded = true;
   bool isSalaryExpanded = true;
   bool isBusinessIncomeExpanded = false;
@@ -38,12 +37,36 @@ class _AccountingScreenState extends State<AccountingScreen> {
     periodEndController = TextEditingController(text: model.periodEndDate);
   }
 
-  @override
-  void dispose() {
-    periodController.dispose();
-    periodStartController.dispose();
-    periodEndController.dispose();
-    super.dispose();
+  String _formatDate(DateTime d) =>
+      '${d.day.toString().padLeft(2, '0')}-${d.month.toString().padLeft(2, '0')}-${d.year}';
+
+  Future<void> _pickDateFor(BuildContext ctx, TextEditingController controller,
+      Function(String) onSet,
+      {DateTime? initial}) async {
+    final now = DateTime.now();
+    DateTime init = initial ?? now;
+    if (controller.text.isNotEmpty) {
+      try {
+        final parts = controller.text.split('-');
+        if (parts.length == 3) {
+          init = DateTime(
+              int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        }
+      } catch (_) {}
+    }
+    final picked = await showDatePicker(
+      context: ctx,
+      initialDate: init,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      final s = _formatDate(picked);
+      setState(() {
+        controller.text = s;
+      });
+      onSet(s);
+    }
   }
 
   Widget _buildDurationAndPeriod(bool isDark, AccountingModel model) {
@@ -58,7 +81,6 @@ class _AccountingScreenState extends State<AccountingScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox.shrink(),
               Text(
                 'Report Duration',
                 style: TextStyle(
@@ -153,6 +175,12 @@ class _AccountingScreenState extends State<AccountingScreen> {
                         Expanded(
                           child: TextField(
                             controller: periodStartController,
+                            readOnly: true,
+                            onTap: () => _pickDateFor(
+                                context,
+                                periodStartController,
+                                (s) => model.setPeriodRange(
+                                    s, model.periodEndDate)),
                             decoration: InputDecoration(
                               hintText: 'dd-mm-yyyy',
                               hintStyle: TextStyle(
@@ -169,66 +197,84 @@ class _AccountingScreenState extends State<AccountingScreen> {
                                   ? const Color(0xFFF9FAFB)
                                   : const Color(0xFF111827),
                             ),
-                            onChanged: (v) =>
-                                model.setPeriodRange(v, model.periodEndDate),
                           ),
                         ),
-                        Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: isDark
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFF9CA3AF),
+                        InkWell(
+                          onTap: () => _pickDateFor(
+                              context,
+                              periodStartController,
+                              (s) =>
+                                  model.setPeriodRange(s, model.periodEndDate)),
+                          child: Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: isDark
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFF9CA3AF),
+                          ),
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Container(
-                    height: 42,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF374151) : Colors.white,
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF4B5563)
-                            : const Color(0xFFD1D5DB),
-                      ),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      children: [
+                        const SizedBox(width: 8),
                         Expanded(
-                          child: TextField(
-                            controller: periodEndController,
-                            decoration: InputDecoration(
-                              hintText: 'dd-mm-yyyy',
-                              hintStyle: TextStyle(
-                                fontSize: 14,
-                                color: isDark
-                                    ? const Color(0xFF6B7280)
-                                    : const Color(0xFF9CA3AF),
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            style: TextStyle(
-                              fontSize: 14,
+                          child: Container(
+                            height: 42,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
                               color: isDark
-                                  ? const Color(0xFFF9FAFB)
-                                  : const Color(0xFF111827),
+                                  ? const Color(0xFF374151)
+                                  : Colors.white,
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF4B5563)
+                                    : const Color(0xFFD1D5DB),
+                              ),
+                              borderRadius: BorderRadius.circular(6),
                             ),
-                            onChanged: (v) =>
-                                model.setPeriodRange(model.periodStartDate, v),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: periodEndController,
+                                    readOnly: true,
+                                    onTap: () => _pickDateFor(
+                                        context,
+                                        periodEndController,
+                                        (s) => model.setPeriodRange(
+                                            model.periodStartDate, s)),
+                                    decoration: InputDecoration(
+                                      hintText: 'dd-mm-yyyy',
+                                      hintStyle: TextStyle(
+                                        fontSize: 14,
+                                        color: isDark
+                                            ? const Color(0xFF6B7280)
+                                            : const Color(0xFF9CA3AF),
+                                      ),
+                                      border: InputBorder.none,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: isDark
+                                          ? const Color(0xFFF9FAFB)
+                                          : const Color(0xFF111827),
+                                    ),
+                                  ),
+                                ),
+                                InkWell(
+                                  onTap: () => _pickDateFor(
+                                      context,
+                                      periodEndController,
+                                      (s) => model.setPeriodRange(
+                                          model.periodStartDate, s)),
+                                  child: Icon(
+                                    Icons.calendar_today,
+                                    size: 16,
+                                    color: isDark
+                                        ? const Color(0xFF6B7280)
+                                        : const Color(0xFF9CA3AF),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        Icon(
-                          Icons.calendar_today,
-                          size: 16,
-                          color: isDark
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFF9CA3AF),
                         ),
                       ],
                     ),
@@ -256,6 +302,9 @@ class _AccountingScreenState extends State<AccountingScreen> {
               Expanded(
                 child: TextField(
                   controller: periodController,
+                  readOnly: true,
+                  onTap: () => _pickDateFor(
+                      context, periodController, (s) => model.setPeriodDate(s)),
                   decoration: InputDecoration(
                     hintText: 'dd-mm-yyyy',
                     hintStyle: TextStyle(
@@ -275,11 +324,16 @@ class _AccountingScreenState extends State<AccountingScreen> {
                   onChanged: (v) => model.setPeriodDate(v),
                 ),
               ),
-              Icon(
-                Icons.calendar_today,
-                size: 16,
-                color:
-                    isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF),
+              InkWell(
+                onTap: () => _pickDateFor(
+                    context, periodController, (s) => model.setPeriodDate(s)),
+                child: Icon(
+                  Icons.calendar_today,
+                  size: 16,
+                  color: isDark
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFF9CA3AF),
+                ),
               ),
             ],
           ),
@@ -297,7 +351,6 @@ class _AccountingScreenState extends State<AccountingScreen> {
               child: durationDropdown(full),
             ),
             const SizedBox(height: 12),
-            // show period below for Weekly/Monthly/Yearly — use two inputs for these
             (model.duration == DurationType.Weekly ||
                     model.duration == DurationType.Monthly ||
                     model.duration == DurationType.Yearly)
@@ -307,7 +360,6 @@ class _AccountingScreenState extends State<AccountingScreen> {
         );
       }
 
-      // default: side-by-side
       return Row(
         children: [
           AnimatedContainer(
