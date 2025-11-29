@@ -98,23 +98,170 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
           ? DateTimeRange(start: startDate, end: endDate)
           : null,
       builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: Theme.of(context).brightness == Brightness.dark
-                ? const ColorScheme.dark(
-                    primary: Color(0xFF4F46E5),
+            // Enhanced ColorScheme for better visual appeal
+            colorScheme: isDark
+                ? ColorScheme.dark(
+                    primary: const Color(
+                        0xFF6366F1), // Brighter indigo for dark mode
                     onPrimary: Colors.white,
-                    surface: Color(0xFF1F2937),
-                    onSurface: Color(0xFFF9FAFB),
+                    primaryContainer: const Color(0xFF4F46E5),
+                    onPrimaryContainer: Colors.white,
+                    secondary: const Color(0xFF818CF8),
+                    surface: const Color(0xFF1F2937),
+                    onSurface: const Color(0xFFF9FAFB),
+                    surfaceVariant: const Color(0xFF374151),
+                    onSurfaceVariant: const Color(0xFF9CA3AF),
+                    outline: const Color(0xFF4B5563),
                   )
-                : const ColorScheme.light(
-                    primary: Color(0xFF4F46E5),
+                : ColorScheme.light(
+                    primary: const Color(0xFF4F46E5),
                     onPrimary: Colors.white,
+                    primaryContainer: const Color(0xFFEEF2FF),
+                    onPrimaryContainer: const Color(0xFF312E81),
+                    secondary: const Color(0xFF6366F1),
                     surface: Colors.white,
-                    onSurface: Color(0xFF111827),
+                    onSurface: const Color(0xFF111827),
+                    surfaceVariant: const Color(0xFFF3F4F6),
+                    onSurfaceVariant: const Color(0xFF6B7280),
+                    outline: const Color(0xFFD1D5DB),
                   ),
+            // Dialog theme with better styling
+            dialogTheme: DialogThemeData(
+              backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 12,
+            ),
+            // Comprehensive DatePickerTheme
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              headerBackgroundColor: const Color(0xFF4F46E5),
+              headerForegroundColor: Colors.white,
+              headerHeadlineStyle: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              headerHelpStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+              weekdayStyle: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color:
+                    isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+              ),
+              dayStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color:
+                    isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827),
+              ),
+              dayForegroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Colors.white;
+                }
+                if (states.contains(MaterialState.disabled)) {
+                  return isDark
+                      ? const Color(0xFF4B5563)
+                      : const Color(0xFFD1D5DB);
+                }
+                return isDark
+                    ? const Color(0xFFF9FAFB)
+                    : const Color(0xFF111827);
+              }),
+              dayBackgroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return const Color(0xFF4F46E5);
+                }
+                return Colors.transparent;
+              }),
+              todayForegroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Colors.white;
+                }
+                return const Color(0xFF4F46E5);
+              }),
+              todayBackgroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return const Color(0xFF4F46E5);
+                }
+                return Colors.transparent;
+              }),
+              todayBorder: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+              yearStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color:
+                    isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827),
+              ),
+              yearForegroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return Colors.white;
+                }
+                return isDark
+                    ? const Color(0xFFF9FAFB)
+                    : const Color(0xFF111827);
+              }),
+              yearBackgroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected)) {
+                  return const Color(0xFF4F46E5);
+                }
+                return Colors.transparent;
+              }),
+              rangePickerBackgroundColor:
+                  isDark ? const Color(0xFF1F2937) : Colors.white,
+              rangePickerHeaderBackgroundColor: const Color(0xFF4F46E5),
+              rangePickerHeaderForegroundColor: Colors.white,
+              rangeSelectionBackgroundColor:
+                  const Color(0xFF4F46E5).withOpacity(0.15),
+              rangeSelectionOverlayColor: MaterialStateProperty.all(
+                const Color(0xFF4F46E5).withOpacity(0.08),
+              ),
+              dividerColor:
+                  isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+            ),
+            // Text button theme for action buttons
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF4F46E5),
+                textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
           ),
-          child: child!,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 480,
+                  maxHeight: 520,
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: child!,
+                  ),
+                ),
+              ),
+            ),
+          ),
         );
       },
     );
@@ -220,7 +367,7 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
               onTap: () => _pickDateRange(context),
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: isDark ? const Color(0xFF374151) : Colors.white,
                   border: Border.all(
@@ -267,6 +414,7 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
                         ],
                       ),
                     ),
+                    const SizedBox(width: 12),
                     Icon(
                       Icons.arrow_forward,
                       size: 16,
@@ -274,7 +422,7 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
                           ? const Color(0xFF6B7280)
                           : const Color(0xFF9CA3AF),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -310,7 +458,7 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
                         ],
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 16),
                     Icon(
                       Icons.calendar_today,
                       size: 18,
