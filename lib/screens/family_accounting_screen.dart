@@ -40,9 +40,21 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
   String _formatDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}-${d.month.toString().padLeft(2, '0')}-${d.year}';
 
+  DateTime? _parseDate(String s) {
+    if (s.isEmpty) return null;
+    try {
+      final parts = s.split('-');
+      if (parts.length == 3) {
+        return DateTime(
+            int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      }
+    } catch (_) {}
+    return null;
+  }
+
   Future<void> _pickDateFor(BuildContext ctx, TextEditingController controller,
       Function(String) onSet,
-      {DateTime? initial}) async {
+      {DateTime? initial, DateTime? firstDate, DateTime? lastDate}) async {
     final now = DateTime.now();
     DateTime init = initial ?? now;
     if (controller.text.isNotEmpty) {
@@ -54,11 +66,16 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
         }
       } catch (_) {}
     }
+
+    // clamp initial into bounds if provided
+    if (firstDate != null && init.isBefore(firstDate)) init = firstDate;
+    if (lastDate != null && init.isAfter(lastDate)) init = lastDate;
+
     final picked = await showDatePicker(
       context: ctx,
       initialDate: init,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: firstDate ?? DateTime(2000),
+      lastDate: lastDate ?? DateTime(2100),
     );
     if (picked != null) {
       final s = _formatDate(picked);
@@ -158,124 +175,185 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
             Row(
               children: [
                 Expanded(
-                  child: Container(
-                    height: 42,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF374151) : Colors.white,
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF4B5563)
-                            : const Color(0xFFD1D5DB),
-                      ),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: periodStartController,
-                            readOnly: true,
-                            onTap: () => _pickDateFor(
-                                context,
-                                periodStartController,
-                                (s) => model.setPeriodRange(
-                                    s, model.periodEndDate)),
-                            decoration: InputDecoration(
-                              hintText: 'dd-mm-yyyy',
-                              hintStyle: TextStyle(
-                                fontSize: 14,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 42,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color:
+                              isDark ? const Color(0xFF374151) : Colors.white,
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF4B5563)
+                                : const Color(0xFFD1D5DB),
+                          ),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: periodStartController,
+                                readOnly: true,
+                                onTap: () {
+                                  final end = _parseDate(model.periodEndDate);
+                                  final DateTime? last = end != null
+                                      ? end.subtract(const Duration(days: 1))
+                                      : null;
+                                  _pickDateFor(
+                                      context,
+                                      periodStartController,
+                                      (s) => model.setPeriodRange(
+                                          s, model.periodEndDate),
+                                      lastDate: last);
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'dd-mm-yyyy',
+                                  hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    color: isDark
+                                        ? const Color(0xFF6B7280)
+                                        : const Color(0xFF9CA3AF),
+                                  ),
+                                  border: InputBorder.none,
+                                ),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark
+                                      ? const Color(0xFFF9FAFB)
+                                      : const Color(0xFF111827),
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                final end = _parseDate(model.periodEndDate);
+                                final DateTime? last = end != null
+                                    ? end.subtract(const Duration(days: 1))
+                                    : null;
+                                _pickDateFor(
+                                    context,
+                                    periodStartController,
+                                    (s) => model.setPeriodRange(
+                                        s, model.periodEndDate),
+                                    lastDate: last);
+                              },
+                              child: Icon(
+                                Icons.calendar_today,
+                                size: 16,
                                 color: isDark
                                     ? const Color(0xFF6B7280)
                                     : const Color(0xFF9CA3AF),
                               ),
-                              border: InputBorder.none,
                             ),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark
-                                  ? const Color(0xFFF9FAFB)
-                                  : const Color(0xFF111827),
-                            ),
-                          ),
+                          ],
                         ),
-                        InkWell(
-                          onTap: () => _pickDateFor(
-                              context,
-                              periodStartController,
-                              (s) =>
-                                  model.setPeriodRange(s, model.periodEndDate)),
-                          child: Icon(
-                            Icons.calendar_today,
-                            size: 16,
-                            color: isDark
-                                ? const Color(0xFF6B7280)
-                                : const Color(0xFF9CA3AF),
-                          ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Start date',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? const Color(0xFF9CA3AF)
+                              : const Color(0xFF6B7280),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: Container(
-                    height: 42,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF374151) : Colors.white,
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF4B5563)
-                            : const Color(0xFFD1D5DB),
-                      ),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: periodEndController,
-                            readOnly: true,
-                            onTap: () => _pickDateFor(
-                                context,
-                                periodEndController,
-                                (s) => model.setPeriodRange(
-                                    model.periodStartDate, s)),
-                            decoration: InputDecoration(
-                              hintText: 'dd-mm-yyyy',
-                              hintStyle: TextStyle(
-                                fontSize: 14,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 42,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color:
+                              isDark ? const Color(0xFF374151) : Colors.white,
+                          border: Border.all(
+                            color: isDark
+                                ? const Color(0xFF4B5563)
+                                : const Color(0xFFD1D5DB),
+                          ),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: periodEndController,
+                                readOnly: true,
+                                onTap: () {
+                                  final start =
+                                      _parseDate(model.periodStartDate);
+                                  final DateTime? first = start != null
+                                      ? start.add(const Duration(days: 1))
+                                      : null;
+                                  _pickDateFor(
+                                      context,
+                                      periodEndController,
+                                      (s) => model.setPeriodRange(
+                                          model.periodStartDate, s),
+                                      firstDate: first);
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'dd-mm-yyyy',
+                                  hintStyle: TextStyle(
+                                    fontSize: 14,
+                                    color: isDark
+                                        ? const Color(0xFF6B7280)
+                                        : const Color(0xFF9CA3AF),
+                                  ),
+                                  border: InputBorder.none,
+                                ),
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark
+                                      ? const Color(0xFFF9FAFB)
+                                      : const Color(0xFF111827),
+                                ),
+                              ),
+                            ),
+                            InkWell(
+                              onTap: () {
+                                final start = _parseDate(model.periodStartDate);
+                                final DateTime? first = start != null
+                                    ? start.add(const Duration(days: 1))
+                                    : null;
+                                _pickDateFor(
+                                    context,
+                                    periodEndController,
+                                    (s) => model.setPeriodRange(
+                                        model.periodStartDate, s),
+                                    firstDate: first);
+                              },
+                              child: Icon(
+                                Icons.calendar_today,
+                                size: 16,
                                 color: isDark
                                     ? const Color(0xFF6B7280)
                                     : const Color(0xFF9CA3AF),
                               ),
-                              border: InputBorder.none,
                             ),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark
-                                  ? const Color(0xFFF9FAFB)
-                                  : const Color(0xFF111827),
-                            ),
-                          ),
+                          ],
                         ),
-                        InkWell(
-                          onTap: () => _pickDateFor(
-                              context,
-                              periodEndController,
-                              (s) => model.setPeriodRange(
-                                  model.periodStartDate, s)),
-                          child: Icon(
-                            Icons.calendar_today,
-                            size: 16,
-                            color: isDark
-                                ? const Color(0xFF6B7280)
-                                : const Color(0xFF9CA3AF),
-                          ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'End date',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: isDark
+                              ? const Color(0xFF9CA3AF)
+                              : const Color(0xFF6B7280),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
