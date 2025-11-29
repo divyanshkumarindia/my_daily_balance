@@ -3,10 +3,8 @@ import 'package:provider/provider.dart';
 import 'theme.dart';
 import 'screens/index_screen.dart';
 import 'screens/accounting_screen.dart';
-import 'screens/family_accounting_screen.dart';
-import 'screens/business_accounting_screen.dart';
-import 'screens/institute_accounting_screen.dart';
-import 'screens/others_accounting_screen.dart';
+import 'screens/accounting_template_screen.dart';
+// legacy per-template screens left in the repo; routes now use the shared template screen
 import 'state/accounting_model.dart';
 import 'models/accounting.dart';
 
@@ -31,11 +29,10 @@ class MyApp extends StatelessWidget {
           '/': (context) => const IndexScreen(),
           '/accounting': (context) => const AccountingScreen(),
           // Separate routes per use case
-          '/accounting/family': (context) => const FamilyAccountingScreen(),
-          '/accounting/business': (context) => const BusinessAccountingScreen(),
-          '/accounting/institute': (context) =>
-              const InstituteAccountingScreen(),
-          '/accounting/other': (context) => const OthersAccountingScreen(),
+      '/accounting/family': (context) => const AccountingTemplateScreen(templateKey: 'family'),
+      '/accounting/business': (context) => const AccountingTemplateScreen(templateKey: 'business'),
+      '/accounting/institute': (context) => const AccountingTemplateScreen(templateKey: 'institute'),
+      '/accounting/other': (context) => const AccountingTemplateScreen(templateKey: 'other'),
         },
       ),
     );

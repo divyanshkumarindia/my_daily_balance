@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../state/accounting_model.dart';
 import '../models/accounting.dart';
+import '../services/recent_service.dart';
+import '../config/accounting_templates.dart';
 // Note: intentionally not importing subscription_plans or theme to keep this file focused on UI only
 
 class IndexScreen extends StatefulWidget {
@@ -30,6 +32,40 @@ class _IndexScreenState extends State<IndexScreen> {
   void initState() {
     super.initState();
     _loadPageTitles();
+    _loadRecents();
+  }
+
+  List<RecentPage> _recents = [];
+
+  Future<void> _loadRecents() async {
+    final list = await RecentService.listRecent();
+    if (mounted) setState(() => _recents = list);
+  }
+
+  UserType _userTypeForTemplate(String key) {
+    switch (key) {
+      case 'family':
+        return UserType.personal;
+      case 'business':
+        return UserType.business;
+      case 'institute':
+        return UserType.institute;
+      default:
+        return UserType.other;
+    }
+  }
+
+  String _routeForTemplate(String key) {
+    switch (key) {
+      case 'family':
+        return '/accounting/family';
+      case 'business':
+        return '/accounting/business';
+      case 'institute':
+        return '/accounting/institute';
+      default:
+        return '/accounting/other';
+    }
   }
 
   Future<void> _loadPageTitles() async {
@@ -195,7 +231,7 @@ class _IndexScreenState extends State<IndexScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Description Field
+                        // Description Field
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -246,6 +282,7 @@ class _IndexScreenState extends State<IndexScreen> {
                                   await Navigator.pushNamed(context, route,
                                       arguments: model);
                                   await _loadPageTitles();
+                                  await _loadRecents();
                                 },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF6366F1),
@@ -270,7 +307,69 @@ class _IndexScreenState extends State<IndexScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Footer Features
+                  // Recent Snapshots
+                  if (_recents.isNotEmpty) ...[
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Recent Snapshots',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 600),
+                      child: Column(
+                        children: _recents.map((r) {
+                          final tpl = defaultTemplates[r.templateKey];
+                          final dt = DateTime.fromMillisecondsSinceEpoch(r.timestamp);
+                          return Card(
+                            child: ListTile(
+                              title: Text(r.displayTitle),
+                              subtitle: Text('${tpl?.friendlyName ?? r.templateKey} • ${dt.toLocal()}'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      // restore and open
+                                      final ut = _userTypeForTemplate(r.templateKey);
+                                      final model = AccountingModel(userType: ut);
+                                      // apply snapshot fields
+                                      final st = r.state;
+                                      model.pageTitle = (st['pageTitle'] ?? '') as String?;
+                                      model.periodDate = (st['periodDate'] ?? '') as String;
+                                      model.periodStartDate = (st['periodStartDate'] ?? '') as String;
+                                      model.periodEndDate = (st['periodEndDate'] ?? '') as String;
+                                      final route = _routeForTemplate(r.templateKey);
+                                      await Navigator.pushNamed(context, route, arguments: model);
+                                      await _loadPageTitles();
+                                      await _loadRecents();
+                                    },
+                                    child: const Text('Open'),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete_outline),
+                                    onPressed: () async {
+                                      await RecentService.deleteRecent(r.id);
+                                      await _loadRecents();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Footer Features
                 Container(
                   constraints: const BoxConstraints(maxWidth: 600),
                   child: Row(
