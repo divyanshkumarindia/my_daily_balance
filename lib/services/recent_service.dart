@@ -8,7 +8,12 @@ class RecentPage {
   final int timestamp;
   final Map<String, dynamic> state;
 
-  RecentPage({required this.id, required this.templateKey, required this.displayTitle, required this.timestamp, required this.state});
+  RecentPage(
+      {required this.id,
+      required this.templateKey,
+      required this.displayTitle,
+      required this.timestamp,
+      required this.state});
 
   Map<String, dynamic> toJson() => {
         'id': id,
@@ -37,7 +42,9 @@ class RecentService {
     if (raw == null || raw.isEmpty) return [];
     try {
       final List<dynamic> arr = json.decode(raw);
-      return arr.map((e) => RecentPage.fromJson(Map<String, dynamic>.from(e))).toList();
+      return arr
+          .map((e) => RecentPage.fromJson(Map<String, dynamic>.from(e)))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -46,7 +53,9 @@ class RecentService {
   static Future<void> saveRecent(RecentPage p) async {
     final list = await listRecent();
     // prevent too many duplicates: if top item same template and within 30s, replace
-    if (list.isNotEmpty && list.first.templateKey == p.templateKey && (p.timestamp - list.first.timestamp).abs() < 30000) {
+    if (list.isNotEmpty &&
+        list.first.templateKey == p.templateKey &&
+        (p.timestamp - list.first.timestamp).abs() < 30000) {
       list[0] = p;
     } else {
       list.insert(0, p);

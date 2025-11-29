@@ -7,12 +7,13 @@ import 'family_accounting_screen.dart';
 /// keyed screen. If you prefer a full copy of the file (duplicate source),
 /// I can paste the entire family file into this file instead.
 class AccountingTemplateScreen extends StatelessWidget {
-	final String templateKey;
-	const AccountingTemplateScreen({Key? key, required this.templateKey}) : super(key: key);
+  final String templateKey;
+  const AccountingTemplateScreen({Key? key, required this.templateKey})
+      : super(key: key);
 
-	@override
-	Widget build(BuildContext context) {
-		// For now, delegate to FamilyAccountingScreen to guarantee identical UI.
-		return const FamilyAccountingScreen();
-	}
+  @override
+  Widget build(BuildContext context) {
+    // For now, delegate to FamilyAccountingScreen to guarantee identical UI.
+    return const FamilyAccountingScreen();
+  }
 }

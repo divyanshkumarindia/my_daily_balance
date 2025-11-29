@@ -29,10 +29,14 @@ class MyApp extends StatelessWidget {
           '/': (context) => const IndexScreen(),
           '/accounting': (context) => const AccountingScreen(),
           // Separate routes per use case
-      '/accounting/family': (context) => const AccountingTemplateScreen(templateKey: 'family'),
-      '/accounting/business': (context) => const AccountingTemplateScreen(templateKey: 'business'),
-      '/accounting/institute': (context) => const AccountingTemplateScreen(templateKey: 'institute'),
-      '/accounting/other': (context) => const AccountingTemplateScreen(templateKey: 'other'),
+          '/accounting/family': (context) =>
+              const AccountingTemplateScreen(templateKey: 'family'),
+          '/accounting/business': (context) =>
+              const AccountingTemplateScreen(templateKey: 'business'),
+          '/accounting/institute': (context) =>
+              const AccountingTemplateScreen(templateKey: 'institute'),
+          '/accounting/other': (context) =>
+              const AccountingTemplateScreen(templateKey: 'other'),
         },
       ),
     );

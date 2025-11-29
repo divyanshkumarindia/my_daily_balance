@@ -231,7 +231,7 @@ class _IndexScreenState extends State<IndexScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                        // Description Field
+                      // Description Field
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -307,69 +307,78 @@ class _IndexScreenState extends State<IndexScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                  // Recent Snapshots
-                  if (_recents.isNotEmpty) ...[
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Recent Snapshots',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF0F172A),
-                        ),
+                // Recent Snapshots
+                if (_recents.isNotEmpty) ...[
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Recent Snapshots',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Container(
-                      constraints: const BoxConstraints(maxWidth: 600),
-                      child: Column(
-                        children: _recents.map((r) {
-                          final tpl = defaultTemplates[r.templateKey];
-                          final dt = DateTime.fromMillisecondsSinceEpoch(r.timestamp);
-                          return Card(
-                            child: ListTile(
-                              title: Text(r.displayTitle),
-                              subtitle: Text('${tpl?.friendlyName ?? r.templateKey} • ${dt.toLocal()}'),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  TextButton(
-                                    onPressed: () async {
-                                      // restore and open
-                                      final ut = _userTypeForTemplate(r.templateKey);
-                                      final model = AccountingModel(userType: ut);
-                                      // apply snapshot fields
-                                      final st = r.state;
-                                      model.pageTitle = (st['pageTitle'] ?? '') as String?;
-                                      model.periodDate = (st['periodDate'] ?? '') as String;
-                                      model.periodStartDate = (st['periodStartDate'] ?? '') as String;
-                                      model.periodEndDate = (st['periodEndDate'] ?? '') as String;
-                                      final route = _routeForTemplate(r.templateKey);
-                                      await Navigator.pushNamed(context, route, arguments: model);
-                                      await _loadPageTitles();
-                                      await _loadRecents();
-                                    },
-                                    child: const Text('Open'),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete_outline),
-                                    onPressed: () async {
-                                      await RecentService.deleteRecent(r.id);
-                                      await _loadRecents();
-                                    },
-                                  ),
-                                ],
-                              ),
+                  ),
+                  const SizedBox(height: 12),
+                  Container(
+                    constraints: const BoxConstraints(maxWidth: 600),
+                    child: Column(
+                      children: _recents.map((r) {
+                        final tpl = defaultTemplates[r.templateKey];
+                        final dt =
+                            DateTime.fromMillisecondsSinceEpoch(r.timestamp);
+                        return Card(
+                          child: ListTile(
+                            title: Text(r.displayTitle),
+                            subtitle: Text(
+                                '${tpl?.friendlyName ?? r.templateKey} • ${dt.toLocal()}'),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextButton(
+                                  onPressed: () async {
+                                    // restore and open
+                                    final ut =
+                                        _userTypeForTemplate(r.templateKey);
+                                    final model = AccountingModel(userType: ut);
+                                    // apply snapshot fields
+                                    final st = r.state;
+                                    model.pageTitle =
+                                        (st['pageTitle'] ?? '') as String?;
+                                    model.periodDate =
+                                        (st['periodDate'] ?? '') as String;
+                                    model.periodStartDate =
+                                        (st['periodStartDate'] ?? '') as String;
+                                    model.periodEndDate =
+                                        (st['periodEndDate'] ?? '') as String;
+                                    final route =
+                                        _routeForTemplate(r.templateKey);
+                                    await Navigator.pushNamed(context, route,
+                                        arguments: model);
+                                    await _loadPageTitles();
+                                    await _loadRecents();
+                                  },
+                                  child: const Text('Open'),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete_outline),
+                                  onPressed: () async {
+                                    await RecentService.deleteRecent(r.id);
+                                    await _loadRecents();
+                                  },
+                                ),
+                              ],
                             ),
-                          );
-                        }).toList(),
-                      ),
+                          ),
+                        );
+                      }).toList(),
                     ),
-                    const SizedBox(height: 24),
-                  ],
+                  ),
+                  const SizedBox(height: 24),
+                ],
 
-                  // Footer Features
+                // Footer Features
                 Container(
                   constraints: const BoxConstraints(maxWidth: 600),
                   child: Row(
