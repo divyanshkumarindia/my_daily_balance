@@ -52,6 +52,13 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
     return null;
   }
 
+  String _weekdayAbbrev(String s) {
+    final d = _parseDate(s);
+    if (d == null) return '';
+    const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return names[d.weekday - 1];
+  }
+
   Future<void> _pickDateFor(BuildContext ctx, TextEditingController controller,
       Function(String) onSet,
       {DateTime? initial, DateTime? firstDate, DateTime? lastDate}) async {
@@ -353,14 +360,31 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Select Period',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color:
-                    isDark ? const Color(0xFFD1D5DB) : const Color(0xFF374151),
-              ),
+            Row(
+              children: [
+                Text(
+                  'Select Period',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? const Color(0xFFD1D5DB) : const Color(0xFF374151),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(Icons.clear, size: 18, color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280)),
+                  tooltip: 'Clear selected dates',
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                  onPressed: () {
+                    setState(() {
+                      periodStartController.clear();
+                      periodEndController.clear();
+                    });
+                    model.setPeriodRange('', '');
+                  },
+                ),
+              ],
             ),
             const SizedBox(height: 4),
             InkWell(
@@ -386,7 +410,7 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
                           Text(
                             periodStartController.text.isEmpty
                                 ? 'Start date'
-                                : periodStartController.text,
+                                : '${_weekdayAbbrev(periodStartController.text)}, ${periodStartController.text}',
                             style: TextStyle(
                               fontSize: 14,
                               color: periodStartController.text.isEmpty
@@ -430,7 +454,7 @@ class _FamilyAccountingScreenState extends State<FamilyAccountingScreen> {
                           Text(
                             periodEndController.text.isEmpty
                                 ? 'End date'
-                                : periodEndController.text,
+                                : '${_weekdayAbbrev(periodEndController.text)}, ${periodEndController.text}',
                             style: TextStyle(
                               fontSize: 14,
                               color: periodEndController.text.isEmpty
