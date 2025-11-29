@@ -41,9 +41,28 @@ class _BusinessAccountingScreenState extends State<BusinessAccountingScreen> {
   String _formatDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}-${d.month.toString().padLeft(2, '0')}-${d.year}';
 
+  DateTime? _parseDate(String s) {
+    if (s.isEmpty) return null;
+    try {
+      final parts = s.split('-');
+      if (parts.length == 3) {
+        return DateTime(
+            int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  String _weekdayAbbrev(String s) {
+    final d = _parseDate(s);
+    if (d == null) return '';
+    const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    return names[d.weekday - 1];
+  }
+
   Future<void> _pickDateFor(BuildContext ctx, TextEditingController controller,
       Function(String) onSet,
-      {DateTime? initial}) async {
+      {DateTime? initial, DateTime? firstDate, DateTime? lastDate}) async {
     final now = DateTime.now();
     DateTime init = initial ?? now;
     if (controller.text.isNotEmpty) {
@@ -55,11 +74,16 @@ class _BusinessAccountingScreenState extends State<BusinessAccountingScreen> {
         }
       } catch (_) {}
     }
+
+    // clamp initial into bounds if provided
+    if (firstDate != null && init.isBefore(firstDate)) init = firstDate;
+    if (lastDate != null && init.isAfter(lastDate)) init = lastDate;
+
     final picked = await showDatePicker(
       context: ctx,
       initialDate: init,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
+      firstDate: firstDate ?? DateTime(2000),
+      lastDate: lastDate ?? DateTime(2100),
     );
     if (picked != null) {
       final s = _formatDate(picked);
@@ -67,6 +91,184 @@ class _BusinessAccountingScreenState extends State<BusinessAccountingScreen> {
         controller.text = s;
       });
       onSet(s);
+    }
+  }
+
+  Future<void> _pickDateRange(BuildContext ctx) async {
+    final startDate = _parseDate(model.periodStartDate);
+    final endDate = _parseDate(model.periodEndDate);
+
+    final picked = await showDateRangePicker(
+      context: ctx,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      initialDateRange: (startDate != null && endDate != null)
+          ? DateTimeRange(start: startDate, end: endDate)
+          : null,
+      builder: (context, child) {
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: isDark
+                ? ColorScheme.dark(
+                    primary: const Color(0xFF6366F1),
+                    onPrimary: Colors.white,
+                    primaryContainer: const Color(0xFF4F46E5),
+                    onPrimaryContainer: Colors.white,
+                    secondary: const Color(0xFF818CF8),
+                    surface: const Color(0xFF1F2937),
+                    onSurface: const Color(0xFFF9FAFB),
+                    surfaceVariant: const Color(0xFF374151),
+                    onSurfaceVariant: const Color(0xFF9CA3AF),
+                    outline: const Color(0xFF4B5563),
+                  )
+                : ColorScheme.light(
+                    primary: const Color(0xFF4F46E5),
+                    onPrimary: Colors.white,
+                    primaryContainer: const Color(0xFFEEF2FF),
+                    onPrimaryContainer: const Color(0xFF312E81),
+                    secondary: const Color(0xFF6366F1),
+                    surface: Colors.white,
+                    onSurface: const Color(0xFF111827),
+                    surfaceVariant: const Color(0xFFF3F4F6),
+                    onSurfaceVariant: const Color(0xFF6B7280),
+                    outline: const Color(0xFFD1D5DB),
+                  ),
+            dialogTheme: DialogThemeData(
+              backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              elevation: 12,
+            ),
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              headerBackgroundColor: const Color(0xFF4F46E5),
+              headerForegroundColor: Colors.white,
+              headerHeadlineStyle: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              headerHelpStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+              weekdayStyle: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color:
+                    isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+              ),
+              dayStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color:
+                    isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827),
+              ),
+              dayForegroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected))
+                  return Colors.white;
+                if (states.contains(MaterialState.disabled))
+                  return isDark
+                      ? const Color(0xFF4B5563)
+                      : const Color(0xFFD1D5DB);
+                return isDark
+                    ? const Color(0xFFF9FAFB)
+                    : const Color(0xFF111827);
+              }),
+              dayBackgroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected))
+                  return const Color(0xFF4F46E5);
+                return Colors.transparent;
+              }),
+              todayForegroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected))
+                  return Colors.white;
+                return const Color(0xFF4F46E5);
+              }),
+              todayBackgroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected))
+                  return const Color(0xFF4F46E5);
+                return Colors.transparent;
+              }),
+              todayBorder: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+              yearStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color:
+                    isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827),
+              ),
+              yearForegroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected))
+                  return Colors.white;
+                return isDark
+                    ? const Color(0xFFF9FAFB)
+                    : const Color(0xFF111827);
+              }),
+              yearBackgroundColor: MaterialStateProperty.resolveWith((states) {
+                if (states.contains(MaterialState.selected))
+                  return const Color(0xFF4F46E5);
+                return Colors.transparent;
+              }),
+              rangePickerBackgroundColor:
+                  isDark ? const Color(0xFF1F2937) : Colors.white,
+              rangePickerHeaderBackgroundColor: const Color(0xFF4F46E5),
+              rangePickerHeaderForegroundColor: Colors.white,
+              rangeSelectionBackgroundColor:
+                  const Color(0xFF4F46E5).withOpacity(0.15),
+              rangeSelectionOverlayColor: MaterialStateProperty.all(
+                  const Color(0xFF4F46E5).withOpacity(0.08)),
+              dividerColor:
+                  isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: const Color(0xFF4F46E5),
+                textStyle: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+            ),
+          ),
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 480,
+                  maxHeight: 520,
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: child!,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+
+    if (picked != null) {
+      final startStr = _formatDate(picked.start);
+      final endStr = _formatDate(picked.end);
+      setState(() {
+        periodStartController.text = startStr;
+        periodEndController.text = endStr;
+      });
+      model.setPeriodRange(startStr, endStr);
     }
   }
 
@@ -146,140 +348,145 @@ class _BusinessAccountingScreenState extends State<BusinessAccountingScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Select Period',
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color:
-                    isDark ? const Color(0xFFD1D5DB) : const Color(0xFF374151),
-              ),
-            ),
-            const SizedBox(height: 4),
             Row(
               children: [
-                Expanded(
-                  child: Container(
-                    height: 42,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF374151) : Colors.white,
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF4B5563)
-                            : const Color(0xFFD1D5DB),
-                      ),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: periodStartController,
-                            readOnly: true,
-                            onTap: () => _pickDateFor(
-                                context,
-                                periodStartController,
-                                (s) => model.setPeriodRange(
-                                    s, model.periodEndDate)),
-                            decoration: InputDecoration(
-                              hintText: 'dd-mm-yyyy',
-                              hintStyle: TextStyle(
-                                fontSize: 14,
-                                color: isDark
-                                    ? const Color(0xFF6B7280)
-                                    : const Color(0xFF9CA3AF),
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark
-                                  ? const Color(0xFFF9FAFB)
-                                  : const Color(0xFF111827),
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () => _pickDateFor(
-                              context,
-                              periodStartController,
-                              (s) =>
-                                  model.setPeriodRange(s, model.periodEndDate)),
-                          child: Icon(
-                            Icons.calendar_today,
-                            size: 16,
-                            color: isDark
-                                ? const Color(0xFF6B7280)
-                                : const Color(0xFF9CA3AF),
-                          ),
-                        ),
-                      ],
-                    ),
+                Text(
+                  'Select Period',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: isDark
+                        ? const Color(0xFFD1D5DB)
+                        : const Color(0xFF374151),
                   ),
                 ),
                 const SizedBox(width: 8),
-                Expanded(
-                  child: Container(
-                    height: 42,
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: isDark ? const Color(0xFF374151) : Colors.white,
-                      border: Border.all(
-                        color: isDark
-                            ? const Color(0xFF4B5563)
-                            : const Color(0xFFD1D5DB),
-                      ),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: periodEndController,
-                            readOnly: true,
-                            onTap: () => _pickDateFor(
-                                context,
-                                periodEndController,
-                                (s) => model.setPeriodRange(
-                                    model.periodStartDate, s)),
-                            decoration: InputDecoration(
-                              hintText: 'dd-mm-yyyy',
-                              hintStyle: TextStyle(
-                                fontSize: 14,
-                                color: isDark
-                                    ? const Color(0xFF6B7280)
-                                    : const Color(0xFF9CA3AF),
-                              ),
-                              border: InputBorder.none,
-                            ),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isDark
-                                  ? const Color(0xFFF9FAFB)
-                                  : const Color(0xFF111827),
-                            ),
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () => _pickDateFor(
-                              context,
-                              periodEndController,
-                              (s) => model.setPeriodRange(
-                                  model.periodStartDate, s)),
-                          child: Icon(
-                            Icons.calendar_today,
-                            size: 16,
-                            color: isDark
-                                ? const Color(0xFF6B7280)
-                                : const Color(0xFF9CA3AF),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                IconButton(
+                  icon: Icon(Icons.clear,
+                      size: 18,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280)),
+                  tooltip: 'Clear selected dates',
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                  onPressed: () {
+                    setState(() {
+                      periodStartController.clear();
+                      periodEndController.clear();
+                    });
+                    model.setPeriodRange('', '');
+                  },
                 ),
               ],
+            ),
+            const SizedBox(height: 4),
+            InkWell(
+              onTap: () => _pickDateRange(context),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF374151) : Colors.white,
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF4B5563)
+                        : const Color(0xFFD1D5DB),
+                  ),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            periodStartController.text.isEmpty
+                                ? 'Start date'
+                                : '${_weekdayAbbrev(periodStartController.text)}, ${periodStartController.text}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: periodStartController.text.isEmpty
+                                  ? (isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF))
+                                  : (isDark
+                                      ? const Color(0xFFF9FAFB)
+                                      : const Color(0xFF111827)),
+                            ),
+                          ),
+                          if (periodStartController.text.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                'Start date',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.arrow_forward,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF6B7280)
+                          : const Color(0xFF9CA3AF),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            periodEndController.text.isEmpty
+                                ? 'End date'
+                                : '${_weekdayAbbrev(periodEndController.text)}, ${periodEndController.text}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: periodEndController.text.isEmpty
+                                  ? (isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF))
+                                  : (isDark
+                                      ? const Color(0xFFF9FAFB)
+                                      : const Color(0xFF111827)),
+                            ),
+                          ),
+                          if (periodEndController.text.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                'End date',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Icon(
+                      Icons.calendar_today,
+                      size: 18,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         );
