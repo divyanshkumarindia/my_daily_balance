@@ -141,6 +141,87 @@ class _AccountingFormState extends State<AccountingForm> {
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
+            datePickerTheme: DatePickerThemeData(
+              backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              headerBackgroundColor: const Color(0xFF4F46E5),
+              headerForegroundColor: Colors.white,
+              headerHeadlineStyle: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              headerHelpStyle: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+              weekdayStyle: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color:
+                    isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+              ),
+              dayStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color:
+                    isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827),
+              ),
+              dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return Colors.white;
+                if (states.contains(WidgetState.disabled))
+                  return isDark
+                      ? const Color(0xFF4B5563)
+                      : const Color(0xFFD1D5DB);
+                return isDark
+                    ? const Color(0xFFF9FAFB)
+                    : const Color(0xFF111827);
+              }),
+              dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected))
+                  return const Color(0xFF4F46E5);
+                return Colors.transparent;
+              }),
+              todayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return Colors.white;
+                return const Color(0xFF4F46E5);
+              }),
+              todayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected))
+                  return const Color(0xFF4F46E5);
+                return Colors.transparent;
+              }),
+              todayBorder: const BorderSide(color: Color(0xFF4F46E5), width: 2),
+              yearStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color:
+                    isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827),
+              ),
+              yearForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return Colors.white;
+                return isDark
+                    ? const Color(0xFFF9FAFB)
+                    : const Color(0xFF111827);
+              }),
+              yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected))
+                  return const Color(0xFF4F46E5);
+                return Colors.transparent;
+              }),
+              rangePickerBackgroundColor:
+                  isDark ? const Color(0xFF1F2937) : Colors.white,
+              rangePickerHeaderBackgroundColor: const Color(0xFF4F46E5),
+              rangePickerHeaderForegroundColor: Colors.white,
+              rangeSelectionBackgroundColor: const Color(0x264F46E5),
+              rangeSelectionOverlayColor:
+                  WidgetStateProperty.all(const Color(0x144F46E5)),
+              dividerColor:
+                  isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+            ),
           ),
           child: child!,
         );
@@ -158,6 +239,45 @@ class _AccountingFormState extends State<AccountingForm> {
     }
   }
 
+  Future<void> _pickYear(BuildContext ctx, TextEditingController controller,
+      Function(String) onSet) async {
+    final now = DateTime.now();
+    int initialYear = now.year;
+    if (controller.text.isNotEmpty) {
+      try {
+        initialYear = int.parse(controller.text);
+      } catch (_) {}
+    }
+
+    final pickedYear = await showDialog<int>(
+      context: ctx,
+      builder: (context) {
+        return Dialog(
+          child: SizedBox(
+            width: 320,
+            height: 360,
+            child: YearPicker(
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+              selectedDate: DateTime(initialYear),
+              onChanged: (date) {
+                Navigator.pop(context, date.year);
+              },
+            ),
+          ),
+        );
+      },
+    );
+
+    if (pickedYear != null) {
+      final s = pickedYear.toString();
+      setState(() {
+        controller.text = s;
+      });
+      onSet(s);
+    }
+  }
+
   Widget _buildDurationAndPeriod(bool isDark, AccountingModel model) {
     return DurationPeriodPicker(
       isDark: isDark,
@@ -167,6 +287,7 @@ class _AccountingFormState extends State<AccountingForm> {
       periodEndController: periodEndController,
       pickDateFor: _pickDateFor,
       pickDateRange: _pickDateRange,
+      pickYear: _pickYear,
     );
   }
 
