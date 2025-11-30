@@ -1,0 +1,369 @@
+import 'package:flutter/material.dart';
+import '../../state/accounting_model.dart';
+import '../../models/accounting.dart';
+
+typedef PickDateFor = Future<void> Function(
+    BuildContext, TextEditingController, Function(String),
+    {DateTime? initial, DateTime? firstDate, DateTime? lastDate});
+
+typedef PickDateRange = Future<void> Function(BuildContext);
+
+class DurationPeriodPicker extends StatelessWidget {
+  final bool isDark;
+  final AccountingModel model;
+  final TextEditingController periodController;
+  final TextEditingController periodStartController;
+  final TextEditingController periodEndController;
+  final PickDateFor pickDateFor;
+  final PickDateRange pickDateRange;
+
+  const DurationPeriodPicker({
+    Key? key,
+    required this.isDark,
+    required this.model,
+    required this.periodController,
+    required this.periodStartController,
+    required this.periodEndController,
+    required this.pickDateFor,
+    required this.pickDateRange,
+  }) : super(key: key);
+
+  String _weekdayAbbrev(String s) {
+    if (s.isEmpty) return '';
+    try {
+      final parts = s.split('-');
+      if (parts.length == 3) {
+        final d = DateTime(
+            int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+        const names = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        return names[d.weekday - 1];
+      }
+    } catch (_) {}
+    return '';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(builder: (context, constraints) {
+      final full = constraints.maxWidth;
+      const gap = 16.0;
+      final half = (full - gap) / 2;
+
+      Widget durationDropdown(double width) {
+        return SizedBox(
+          width: width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Report Duration',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: isDark
+                      ? const Color(0xFFD1D5DB)
+                      : const Color(0xFF374151),
+                ),
+              ),
+              const SizedBox(height: 4),
+              Container(
+                height: 42,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF374151) : Colors.white,
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF4B5563)
+                        : const Color(0xFFD1D5DB),
+                  ),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<String>(
+                    isExpanded: true,
+                    value: model.duration.toString().split('.').last,
+                    icon: const Icon(Icons.keyboard_arrow_down, size: 20),
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isDark
+                          ? const Color(0xFFF9FAFB)
+                          : const Color(0xFF111827),
+                    ),
+                    dropdownColor:
+                        isDark ? const Color(0xFF374151) : Colors.white,
+                    items: ['Daily', 'Weekly', 'Monthly', 'Yearly']
+                        .map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      if (newValue != null) {
+                        final newDur = DurationType.values.firstWhere(
+                            (d) => d.toString().split('.').last == newValue,
+                            orElse: () => DurationType.Daily);
+                        model.setDuration(newDur);
+                        // Stateless - rely on parent to rebuild if needed
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      Widget weeklyPeriod() {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  'Select Period',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: isDark
+                        ? const Color(0xFFD1D5DB)
+                        : const Color(0xFF374151),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(Icons.clear,
+                      size: 18,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280)),
+                  tooltip: 'Clear selected dates',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () {
+                    periodStartController.clear();
+                    periodEndController.clear();
+                    model.setPeriodRange('', '');
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            InkWell(
+              onTap: () => pickDateRange(context),
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: isDark ? const Color(0xFF374151) : Colors.white,
+                  border: Border.all(
+                    color: isDark
+                        ? const Color(0xFF4B5563)
+                        : const Color(0xFFD1D5DB),
+                  ),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            periodStartController.text.isEmpty
+                                ? 'Start date'
+                                : '${_weekdayAbbrev(periodStartController.text)}, ${periodStartController.text}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: periodStartController.text.isEmpty
+                                  ? (isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF))
+                                  : (isDark
+                                      ? const Color(0xFFF9FAFB)
+                                      : const Color(0xFF111827)),
+                            ),
+                          ),
+                          if (periodStartController.text.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                'Start date',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Icon(
+                      Icons.arrow_forward,
+                      size: 16,
+                      color: isDark
+                          ? const Color(0xFF6B7280)
+                          : const Color(0xFF9CA3AF),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            periodEndController.text.isEmpty
+                                ? 'End date'
+                                : '${_weekdayAbbrev(periodEndController.text)}, ${periodEndController.text}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: periodEndController.text.isEmpty
+                                  ? (isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF))
+                                  : (isDark
+                                      ? const Color(0xFFF9FAFB)
+                                      : const Color(0xFF111827)),
+                            ),
+                          ),
+                          if (periodEndController.text.isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4),
+                              child: Text(
+                                'End date',
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Icon(
+                      Icons.calendar_today,
+                      size: 18,
+                      color: isDark
+                          ? const Color(0xFF9CA3AF)
+                          : const Color(0xFF6B7280),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        );
+      }
+
+      Widget singlePeriod() {
+        return Container(
+          height: 42,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF374151) : Colors.white,
+            border: Border.all(
+              color: isDark ? const Color(0xFF4B5563) : const Color(0xFFD1D5DB),
+            ),
+            borderRadius: BorderRadius.circular(6),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: periodController,
+                  readOnly: true,
+                  onTap: () => pickDateFor(
+                      context, periodController, (s) => model.setPeriodDate(s)),
+                  decoration: InputDecoration(
+                    hintText: 'dd-mm-yyyy',
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: isDark
+                          ? const Color(0xFF6B7280)
+                          : const Color(0xFF9CA3AF),
+                    ),
+                    border: InputBorder.none,
+                  ),
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDark
+                        ? const Color(0xFFF9FAFB)
+                        : const Color(0xFF111827),
+                  ),
+                ),
+              ),
+              InkWell(
+                onTap: () => pickDateFor(
+                    context, periodController, (s) => model.setPeriodDate(s)),
+                child: Icon(
+                  Icons.calendar_today,
+                  size: 16,
+                  color: isDark
+                      ? const Color(0xFF6B7280)
+                      : const Color(0xFF9CA3AF),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
+      if (model.duration != DurationType.Daily) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 360),
+              curve: Curves.easeInOut,
+              width: full,
+              child: durationDropdown(full),
+            ),
+            const SizedBox(height: 12),
+            (model.duration == DurationType.Weekly ||
+                    model.duration == DurationType.Monthly ||
+                    model.duration == DurationType.Yearly)
+                ? weeklyPeriod()
+                : singlePeriod(),
+          ],
+        );
+      }
+
+      return Row(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 360),
+            curve: Curves.easeInOut,
+            width: half,
+            child: durationDropdown(half),
+          ),
+          const SizedBox(width: gap),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Select Period',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: isDark
+                        ? const Color(0xFFD1D5DB)
+                        : const Color(0xFF374151),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                singlePeriod(),
+              ],
+            ),
+          ),
+        ],
+      );
+    });
+  }
+}
