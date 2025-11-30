@@ -119,7 +119,7 @@ class _AccountingFormState extends State<AccountingForm> {
                     secondary: const Color(0xFF818CF8),
                     surface: const Color(0xFF1F2937),
                     onSurface: const Color(0xFFF9FAFB),
-                    surfaceVariant: const Color(0xFF374151),
+                    surfaceContainerHighest: const Color(0xFF374151),
                     onSurfaceVariant: const Color(0xFF9CA3AF),
                     outline: const Color(0xFF4B5563),
                   )
@@ -131,7 +131,7 @@ class _AccountingFormState extends State<AccountingForm> {
                     secondary: const Color(0xFF6366F1),
                     surface: Colors.white,
                     onSurface: const Color(0xFF111827),
-                    surfaceVariant: const Color(0xFFF3F4F6),
+                    surfaceContainerHighest: const Color(0xFFF3F4F6),
                     onSurfaceVariant: const Color(0xFF6B7280),
                     outline: const Color(0xFFD1D5DB),
                   ),

@@ -118,7 +118,7 @@ class _InstituteAccountingScreenState extends State<InstituteAccountingScreen> {
                     secondary: const Color(0xFF818CF8),
                     surface: const Color(0xFF1F2937),
                     onSurface: const Color(0xFFF9FAFB),
-                    surfaceVariant: const Color(0xFF374151),
+                    surfaceContainerHighest: const Color(0xFF374151),
                     onSurfaceVariant: const Color(0xFF9CA3AF),
                     outline: const Color(0xFF4B5563),
                   )
@@ -130,7 +130,7 @@ class _InstituteAccountingScreenState extends State<InstituteAccountingScreen> {
                     secondary: const Color(0xFF6366F1),
                     surface: Colors.white,
                     onSurface: const Color(0xFF111827),
-                    surfaceVariant: const Color(0xFFF3F4F6),
+                    surfaceContainerHighest: const Color(0xFFF3F4F6),
                     onSurfaceVariant: const Color(0xFF6B7280),
                     outline: const Color(0xFFD1D5DB),
                   ),
@@ -170,10 +170,9 @@ class _InstituteAccountingScreenState extends State<InstituteAccountingScreen> {
                 color:
                     isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827),
               ),
-              dayForegroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected))
-                  return Colors.white;
-                if (states.contains(MaterialState.disabled))
+              dayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return Colors.white;
+                if (states.contains(WidgetState.disabled))
                   return isDark
                       ? const Color(0xFF4B5563)
                       : const Color(0xFFD1D5DB);
@@ -181,18 +180,17 @@ class _InstituteAccountingScreenState extends State<InstituteAccountingScreen> {
                     ? const Color(0xFFF9FAFB)
                     : const Color(0xFF111827);
               }),
-              dayBackgroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected))
+              dayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected))
                   return const Color(0xFF4F46E5);
                 return Colors.transparent;
               }),
-              todayForegroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected))
-                  return Colors.white;
+              todayForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return Colors.white;
                 return const Color(0xFF4F46E5);
               }),
-              todayBackgroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected))
+              todayBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected))
                   return const Color(0xFF4F46E5);
                 return Colors.transparent;
               }),
@@ -203,15 +201,14 @@ class _InstituteAccountingScreenState extends State<InstituteAccountingScreen> {
                 color:
                     isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827),
               ),
-              yearForegroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected))
-                  return Colors.white;
+              yearForegroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected)) return Colors.white;
                 return isDark
                     ? const Color(0xFFF9FAFB)
                     : const Color(0xFF111827);
               }),
-              yearBackgroundColor: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected))
+              yearBackgroundColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.selected))
                   return const Color(0xFF4F46E5);
                 return Colors.transparent;
               }),
@@ -219,10 +216,9 @@ class _InstituteAccountingScreenState extends State<InstituteAccountingScreen> {
                   isDark ? const Color(0xFF1F2937) : Colors.white,
               rangePickerHeaderBackgroundColor: const Color(0xFF4F46E5),
               rangePickerHeaderForegroundColor: Colors.white,
-              rangeSelectionBackgroundColor:
-                  const Color(0xFF4F46E5).withOpacity(0.15),
-              rangeSelectionOverlayColor: MaterialStateProperty.all(
-                  const Color(0xFF4F46E5).withOpacity(0.08)),
+              rangeSelectionBackgroundColor: const Color(0x264F46E5),
+              rangeSelectionOverlayColor:
+                  WidgetStateProperty.all(const Color(0x144F46E5)),
               dividerColor:
                   isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
             ),
