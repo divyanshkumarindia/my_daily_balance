@@ -50,6 +50,17 @@ class DurationPeriodPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
+      // Local parser for dd-mm-yyyy strings from controllers
+      DateTime? parseDate(String s) {
+        if (s.isEmpty) return null;
+        try {
+          final parts = s.split('-');
+          if (parts.length == 3) {
+            return DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+          }
+        } catch (_) {}
+        return null;
+      }
       final full = constraints.maxWidth;
       const gap = 16.0;
       final half = (full - gap) / 2;
@@ -110,31 +121,42 @@ class DurationPeriodPicker extends StatelessWidget {
                             orElse: () => DurationType.Daily);
                         model.setDuration(newDur);
 
-                        // Clear controllers / model fields that aren't relevant for the
+                        // Clear controllers/model fields that aren't relevant for the
                         // newly selected duration so values don't leak between modes.
+                        // In particular, prevent Weekly<->Monthly carrying over each other's
+                        // ranges by clearing them when switching.
                         switch (newDur) {
                           case DurationType.Daily:
-                            // Daily uses periodController only
+                            // Daily uses the single-day picker only; clear ranges and year
                             periodStartController.clear();
                             periodEndController.clear();
                             model.setPeriodRange('', '');
-                            // ensure any year or single-date value is cleared when
-                            // switching to Daily so the daily box doesn't show a year
                             periodController.clear();
                             model.setPeriodDate('');
                             break;
                           case DurationType.Weekly:
-                          case DurationType.Monthly:
-                            // Weekly/Monthly use start/end range
+                            // When switching to Weekly, clear any Monthly or single-date
+                            // values so the user picks a fresh range.
                             periodController.clear();
                             model.setPeriodDate('');
+                            periodStartController.clear();
+                            periodEndController.clear();
+                            model.setPeriodRange('', '');
+                            break;
+                          case DurationType.Monthly:
+                            // When switching to Monthly, clear any Weekly or single-date
+                            // values so the user picks a fresh range.
+                            periodController.clear();
+                            model.setPeriodDate('');
+                            periodStartController.clear();
+                            periodEndController.clear();
+                            model.setPeriodRange('', '');
                             break;
                           case DurationType.Yearly:
                             // Yearly uses the year-only periodController
                             periodStartController.clear();
                             periodEndController.clear();
                             model.setPeriodRange('', '');
-                            // ensure the year field doesn't accidentally show a prior full date
                             periodController.clear();
                             model.setPeriodDate('');
                             break;
@@ -390,8 +412,16 @@ class DurationPeriodPicker extends StatelessWidget {
               children: [
                 Expanded(
                   child: InkWell(
-                    onTap: () => pickDateFor(context, periodStartController,
-                        (s) => model.setPeriodRange(s, model.periodEndDate)),
+                      onTap: () {
+                        final endDate = parseDate(periodEndController.text);
+                        final DateTime? last = endDate != null ? endDate.subtract(const Duration(days: 1)) : null;
+                        pickDateFor(
+                          context,
+                          periodStartController,
+                          (s) => model.setPeriodRange(s, model.periodEndDate),
+                          lastDate: last,
+                        );
+                      },
                     child: Container(
                       height: 42,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -438,8 +468,16 @@ class DurationPeriodPicker extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: InkWell(
-                    onTap: () => pickDateFor(context, periodEndController,
-                        (s) => model.setPeriodRange(model.periodStartDate, s)),
+                      onTap: () {
+                        final startDate = parseDate(periodStartController.text);
+                        final DateTime? first = startDate != null ? startDate.add(const Duration(days: 1)) : null;
+                        pickDateFor(
+                          context,
+                          periodEndController,
+                          (s) => model.setPeriodRange(model.periodStartDate, s),
+                          firstDate: first,
+                        );
+                      },
                     child: Container(
                       height: 42,
                       padding: const EdgeInsets.symmetric(horizontal: 12),
