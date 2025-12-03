@@ -764,6 +764,12 @@ class _AccountingFormState extends State<AccountingForm> {
     bool isExpense = false,
     bool receipt = false,
   }) {
+    // Read labels from the provider with listen=true so UI rebuilds when labels change
+    final m = Provider.of<AccountingModel>(context);
+    final displayTitle = isExpense
+        ? (m.paymentLabels[accountKey] ?? title)
+        : (m.receiptLabels[accountKey] ?? title);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -783,7 +789,7 @@ class _AccountingFormState extends State<AccountingForm> {
                     children: [
                       Flexible(
                         child: Text(
-                          title,
+                          displayTitle,
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
@@ -794,12 +800,50 @@ class _AccountingFormState extends State<AccountingForm> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      Icon(
-                        Icons.edit_outlined,
-                        size: 18,
-                        color: isDark
-                            ? const Color(0xFF9CA3AF)
-                            : const Color(0xFF6B7280),
+                      GestureDetector(
+                        onTap: () async {
+                          final current = displayTitle;
+                          final controller =
+                              TextEditingController(text: current);
+                          final res = await showDialog<String>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Edit Title'),
+                              content: TextField(
+                                controller: controller,
+                                decoration: const InputDecoration(
+                                    hintText: 'Enter title'),
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(
+                                      context, controller.text.trim()),
+                                  child: const Text('Save'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (res != null && res.isNotEmpty) {
+                            final m = Provider.of<AccountingModel>(context,
+                                listen: false);
+                            if (isExpense) {
+                              m.setPaymentLabel(accountKey, res);
+                            } else {
+                              m.setReceiptLabel(accountKey, res);
+                            }
+                          }
+                        },
+                        child: Icon(
+                          Icons.edit_outlined,
+                          size: 18,
+                          color: isDark
+                              ? const Color(0xFF9CA3AF)
+                              : const Color(0xFF6B7280),
+                        ),
                       ),
                       const SizedBox(width: 4),
                       GestureDetector(
