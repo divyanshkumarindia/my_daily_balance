@@ -692,6 +692,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['business_income'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['business_income'] ?? false,
           receipt: true,
         ),
         const SizedBox(height: 12),
@@ -708,6 +709,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['rental_income'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['rental_income'] ?? false,
           receipt: true,
         ),
         const SizedBox(height: 12),
@@ -724,6 +726,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['investment_returns'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['investment_returns'] ?? false,
           receipt: true,
         ),
       ],
@@ -796,6 +799,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['service_income'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['service_income'] ?? false,
           receipt: true,
         ),
         const SizedBox(height: 12),
@@ -812,6 +816,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['interest_received'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['interest_received'] ?? false,
           receipt: true,
         ),
         const SizedBox(height: 12),
@@ -828,6 +833,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['commission_received'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['commission_received'] ?? false,
           receipt: true,
         ),
       ],
@@ -900,6 +906,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['exam_fees'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['exam_fees'] ?? false,
           receipt: true,
         ),
         const SizedBox(height: 12),
@@ -916,6 +923,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['donations'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['donations'] ?? false,
           receipt: true,
         ),
         const SizedBox(height: 12),
@@ -932,6 +940,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['grants'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['grants'] ?? false,
           receipt: true,
         ),
       ],
@@ -1004,6 +1013,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['income_2'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['income_2'] ?? false,
           receipt: true,
         ),
         const SizedBox(height: 12),
@@ -1020,6 +1030,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['income_3'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['income_3'] ?? false,
           receipt: true,
         ),
       ],
@@ -1106,6 +1117,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['rent_payment'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['rent_payment'] ?? false,
           isExpense: true,
         ),
         const SizedBox(height: 12),
@@ -1122,6 +1134,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['education'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['education'] ?? false,
           isExpense: true,
         ),
         const SizedBox(height: 12),
@@ -1138,6 +1151,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['transport'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['transport'] ?? false,
           isExpense: true,
         ),
       ],
@@ -1210,6 +1224,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['salaries'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['salaries'] ?? false,
           isExpense: true,
         ),
         const SizedBox(height: 12),
@@ -1226,6 +1241,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['rent_commercial'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['rent_commercial'] ?? false,
           isExpense: true,
         ),
         const SizedBox(height: 12),
@@ -1242,6 +1258,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['utilities_business'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['utilities_business'] ?? false,
           isExpense: true,
         ),
       ],
@@ -1314,6 +1331,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['non_teaching_salaries'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['non_teaching_salaries'] ?? false,
           isExpense: true,
         ),
         const SizedBox(height: 12),
@@ -1330,6 +1348,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['utilities_inst'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['utilities_inst'] ?? false,
           isExpense: true,
         ),
         const SizedBox(height: 12),
@@ -1346,6 +1365,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['library_supplies'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['library_supplies'] ?? false,
           isExpense: true,
         ),
       ],
@@ -1418,6 +1438,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['expense_2'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['expense_2'] ?? false,
           isExpense: true,
         ),
         const SizedBox(height: 12),
@@ -1434,6 +1455,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   !(categoryExpansionState['expense_3'] ?? false);
             });
           },
+          showEntry: categoryExpansionState['expense_3'] ?? false,
           isExpense: true,
         ),
       ],
