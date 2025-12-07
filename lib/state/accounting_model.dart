@@ -42,39 +42,7 @@ class AccountingModel extends ChangeNotifier {
       'receiptLabels': receiptLabels,
       'paymentLabels': paymentLabels,
       'currency': currency,
-      // Don't save opening balances - they should reset each time
-      'receiptAccounts': receiptAccounts.map((k, v) => MapEntry(
-          k,
-          v
-              .map((e) => {
-                    'id': e.id,
-                    'description': e.description,
-                    'rows': e.rows
-                        .map((r) => {
-                              'id': r.id,
-                              'cash': r.cash,
-                              'bank': r.bank,
-                              'particulars': r.particulars
-                            })
-                        .toList(),
-                  })
-              .toList())),
-      'paymentAccounts': paymentAccounts.map((k, v) => MapEntry(
-          k,
-          v
-              .map((e) => {
-                    'id': e.id,
-                    'description': e.description,
-                    'rows': e.rows
-                        .map((r) => {
-                              'id': r.id,
-                              'cash': r.cash,
-                              'bank': r.bank,
-                              'particulars': r.particulars
-                            })
-                        .toList(),
-                  })
-              .toList())),
+      // Don't save opening balances or entry data - they should reset each time
     };
 
     await prefs.setString('accounting_data_v1', jsonEncode(data));
@@ -96,46 +64,8 @@ class AccountingModel extends ChangeNotifier {
       openingBank = 0.0;
       openingOther = 0.0;
 
-      // parse accounts
-      final ra = data['receiptAccounts'] as Map<String, dynamic>?;
-      if (ra != null) {
-        receiptAccounts = ra.map((k, v) {
-          final list = (v as List).map((item) {
-            final rows = (item['rows'] as List)
-                .map((r) => TransactionRow(
-                    id: r['id'],
-                    cash: (r['cash'] ?? 0).toDouble(),
-                    bank: (r['bank'] ?? 0).toDouble(),
-                    particulars: r['particulars'] ?? ''))
-                .toList();
-            return TransactionEntry(
-                id: item['id'],
-                description: item['description'] ?? '',
-                rows: rows);
-          }).toList();
-          return MapEntry(k, list);
-        });
-      }
-
-      final pa = data['paymentAccounts'] as Map<String, dynamic>?;
-      if (pa != null) {
-        paymentAccounts = pa.map((k, v) {
-          final list = (v as List).map((item) {
-            final rows = (item['rows'] as List)
-                .map((r) => TransactionRow(
-                    id: r['id'],
-                    cash: (r['cash'] ?? 0).toDouble(),
-                    bank: (r['bank'] ?? 0).toDouble(),
-                    particulars: r['particulars'] ?? ''))
-                .toList();
-            return TransactionEntry(
-                id: item['id'],
-                description: item['description'] ?? '',
-                rows: rows);
-          }).toList();
-          return MapEntry(k, list);
-        });
-      }
+      // Entry data (receiptAccounts & paymentAccounts) also resets - don't load from prefs
+      // They will be initialized by setUserType when needed
 
       // load labels if present
       final rl = data['receiptLabels'] as Map<String, dynamic>?;
