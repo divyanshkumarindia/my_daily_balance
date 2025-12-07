@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 class BalanceCard extends StatefulWidget {
   final bool isDark;
   final String title;
-  final String amount;
   final String? initialDescription;
   final Function(String)? onTitleChanged;
   final Function(String)? onDescriptionChanged;
@@ -14,7 +13,6 @@ class BalanceCard extends StatefulWidget {
     Key? key,
     required this.isDark,
     required this.title,
-    required this.amount,
     this.initialDescription,
     this.onTitleChanged,
     this.onDescriptionChanged,
@@ -38,15 +36,8 @@ class _BalanceCardState extends State<BalanceCard> {
                 widget.initialDescription!.isNotEmpty)
             ? widget.initialDescription
             : '');
-    amountController = TextEditingController(text: widget.amount);
-  }
-
-  @override
-  void didUpdateWidget(BalanceCard oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.amount != widget.amount) {
-      amountController.text = widget.amount;
-    }
+    // Amount always starts empty (shows ghost text '0')
+    amountController = TextEditingController();
   }
 
   @override

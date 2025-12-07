@@ -634,25 +634,13 @@ class _AccountingFormState extends State<AccountingForm> {
           ),
           if (isOpeningBalancesExpanded) ...[
             const SizedBox(height: 12),
-            _buildBalanceCard(
-                isDark,
-                'cash',
-                balanceCardTitles['cash']!,
-                _formatBalanceAmount(model.openingCash),
+            _buildBalanceCard(isDark, 'cash', balanceCardTitles['cash']!,
                 balanceCardDescriptions['cash']!),
             const SizedBox(height: 12),
-            _buildBalanceCard(
-                isDark,
-                'bank',
-                balanceCardTitles['bank']!,
-                _formatBalanceAmount(model.openingBank),
+            _buildBalanceCard(isDark, 'bank', balanceCardTitles['bank']!,
                 balanceCardDescriptions['bank']!),
             const SizedBox(height: 12),
-            _buildBalanceCard(
-                isDark,
-                'other',
-                balanceCardTitles['other']!,
-                _formatBalanceAmount(model.openingOther),
+            _buildBalanceCard(isDark, 'other', balanceCardTitles['other']!,
                 balanceCardDescriptions['other']!),
           ],
         ],
@@ -660,26 +648,11 @@ class _AccountingFormState extends State<AccountingForm> {
     );
   }
 
-  // Helper to format opening balance amounts like "0" instead of "0.00"
-  String _formatBalanceAmount(double amount) {
-    if (amount == 0) {
-      return ''; // Return empty string so ghost text "0" shows
-    }
-    // Remove trailing zeros and decimal point if not needed
-    String formatted = amount.toStringAsFixed(2);
-    if (formatted.endsWith('.00')) {
-      return amount.toInt().toString();
-    }
-    // Remove trailing zeros after decimal
-    return formatted.replaceAll(RegExp(r'\.?0+$'), '');
-  }
-
-  Widget _buildBalanceCard(bool isDark, String cardType, String title,
-      String amount, String description) {
+  Widget _buildBalanceCard(
+      bool isDark, String cardType, String title, String description) {
     return BalanceCard(
       isDark: isDark,
       title: title,
-      amount: amount,
       initialDescription: description,
       onTitleChanged: (newTitle) {
         model.setBalanceCardTitle(cardType, newTitle);

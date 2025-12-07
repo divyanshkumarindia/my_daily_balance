@@ -42,9 +42,7 @@ class AccountingModel extends ChangeNotifier {
       'receiptLabels': receiptLabels,
       'paymentLabels': paymentLabels,
       'currency': currency,
-      'openingCash': openingCash,
-      'openingBank': openingBank,
-      'openingOther': openingOther,
+      // Don't save opening balances - they should reset each time
       'receiptAccounts': receiptAccounts.map((k, v) => MapEntry(
           k,
           v
@@ -93,9 +91,10 @@ class AccountingModel extends ChangeNotifier {
       pageTitle = data['pageTitle'] ?? pageTitle;
       firmName = data['firmName'] ?? firmName;
       currency = data['currency'] ?? currency;
-      openingCash = (data['openingCash'] ?? openingCash).toDouble();
-      openingBank = (data['openingBank'] ?? openingBank).toDouble();
-      openingOther = (data['openingOther'] ?? openingOther).toDouble();
+      // Opening balances always start at 0 - don't load from prefs
+      openingCash = 0.0;
+      openingBank = 0.0;
+      openingOther = 0.0;
 
       // parse accounts
       final ra = data['receiptAccounts'] as Map<String, dynamic>?;
@@ -407,13 +406,13 @@ class AccountingModel extends ChangeNotifier {
     _persist();
   }
 
-  // Opening balances
+  // Opening balances (temporary, not persisted)
   void setOpeningBalances({double? cash, double? bank, double? other}) {
     if (cash != null) openingCash = cash;
     if (bank != null) openingBank = bank;
     if (other != null) openingOther = other;
     notifyListeners();
-    _persist();
+    // Don't persist - opening balances should reset on each page load
   }
 
   // Replace entries for an account
