@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../state/accounting_model.dart';
 import '../models/accounting.dart';
@@ -1693,7 +1694,20 @@ class _AccountingFormState extends State<AccountingForm> {
                     const SizedBox(height: 4),
                     TextField(
                       textAlign: TextAlign.right,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d*')),
+                      ],
                       decoration: InputDecoration(
+                        hintText: '0',
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF6B7280)
+                              : const Color(0xFF9CA3AF),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
                           borderSide: BorderSide(
@@ -1721,7 +1735,6 @@ class _AccountingFormState extends State<AccountingForm> {
                             ? const Color(0xFFF9FAFB)
                             : const Color(0xFF111827),
                       ),
-                      controller: TextEditingController(text: '0'),
                     ),
                   ],
                 ),
@@ -1743,7 +1756,20 @@ class _AccountingFormState extends State<AccountingForm> {
                     const SizedBox(height: 4),
                     TextField(
                       textAlign: TextAlign.right,
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d*')),
+                      ],
                       decoration: InputDecoration(
+                        hintText: '0',
+                        hintStyle: TextStyle(
+                          fontSize: 14,
+                          color: isDark
+                              ? const Color(0xFF6B7280)
+                              : const Color(0xFF9CA3AF),
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(6),
                           borderSide: BorderSide(
@@ -1771,7 +1797,6 @@ class _AccountingFormState extends State<AccountingForm> {
                             ? const Color(0xFFF9FAFB)
                             : const Color(0xFF111827),
                       ),
-                      controller: TextEditingController(text: '0'),
                     ),
                   ],
                 ),
