@@ -692,6 +692,37 @@ class _AccountingFormState extends State<AccountingForm> {
     );
   }
 
+  // Helper methods for live calculations
+  String _formatCategoryTotal(String accountKey, bool isExpense) {
+    final total =
+        model.calculateAccountTotalByKey(accountKey, receipt: !isExpense);
+    return '₹${total.toStringAsFixed(2)}';
+  }
+
+  double _calculateTotalIncome() {
+    double total = 0.0;
+    // Add opening balances
+    total += model.openingCash + model.openingBank + model.openingOther;
+    // Add all receipt accounts
+    for (var key in model.receiptAccounts.keys) {
+      total += model.calculateAccountTotalByKey(key, receipt: true);
+    }
+    return total;
+  }
+
+  double _calculateTotalExpenses() {
+    double total = 0.0;
+    // Add all payment accounts
+    for (var key in model.paymentAccounts.keys) {
+      total += model.calculateAccountTotalByKey(key, receipt: false);
+    }
+    return total;
+  }
+
+  double _calculateNetSurplus() {
+    return _calculateTotalIncome() - _calculateTotalExpenses();
+  }
+
   Widget _buildIncomeSection(bool isDark, AccountingModel model) {
     // Switch based on user type to call the appropriate builder
     switch (model.userType) {
@@ -746,7 +777,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'salary',
           'Salary / Wages',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('salary', false),
           const Color(0xFF059669),
           categoryExpansionState['salary'] ?? true,
           () {
@@ -763,7 +794,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'business_income',
           'Business Income',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('business_income', false),
           const Color(0xFF059669),
           categoryExpansionState['business_income'] ?? false,
           () {
@@ -780,7 +811,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'rental_income',
           'Rental Income',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('rental_income', false),
           const Color(0xFF059669),
           categoryExpansionState['rental_income'] ?? false,
           () {
@@ -797,7 +828,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'investment_returns',
           'Investment Returns / Interest',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('investment_returns', false),
           const Color(0xFF059669),
           categoryExpansionState['investment_returns'] ?? false,
           () {
@@ -853,7 +884,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'sales',
           'Sales Revenue',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('sales', false),
           const Color(0xFF059669),
           categoryExpansionState['sales'] ?? true,
           () {
@@ -870,7 +901,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'service_income',
           'Service Income',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('service_income', false),
           const Color(0xFF059669),
           categoryExpansionState['service_income'] ?? false,
           () {
@@ -887,7 +918,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'interest_received',
           'Interest Received',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('interest_received', false),
           const Color(0xFF059669),
           categoryExpansionState['interest_received'] ?? false,
           () {
@@ -904,7 +935,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'commission_received',
           'Commission Received',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('commission_received', false),
           const Color(0xFF059669),
           categoryExpansionState['commission_received'] ?? false,
           () {
@@ -960,7 +991,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'fees_collected',
           'Fees Collected (Tuition / Admission)',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('fees_collected', false),
           const Color(0xFF059669),
           categoryExpansionState['fees_collected'] ?? true,
           () {
@@ -977,7 +1008,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'exam_fees',
           'Exam Fees',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('exam_fees', false),
           const Color(0xFF059669),
           categoryExpansionState['exam_fees'] ?? false,
           () {
@@ -994,7 +1025,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'donations',
           'Donations Received',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('donations', false),
           const Color(0xFF059669),
           categoryExpansionState['donations'] ?? false,
           () {
@@ -1011,7 +1042,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'grants',
           'Grants / Subsidies',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('grants', false),
           const Color(0xFF059669),
           categoryExpansionState['grants'] ?? false,
           () {
@@ -1067,7 +1098,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'income_1',
           'Income Source 1',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('income_1', false),
           const Color(0xFF059669),
           categoryExpansionState['income_1'] ?? true,
           () {
@@ -1084,7 +1115,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'income_2',
           'Income Source 2',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('income_2', false),
           const Color(0xFF059669),
           categoryExpansionState['income_2'] ?? false,
           () {
@@ -1101,7 +1132,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'income_3',
           'Income Source 3',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('income_3', false),
           const Color(0xFF059669),
           categoryExpansionState['income_3'] ?? false,
           () {
@@ -1171,7 +1202,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'groceries',
           'Groceries / Food',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('groceries', true),
           const Color(0xFFDC2626),
           categoryExpansionState['groceries'] ?? true,
           () {
@@ -1188,7 +1219,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'rent_payment',
           'Rent / EMI Payment',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('rent_payment', true),
           const Color(0xFFDC2626),
           categoryExpansionState['rent_payment'] ?? false,
           () {
@@ -1205,7 +1236,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'education',
           'Education Expenses',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('education', true),
           const Color(0xFFDC2626),
           categoryExpansionState['education'] ?? false,
           () {
@@ -1222,7 +1253,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'transport',
           'Transport / Fuel',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('transport', true),
           const Color(0xFFDC2626),
           categoryExpansionState['transport'] ?? false,
           () {
@@ -1278,7 +1309,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'purchases',
           'Raw Material / Goods Purchase',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('purchases', true),
           const Color(0xFFDC2626),
           categoryExpansionState['purchases'] ?? true,
           () {
@@ -1295,7 +1326,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'salaries',
           'Salaries / Wages',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('salaries', true),
           const Color(0xFFDC2626),
           categoryExpansionState['salaries'] ?? false,
           () {
@@ -1312,7 +1343,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'rent_commercial',
           'Rent / Lease',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('rent_commercial', true),
           const Color(0xFFDC2626),
           categoryExpansionState['rent_commercial'] ?? false,
           () {
@@ -1329,7 +1360,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'utilities_business',
           'Utilities (Power / Water / Internet)',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('utilities_business', true),
           const Color(0xFFDC2626),
           categoryExpansionState['utilities_business'] ?? false,
           () {
@@ -1385,7 +1416,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'staff_salaries',
           'Staff Salaries (Teaching)',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('staff_salaries', true),
           const Color(0xFFDC2626),
           categoryExpansionState['staff_salaries'] ?? true,
           () {
@@ -1402,7 +1433,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'non_teaching_salaries',
           'Non-Teaching Staff Salaries',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('non_teaching_salaries', true),
           const Color(0xFFDC2626),
           categoryExpansionState['non_teaching_salaries'] ?? false,
           () {
@@ -1419,7 +1450,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'utilities_inst',
           'Utilities (Electricity / Water / Internet)',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('utilities_inst', true),
           const Color(0xFFDC2626),
           categoryExpansionState['utilities_inst'] ?? false,
           () {
@@ -1436,7 +1467,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'library_supplies',
           'Library / Books / Supplies',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('library_supplies', true),
           const Color(0xFFDC2626),
           categoryExpansionState['library_supplies'] ?? false,
           () {
@@ -1492,7 +1523,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'expense_1',
           'Expense Category 1',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('expense_1', true),
           const Color(0xFFDC2626),
           categoryExpansionState['expense_1'] ?? true,
           () {
@@ -1509,7 +1540,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'expense_2',
           'Expense Category 2',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('expense_2', true),
           const Color(0xFFDC2626),
           categoryExpansionState['expense_2'] ?? false,
           () {
@@ -1526,7 +1557,7 @@ class _AccountingFormState extends State<AccountingForm> {
           isDark,
           'expense_3',
           'Expense Category 3',
-          '₹${0.toStringAsFixed(2)}',
+          _formatCategoryTotal('expense_3', true),
           const Color(0xFFDC2626),
           categoryExpansionState['expense_3'] ?? false,
           () {
