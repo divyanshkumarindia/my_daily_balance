@@ -2177,36 +2177,51 @@ class _AccountingFormState extends State<AccountingForm> {
             ],
           ),
           const SizedBox(height: 16),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: isDark ? const Color(0xFF1C2A22) : const Color(0xFFF0FFF4),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'Net Surplus',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: isDark
-                        ? const Color(0xFFD1D5DB)
-                        : const Color(0xFF4B5563),
-                  ),
+          Consumer<AccountingModel>(
+            builder: (context, model, child) {
+              final netSurplus = _calculateNetSurplus();
+              final isNegative = netSurplus < 0;
+
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isNegative
+                      ? (isDark
+                          ? const Color(0xFF2A1C1C)
+                          : const Color(0xFFFFF5F5))
+                      : (isDark
+                          ? const Color(0xFF1C2A22)
+                          : const Color(0xFFF0FFF4)),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  AppTheme.formatCurrency(_calculateNetSurplus(),
-                      currency: model.currency),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF059669),
-                  ),
+                child: Column(
+                  children: [
+                    Text(
+                      isNegative ? 'Net Deficit' : 'Net Surplus',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: isDark
+                            ? const Color(0xFFD1D5DB)
+                            : const Color(0xFF4B5563),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      AppTheme.formatCurrency(netSurplus,
+                          currency: model.currency),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: isNegative
+                            ? const Color(0xFFDC2626)
+                            : const Color(0xFF059669),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ],
       ),
