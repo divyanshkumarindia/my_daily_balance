@@ -1721,242 +1721,344 @@ class _AccountingFormState extends State<AccountingForm> {
   }
 
   Widget _buildEntryBox(bool isDark, bool isExpense, String accountKey) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1F2937) : Colors.white,
-        border: Border.all(
-          color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+    final m = Provider.of<AccountingModel>(context, listen: false);
+    final accounts = isExpense ? m.paymentAccounts : m.receiptAccounts;
+    final entries = accounts[accountKey] ?? [];
+
+    if (entries.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark ? const Color(0xFF1F2937) : Colors.white,
+          border: Border.all(
+            color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+          ),
+          borderRadius: BorderRadius.circular(12),
         ),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'ENTRY #1',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
-              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            'Description/Source',
-            style: TextStyle(
-              fontSize: 12,
-              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
-            ),
-          ),
-          const SizedBox(height: 4),
-          TextField(
-            maxLines: 2,
-            decoration: InputDecoration(
-              hintText: 'e.g., Transaction ID / Payee Name / Date',
-              hintStyle: TextStyle(
-                fontSize: 14,
-                color:
-                    isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(
-                  color: isDark
-                      ? const Color(0xFF4B5563)
-                      : const Color(0xFFD1D5DB),
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(6),
-                borderSide: BorderSide(
-                  color: isDark
-                      ? const Color(0xFF4B5563)
-                      : const Color(0xFFD1D5DB),
-                ),
-              ),
-              filled: true,
-              fillColor: isDark ? const Color(0xFF374151) : Colors.white,
-              contentPadding: const EdgeInsets.all(8),
-            ),
+        child: Center(
+          child: Text(
+            'No entries yet. Click "+ Add New Entry Box" above to get started.',
             style: TextStyle(
               fontSize: 14,
-              color: isDark ? const Color(0xFFF9FAFB) : const Color(0xFF111827),
+              color: isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
             ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
+        ),
+      );
+    }
+
+    return Column(
+      children: entries.asMap().entries.map((entryMap) {
+        final entryIndex = entryMap.key;
+        final entry = entryMap.value;
+
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isDark ? const Color(0xFF1F2937) : Colors.white,
+            border: Border.all(
+              color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
+            ),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Cash:',
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'ENTRY #${entryIndex + 1}',
                       style: TextStyle(
                         fontSize: 12,
+                        fontWeight: FontWeight.w500,
                         color: isDark
                             ? const Color(0xFF9CA3AF)
                             : const Color(0xFF6B7280),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    TextField(
-                      textAlign: TextAlign.right,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d*')),
-                      ],
-                      decoration: InputDecoration(
-                        hintText: '0',
-                        hintStyle: TextStyle(
-                          fontSize: 14,
-                          color: isDark
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFF9CA3AF),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF4B5563)
-                                : const Color(0xFFD1D5DB),
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF4B5563)
-                                : const Color(0xFFD1D5DB),
-                          ),
-                        ),
-                        filled: true,
-                        fillColor:
-                            isDark ? const Color(0xFF374151) : Colors.white,
-                        contentPadding: const EdgeInsets.all(8),
-                      ),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark
-                            ? const Color(0xFFF9FAFB)
-                            : const Color(0xFF111827),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Bank/Online:',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: isDark
-                            ? const Color(0xFF9CA3AF)
-                            : const Color(0xFF6B7280),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    TextField(
-                      textAlign: TextAlign.right,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(
-                            RegExp(r'^\d*\.?\d*')),
-                      ],
-                      decoration: InputDecoration(
-                        hintText: '0',
-                        hintStyle: TextStyle(
-                          fontSize: 14,
-                          color: isDark
-                              ? const Color(0xFF6B7280)
-                              : const Color(0xFF9CA3AF),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF4B5563)
-                                : const Color(0xFFD1D5DB),
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(6),
-                          borderSide: BorderSide(
-                            color: isDark
-                                ? const Color(0xFF4B5563)
-                                : const Color(0xFFD1D5DB),
-                          ),
-                        ),
-                        filled: true,
-                        fillColor:
-                            isDark ? const Color(0xFF374151) : Colors.white,
-                        contentPadding: const EdgeInsets.all(8),
-                      ),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: isDark
-                            ? const Color(0xFFF9FAFB)
-                            : const Color(0xFF111827),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              OutlinedButton.icon(
-                onPressed: () {
-                  final m =
-                      Provider.of<AccountingModel>(context, listen: false);
-                  final accounts =
-                      isExpense ? m.paymentAccounts : m.receiptAccounts;
-                  final entries = accounts[accountKey];
-                  if (entries == null || entries.isEmpty) {
-                    m.addEntryToAccount(accountKey, receipt: !isExpense);
-                    return;
-                  }
-                  final lastEntryId = entries.last.id;
-                  m.addRowToEntry(accountKey, lastEntryId, receipt: !isExpense);
-                },
-                icon: const Icon(Icons.add, size: 14),
-                label: const Text('Add'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: isExpense
-                      ? const Color(0xFFDC2626)
-                      : (isDark
-                          ? const Color(0xFFE5E7EB)
-                          : const Color(0xFF374151)),
-                  side: BorderSide(
-                    color: isExpense
-                        ? (isDark
-                            ? const Color(0xFF991B1B)
-                            : const Color(0xFFFCA5A5))
-                        : (isDark
-                            ? const Color(0xFF4B5563)
-                            : const Color(0xFFD1D5DB)),
                   ),
-                  backgroundColor: isExpense
-                      ? (isDark
-                          ? Color.fromRGBO(42, 28, 28, 0.5)
-                          : Color.fromRGBO(255, 245, 245, 0.5))
-                      : (isDark ? const Color(0xFF374151) : Colors.white),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  textStyle: const TextStyle(fontSize: 12),
+                  IconButton(
+                    icon: const Icon(Icons.delete_outline, size: 18),
+                    color: Colors.redAccent,
+                    tooltip: 'Remove entry',
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    onPressed: () {
+                      m.removeEntryFromAccount(accountKey, entry.id,
+                          receipt: !isExpense);
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Description/Source',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: isDark
+                      ? const Color(0xFF9CA3AF)
+                      : const Color(0xFF6B7280),
+                ),
+              ),
+              const SizedBox(height: 4),
+              TextFormField(
+                key: ValueKey('desc_${entry.id}'),
+                initialValue: entry.description,
+                maxLines: 2,
+                decoration: InputDecoration(
+                  hintText: 'e.g., Transaction ID / Payee Name / Date',
+                  hintStyle: TextStyle(
+                    fontSize: 14,
+                    color: isDark
+                        ? const Color(0xFF6B7280)
+                        : const Color(0xFF9CA3AF),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: BorderSide(
+                      color: isDark
+                          ? const Color(0xFF4B5563)
+                          : const Color(0xFFD1D5DB),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(6),
+                    borderSide: BorderSide(
+                      color: isDark
+                          ? const Color(0xFF4B5563)
+                          : const Color(0xFFD1D5DB),
+                    ),
+                  ),
+                  filled: true,
+                  fillColor: isDark ? const Color(0xFF374151) : Colors.white,
+                  contentPadding: const EdgeInsets.all(8),
+                ),
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark
+                      ? const Color(0xFFF9FAFB)
+                      : const Color(0xFF111827),
+                ),
+                onChanged: (value) {
+                  m.updateEntryDescription(accountKey, entry.id, value,
+                      receipt: !isExpense);
+                },
+              ),
+              const SizedBox(height: 12),
+              ...entry.rows.asMap().entries.map((rowMap) {
+                final row = rowMap.value;
+
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    key: ValueKey(
+                        '${entry.id}_${row.id}'), // Force rebuild when data changes
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Cash:',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark
+                                    ? const Color(0xFF9CA3AF)
+                                    : const Color(0xFF6B7280),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            TextFormField(
+                              key: ValueKey('cash_${entry.id}_${row.id}'),
+                              initialValue:
+                                  row.cash == 0 ? '' : row.cash.toString(),
+                              textAlign: TextAlign.right,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d*\.?\d*')),
+                              ],
+                              decoration: InputDecoration(
+                                hintText: '0',
+                                hintStyle: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                  borderSide: BorderSide(
+                                    color: isDark
+                                        ? const Color(0xFF4B5563)
+                                        : const Color(0xFFD1D5DB),
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                  borderSide: BorderSide(
+                                    color: isDark
+                                        ? const Color(0xFF4B5563)
+                                        : const Color(0xFFD1D5DB),
+                                  ),
+                                ),
+                                filled: true,
+                                fillColor: isDark
+                                    ? const Color(0xFF374151)
+                                    : Colors.white,
+                                contentPadding: const EdgeInsets.all(8),
+                              ),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark
+                                    ? const Color(0xFFF9FAFB)
+                                    : const Color(0xFF111827),
+                              ),
+                              onChanged: (value) {
+                                final parsed = double.tryParse(value) ?? 0.0;
+                                m.updateRowValue(accountKey, entry.id, row.id,
+                                    cash: parsed, receipt: !isExpense);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Bank/Online:',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: isDark
+                                    ? const Color(0xFF9CA3AF)
+                                    : const Color(0xFF6B7280),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            TextFormField(
+                              key: ValueKey('bank_${entry.id}_${row.id}'),
+                              initialValue:
+                                  row.bank == 0 ? '' : row.bank.toString(),
+                              textAlign: TextAlign.right,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d*\.?\d*')),
+                              ],
+                              decoration: InputDecoration(
+                                hintText: '0',
+                                hintStyle: TextStyle(
+                                  fontSize: 14,
+                                  color: isDark
+                                      ? const Color(0xFF6B7280)
+                                      : const Color(0xFF9CA3AF),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                  borderSide: BorderSide(
+                                    color: isDark
+                                        ? const Color(0xFF4B5563)
+                                        : const Color(0xFFD1D5DB),
+                                  ),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                  borderSide: BorderSide(
+                                    color: isDark
+                                        ? const Color(0xFF4B5563)
+                                        : const Color(0xFFD1D5DB),
+                                  ),
+                                ),
+                                filled: true,
+                                fillColor: isDark
+                                    ? const Color(0xFF374151)
+                                    : Colors.white,
+                                contentPadding: const EdgeInsets.all(8),
+                              ),
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: isDark
+                                    ? const Color(0xFFF9FAFB)
+                                    : const Color(0xFF111827),
+                              ),
+                              onChanged: (value) {
+                                final parsed = double.tryParse(value) ?? 0.0;
+                                m.updateRowValue(accountKey, entry.id, row.id,
+                                    bank: parsed, receipt: !isExpense);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (entry.rows.length > 1)
+                        IconButton(
+                          icon:
+                              const Icon(Icons.remove_circle_outline, size: 18),
+                          color: Colors.redAccent,
+                          tooltip: 'Remove row',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            m.removeRowFromEntry(accountKey, entry.id, row.id,
+                                receipt: !isExpense);
+                          },
+                        )
+                      else
+                        const SizedBox(width: 24), // Spacer when only one row
+                    ],
+                  ),
+                );
+              }).toList(),
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    m.addRowToEntry(accountKey, entry.id, receipt: !isExpense);
+                  },
+                  icon: const Icon(Icons.add, size: 14),
+                  label: const Text('Add Row'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: isExpense
+                        ? const Color(0xFFDC2626)
+                        : (isDark
+                            ? const Color(0xFFE5E7EB)
+                            : const Color(0xFF374151)),
+                    side: BorderSide(
+                      color: isExpense
+                          ? (isDark
+                              ? const Color(0xFF991B1B)
+                              : const Color(0xFFFCA5A5))
+                          : (isDark
+                              ? const Color(0xFF4B5563)
+                              : const Color(0xFFD1D5DB)),
+                    ),
+                    backgroundColor: isExpense
+                        ? (isDark
+                            ? Color.fromRGBO(42, 28, 28, 0.5)
+                            : Color.fromRGBO(255, 245, 245, 0.5))
+                        : (isDark ? const Color(0xFF374151) : Colors.white),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    textStyle: const TextStyle(fontSize: 12),
+                  ),
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        );
+      }).toList(),
     );
   }
 
