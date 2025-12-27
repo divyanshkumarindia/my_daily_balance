@@ -226,6 +226,78 @@ class AccountingModel extends ChangeNotifier {
     _persist();
   }
 
+  void duplicateReceiptAccount(String originalKey) {
+    if (!receiptAccounts.containsKey(originalKey)) return;
+
+    // Generate new unique key
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final newKey = 'custom_receipt_$timestamp';
+
+    // Deep copy the entries
+    final originalEntries = receiptAccounts[originalKey]!;
+    final copiedEntries = originalEntries.map((entry) {
+      final newEntryId =
+          '${newKey}_entry_${DateTime.now().millisecondsSinceEpoch}';
+      final copiedRows = entry.rows.map((row) {
+        return TransactionRow(
+          id: '${newEntryId}_row_${DateTime.now().millisecondsSinceEpoch}',
+          cash: row.cash,
+          bank: row.bank,
+        );
+      }).toList();
+
+      return TransactionEntry(
+        id: newEntryId,
+        description: entry.description,
+        rows: copiedRows,
+      );
+    }).toList();
+
+    // Add to accounts with copied data
+    receiptAccounts[newKey] = copiedEntries;
+    receiptLabels[newKey] =
+        '${receiptLabels[originalKey] ?? "Category"} (Copy)';
+
+    notifyListeners();
+    _persist();
+  }
+
+  void duplicatePaymentAccount(String originalKey) {
+    if (!paymentAccounts.containsKey(originalKey)) return;
+
+    // Generate new unique key
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final newKey = 'custom_payment_$timestamp';
+
+    // Deep copy the entries
+    final originalEntries = paymentAccounts[originalKey]!;
+    final copiedEntries = originalEntries.map((entry) {
+      final newEntryId =
+          '${newKey}_entry_${DateTime.now().millisecondsSinceEpoch}';
+      final copiedRows = entry.rows.map((row) {
+        return TransactionRow(
+          id: '${newEntryId}_row_${DateTime.now().millisecondsSinceEpoch}',
+          cash: row.cash,
+          bank: row.bank,
+        );
+      }).toList();
+
+      return TransactionEntry(
+        id: newEntryId,
+        description: entry.description,
+        rows: copiedRows,
+      );
+    }).toList();
+
+    // Add to accounts with copied data
+    paymentAccounts[newKey] = copiedEntries;
+    paymentLabels[newKey] =
+        '${paymentLabels[originalKey] ?? "Category"} (Copy)';
+
+    notifyListeners();
+    _persist();
+  }
+
   double _calculateAccountTotal(List<TransactionEntry> entries) {
     double total = 0.0;
     for (var e in entries) {

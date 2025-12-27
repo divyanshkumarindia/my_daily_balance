@@ -1912,6 +1912,55 @@ class _AccountingFormState extends State<AccountingForm> {
                       GestureDetector(
                         onTap: () async {
                           // Show confirmation dialog
+                          final categoryName = isExpense
+                              ? (model.paymentLabels[accountKey] ??
+                                  'this category')
+                              : (model.receiptLabels[accountKey] ??
+                                  'this category');
+
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Duplicate Category'),
+                              content: Text(
+                                  'Create a copy of "$categoryName" with all its entries and data?'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF4F46E5),
+                                  ),
+                                  child: const Text('Duplicate'),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirm == true) {
+                            if (isExpense) {
+                              model.duplicatePaymentAccount(accountKey);
+                            } else {
+                              model.duplicateReceiptAccount(accountKey);
+                            }
+                          }
+                        },
+                        child: Icon(
+                          Icons.content_copy,
+                          size: 18,
+                          color: isDark
+                              ? const Color(0xFF9CA3AF)
+                              : const Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () async {
+                          // Show confirmation dialog
                           final confirm = await showDialog<bool>(
                             context: context,
                             builder: (context) => AlertDialog(
