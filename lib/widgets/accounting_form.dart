@@ -723,6 +723,23 @@ class _AccountingFormState extends State<AccountingForm> {
     return _calculateTotalIncome() - _calculateTotalExpenses();
   }
 
+  void _addNewCategoryBox(bool isReceipt) {
+    // Generate unique key with timestamp
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+    final key = 'custom_${isReceipt ? 'receipt' : 'payment'}_$timestamp';
+
+    if (isReceipt) {
+      model.addReceiptAccount(key);
+    } else {
+      model.addPaymentAccount(key);
+    }
+
+    // Initialize expansion state for new box
+    setState(() {
+      categoryExpansionState[key] = true;
+    });
+  }
+
   Widget _buildIncomeSection(bool isDark, AccountingModel model) {
     // Switch based on user type to call the appropriate builder
     switch (model.userType) {
@@ -754,7 +771,7 @@ class _AccountingFormState extends State<AccountingForm> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                model.addEntryToAccount('salary', receipt: true);
+                _addNewCategoryBox(true); // true = receipt/income
               },
               icon: const Icon(Icons.add, size: 16),
               label: const Text('Add New Entry Box'),
@@ -840,6 +857,32 @@ class _AccountingFormState extends State<AccountingForm> {
           showEntry: categoryExpansionState['investment_returns'] ?? false,
           receipt: true,
         ),
+        // Dynamically render any custom receipt accounts (new boxes added by user)
+        ...model.receiptAccounts.keys
+            .where((key) => key.startsWith('custom_receipt_'))
+            .map((key) {
+          return Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                isDark,
+                key,
+                model.receiptLabels[key] ?? 'New Income Category',
+                _formatCategoryTotal(key, false),
+                const Color(0xFF059669),
+                categoryExpansionState[key] ?? true,
+                () {
+                  setState(() {
+                    categoryExpansionState[key] =
+                        !(categoryExpansionState[key] ?? true);
+                  });
+                },
+                showEntry: categoryExpansionState[key] ?? true,
+                receipt: true,
+              ),
+            ],
+          );
+        }).toList(),
       ],
     );
   }
@@ -861,7 +904,7 @@ class _AccountingFormState extends State<AccountingForm> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                model.addEntryToAccount('sales', receipt: true);
+                _addNewCategoryBox(true); // true = receipt/income
               },
               icon: const Icon(Icons.add, size: 16),
               label: const Text('Add New Entry Box'),
@@ -947,6 +990,32 @@ class _AccountingFormState extends State<AccountingForm> {
           showEntry: categoryExpansionState['commission_received'] ?? false,
           receipt: true,
         ),
+        // Dynamically render any custom receipt accounts (new boxes added by user)
+        ...model.receiptAccounts.keys
+            .where((key) => key.startsWith('custom_receipt_'))
+            .map((key) {
+          return Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                isDark,
+                key,
+                model.receiptLabels[key] ?? 'New Income Category',
+                _formatCategoryTotal(key, false),
+                const Color(0xFF059669),
+                categoryExpansionState[key] ?? true,
+                () {
+                  setState(() {
+                    categoryExpansionState[key] =
+                        !(categoryExpansionState[key] ?? true);
+                  });
+                },
+                showEntry: categoryExpansionState[key] ?? true,
+                receipt: true,
+              ),
+            ],
+          );
+        }).toList(),
       ],
     );
   }
@@ -968,7 +1037,7 @@ class _AccountingFormState extends State<AccountingForm> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                model.addEntryToAccount('fees_collected', receipt: true);
+                _addNewCategoryBox(true); // true = receipt/income
               },
               icon: const Icon(Icons.add, size: 16),
               label: const Text('Add New Entry Box'),
@@ -1054,6 +1123,32 @@ class _AccountingFormState extends State<AccountingForm> {
           showEntry: categoryExpansionState['grants'] ?? false,
           receipt: true,
         ),
+        // Dynamically render any custom receipt accounts (new boxes added by user)
+        ...model.receiptAccounts.keys
+            .where((key) => key.startsWith('custom_receipt_'))
+            .map((key) {
+          return Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                isDark,
+                key,
+                model.receiptLabels[key] ?? 'New Income Category',
+                _formatCategoryTotal(key, false),
+                const Color(0xFF059669),
+                categoryExpansionState[key] ?? true,
+                () {
+                  setState(() {
+                    categoryExpansionState[key] =
+                        !(categoryExpansionState[key] ?? true);
+                  });
+                },
+                showEntry: categoryExpansionState[key] ?? true,
+                receipt: true,
+              ),
+            ],
+          );
+        }).toList(),
       ],
     );
   }
@@ -1075,7 +1170,7 @@ class _AccountingFormState extends State<AccountingForm> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                model.addEntryToAccount('income_1', receipt: true);
+                _addNewCategoryBox(true); // true = receipt/income
               },
               icon: const Icon(Icons.add, size: 16),
               label: const Text('Add New Entry Box'),
@@ -1144,6 +1239,32 @@ class _AccountingFormState extends State<AccountingForm> {
           showEntry: categoryExpansionState['income_3'] ?? false,
           receipt: true,
         ),
+        // Dynamically render any custom receipt accounts (new boxes added by user)
+        ...model.receiptAccounts.keys
+            .where((key) => key.startsWith('custom_receipt_'))
+            .map((key) {
+          return Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                isDark,
+                key,
+                model.receiptLabels[key] ?? 'New Income Category',
+                _formatCategoryTotal(key, false),
+                const Color(0xFF059669),
+                categoryExpansionState[key] ?? true,
+                () {
+                  setState(() {
+                    categoryExpansionState[key] =
+                        !(categoryExpansionState[key] ?? true);
+                  });
+                },
+                showEntry: categoryExpansionState[key] ?? true,
+                receipt: true,
+              ),
+            ],
+          );
+        }).toList(),
       ],
     );
   }
@@ -1179,7 +1300,7 @@ class _AccountingFormState extends State<AccountingForm> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                model.addEntryToAccount('groceries', receipt: false);
+                _addNewCategoryBox(false); // false = payment/expense
               },
               icon: const Icon(Icons.add, size: 16),
               label: const Text('Add New Entry Box'),
@@ -1265,6 +1386,32 @@ class _AccountingFormState extends State<AccountingForm> {
           showEntry: categoryExpansionState['transport'] ?? false,
           isExpense: true,
         ),
+        // Dynamically render any custom payment accounts (new boxes added by user)
+        ...model.paymentAccounts.keys
+            .where((key) => key.startsWith('custom_payment_'))
+            .map((key) {
+          return Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                isDark,
+                key,
+                model.paymentLabels[key] ?? 'New Expense Category',
+                _formatCategoryTotal(key, true),
+                const Color(0xFFDC2626),
+                categoryExpansionState[key] ?? true,
+                () {
+                  setState(() {
+                    categoryExpansionState[key] =
+                        !(categoryExpansionState[key] ?? true);
+                  });
+                },
+                showEntry: categoryExpansionState[key] ?? true,
+                isExpense: true,
+              ),
+            ],
+          );
+        }).toList(),
       ],
     );
   }
@@ -1286,7 +1433,7 @@ class _AccountingFormState extends State<AccountingForm> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                model.addEntryToAccount('purchases', receipt: false);
+                _addNewCategoryBox(false); // false = payment/expense
               },
               icon: const Icon(Icons.add, size: 16),
               label: const Text('Add New Entry Box'),
@@ -1372,6 +1519,32 @@ class _AccountingFormState extends State<AccountingForm> {
           showEntry: categoryExpansionState['utilities_business'] ?? false,
           isExpense: true,
         ),
+        // Dynamically render any custom payment accounts (new boxes added by user)
+        ...model.paymentAccounts.keys
+            .where((key) => key.startsWith('custom_payment_'))
+            .map((key) {
+          return Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                isDark,
+                key,
+                model.paymentLabels[key] ?? 'New Expense Category',
+                _formatCategoryTotal(key, true),
+                const Color(0xFFDC2626),
+                categoryExpansionState[key] ?? true,
+                () {
+                  setState(() {
+                    categoryExpansionState[key] =
+                        !(categoryExpansionState[key] ?? true);
+                  });
+                },
+                showEntry: categoryExpansionState[key] ?? true,
+                isExpense: true,
+              ),
+            ],
+          );
+        }).toList(),
       ],
     );
   }
@@ -1393,7 +1566,7 @@ class _AccountingFormState extends State<AccountingForm> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                model.addEntryToAccount('staff_salaries', receipt: false);
+                _addNewCategoryBox(false); // false = payment/expense
               },
               icon: const Icon(Icons.add, size: 16),
               label: const Text('Add New Entry Box'),
@@ -1479,6 +1652,32 @@ class _AccountingFormState extends State<AccountingForm> {
           showEntry: categoryExpansionState['library_supplies'] ?? false,
           isExpense: true,
         ),
+        // Dynamically render any custom payment accounts (new boxes added by user)
+        ...model.paymentAccounts.keys
+            .where((key) => key.startsWith('custom_payment_'))
+            .map((key) {
+          return Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                isDark,
+                key,
+                model.paymentLabels[key] ?? 'New Expense Category',
+                _formatCategoryTotal(key, true),
+                const Color(0xFFDC2626),
+                categoryExpansionState[key] ?? true,
+                () {
+                  setState(() {
+                    categoryExpansionState[key] =
+                        !(categoryExpansionState[key] ?? true);
+                  });
+                },
+                showEntry: categoryExpansionState[key] ?? true,
+                isExpense: true,
+              ),
+            ],
+          );
+        }).toList(),
       ],
     );
   }
@@ -1500,7 +1699,7 @@ class _AccountingFormState extends State<AccountingForm> {
             ),
             OutlinedButton.icon(
               onPressed: () {
-                model.addEntryToAccount('expense_1', receipt: false);
+                _addNewCategoryBox(false); // false = payment/expense
               },
               icon: const Icon(Icons.add, size: 16),
               label: const Text('Add New Entry Box'),
@@ -1569,6 +1768,32 @@ class _AccountingFormState extends State<AccountingForm> {
           showEntry: categoryExpansionState['expense_3'] ?? false,
           isExpense: true,
         ),
+        // Dynamically render any custom payment accounts (new boxes added by user)
+        ...model.paymentAccounts.keys
+            .where((key) => key.startsWith('custom_payment_'))
+            .map((key) {
+          return Column(
+            children: [
+              const SizedBox(height: 12),
+              _buildCategoryCard(
+                isDark,
+                key,
+                model.paymentLabels[key] ?? 'New Expense Category',
+                _formatCategoryTotal(key, true),
+                const Color(0xFFDC2626),
+                categoryExpansionState[key] ?? true,
+                () {
+                  setState(() {
+                    categoryExpansionState[key] =
+                        !(categoryExpansionState[key] ?? true);
+                  });
+                },
+                showEntry: categoryExpansionState[key] ?? true,
+                isExpense: true,
+              ),
+            ],
+          );
+        }).toList(),
       ],
     );
   }
