@@ -1672,9 +1672,8 @@ class _AccountingFormState extends State<AccountingForm> {
                       const SizedBox(width: 4),
                       GestureDetector(
                         onTap: () {
-                          final m = Provider.of<AccountingModel>(context,
-                              listen: false);
-                          m.addEntryToAccount(accountKey, receipt: !isExpense);
+                          model.addEntryToAccount(accountKey,
+                              receipt: !isExpense);
                         },
                         child: Icon(
                           Icons.add,
@@ -1685,12 +1684,47 @@ class _AccountingFormState extends State<AccountingForm> {
                         ),
                       ),
                       const SizedBox(width: 4),
-                      Icon(
-                        Icons.close,
-                        size: 18,
-                        color: isDark
-                            ? const Color(0xFF9CA3AF)
-                            : const Color(0xFF6B7280),
+                      GestureDetector(
+                        onTap: () async {
+                          // Show confirmation dialog
+                          final confirm = await showDialog<bool>(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              title: const Text('Delete Category'),
+                              content: Text(
+                                  'Are you sure you want to delete this category? All entries will be lost.'),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(context, false),
+                                  child: const Text('Cancel'),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context, true),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                  ),
+                                  child: const Text('Delete'),
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (confirm == true) {
+                            if (isExpense) {
+                              model.removePaymentAccount(accountKey);
+                            } else {
+                              model.removeReceiptAccount(accountKey);
+                            }
+                          }
+                        },
+                        child: Icon(
+                          Icons.close,
+                          size: 18,
+                          color: isDark
+                              ? const Color(0xFF9CA3AF)
+                              : const Color(0xFF6B7280),
+                        ),
                       ),
                     ],
                   ),
