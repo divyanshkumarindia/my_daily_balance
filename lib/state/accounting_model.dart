@@ -199,15 +199,49 @@ class AccountingModel extends ChangeNotifier {
   }
 
   void addReceiptAccount(String key) {
-    receiptAccounts[key] = [TransactionEntry(id: '${key}_1')];
-    receiptLabels[key] = 'New Receipt Account';
+    // Insert at the beginning (rebuild map)
+    final newReceiptAccounts = <String, List<TransactionEntry>>{};
+    final newReceiptLabels = <String, String>{};
+
+    // Add new one first
+    newReceiptAccounts[key] = [TransactionEntry(id: '${key}_1')];
+    newReceiptLabels[key] = 'New Income Category';
+
+    // Then add all existing ones
+    receiptAccounts.forEach((k, v) {
+      newReceiptAccounts[k] = v;
+    });
+    receiptLabels.forEach((k, v) {
+      newReceiptLabels[k] = v;
+    });
+
+    receiptAccounts = newReceiptAccounts;
+    receiptLabels = newReceiptLabels;
+
     notifyListeners();
     _persist();
   }
 
   void addPaymentAccount(String key) {
-    paymentAccounts[key] = [TransactionEntry(id: '${key}_1')];
-    paymentLabels[key] = 'New Payment Account';
+    // Insert at the beginning (rebuild map)
+    final newPaymentAccounts = <String, List<TransactionEntry>>{};
+    final newPaymentLabels = <String, String>{};
+
+    // Add new one first
+    newPaymentAccounts[key] = [TransactionEntry(id: '${key}_1')];
+    newPaymentLabels[key] = 'New Expense Category';
+
+    // Then add all existing ones
+    paymentAccounts.forEach((k, v) {
+      newPaymentAccounts[k] = v;
+    });
+    paymentLabels.forEach((k, v) {
+      newPaymentLabels[k] = v;
+    });
+
+    paymentAccounts = newPaymentAccounts;
+    paymentLabels = newPaymentLabels;
+
     notifyListeners();
     _persist();
   }
@@ -253,10 +287,24 @@ class AccountingModel extends ChangeNotifier {
       );
     }).toList();
 
-    // Add to accounts with copied data
-    receiptAccounts[newKey] = copiedEntries;
-    receiptLabels[newKey] =
-        '${receiptLabels[originalKey] ?? "Category"} (Copy)';
+    // Insert right after the original key (rebuild map to maintain order)
+    final newReceiptAccounts = <String, List<TransactionEntry>>{};
+    final newReceiptLabels = <String, String>{};
+
+    for (var key in receiptAccounts.keys) {
+      newReceiptAccounts[key] = receiptAccounts[key]!;
+      newReceiptLabels[key] = receiptLabels[key] ?? '';
+
+      // Insert copy right after the original
+      if (key == originalKey) {
+        newReceiptAccounts[newKey] = copiedEntries;
+        newReceiptLabels[newKey] =
+            '${receiptLabels[originalKey] ?? "Category"} (Copy)';
+      }
+    }
+
+    receiptAccounts = newReceiptAccounts;
+    receiptLabels = newReceiptLabels;
 
     notifyListeners();
     _persist();
@@ -289,10 +337,24 @@ class AccountingModel extends ChangeNotifier {
       );
     }).toList();
 
-    // Add to accounts with copied data
-    paymentAccounts[newKey] = copiedEntries;
-    paymentLabels[newKey] =
-        '${paymentLabels[originalKey] ?? "Category"} (Copy)';
+    // Insert right after the original key (rebuild map to maintain order)
+    final newPaymentAccounts = <String, List<TransactionEntry>>{};
+    final newPaymentLabels = <String, String>{};
+
+    for (var key in paymentAccounts.keys) {
+      newPaymentAccounts[key] = paymentAccounts[key]!;
+      newPaymentLabels[key] = paymentLabels[key] ?? '';
+
+      // Insert copy right after the original
+      if (key == originalKey) {
+        newPaymentAccounts[newKey] = copiedEntries;
+        newPaymentLabels[newKey] =
+            '${paymentLabels[originalKey] ?? "Category"} (Copy)';
+      }
+    }
+
+    paymentAccounts = newPaymentAccounts;
+    paymentLabels = newPaymentLabels;
 
     notifyListeners();
     _persist();
