@@ -88,6 +88,114 @@ class _AccountingFormState extends State<AccountingForm> {
   String _formatDate(DateTime d) =>
       '${d.day.toString().padLeft(2, '0')}-${d.month.toString().padLeft(2, '0')}-${d.year}';
 
+  // Currency helper methods
+  String _getCurrencySymbol(String currencyCode) {
+    const currencySymbols = {
+      'INR': '₹',
+      'USD': '\$',
+      'EUR': '€',
+      'GBP': '£',
+      'JPY': '¥',
+      'AUD': 'A\$',
+      'CAD': 'C\$',
+      'CHF': 'CHF',
+      'CNY': '¥',
+      'SEK': 'kr',
+      'NZD': 'NZ\$',
+      'SGD': 'S\$',
+      'HKD': 'HK\$',
+      'NOK': 'kr',
+      'KRW': '₩',
+      'TRY': '₺',
+      'RUB': '₽',
+      'BRL': 'R\$',
+      'ZAR': 'R',
+      'MXN': 'Mex\$',
+      'AED': 'AED',
+      'SAR': 'SAR',
+      'THB': '฿',
+      'MYR': 'RM',
+      'IDR': 'Rp',
+      'PHP': '₱',
+      'PKR': 'Rs',
+      'BDT': '৳',
+      'LKR': 'Rs',
+      'NPR': 'Rs',
+    };
+    return currencySymbols[currencyCode] ?? currencyCode;
+  }
+
+  String _getCurrencyName(String currencyCode) {
+    const currencyNames = {
+      'INR': 'Indian Rupee',
+      'USD': 'US Dollar',
+      'EUR': 'Euro',
+      'GBP': 'British Pound',
+      'JPY': 'Japanese Yen',
+      'AUD': 'Australian Dollar',
+      'CAD': 'Canadian Dollar',
+      'CHF': 'Swiss Franc',
+      'CNY': 'Chinese Yuan',
+      'SEK': 'Swedish Krona',
+      'NZD': 'New Zealand Dollar',
+      'SGD': 'Singapore Dollar',
+      'HKD': 'Hong Kong Dollar',
+      'NOK': 'Norwegian Krone',
+      'KRW': 'South Korean Won',
+      'TRY': 'Turkish Lira',
+      'RUB': 'Russian Ruble',
+      'BRL': 'Brazilian Real',
+      'ZAR': 'South African Rand',
+      'MXN': 'Mexican Peso',
+      'AED': 'UAE Dirham',
+      'SAR': 'Saudi Riyal',
+      'THB': 'Thai Baht',
+      'MYR': 'Malaysian Ringgit',
+      'IDR': 'Indonesian Rupiah',
+      'PHP': 'Philippine Peso',
+      'PKR': 'Pakistani Rupee',
+      'BDT': 'Bangladeshi Taka',
+      'LKR': 'Sri Lankan Rupee',
+      'NPR': 'Nepalese Rupee',
+    };
+    return currencyNames[currencyCode] ?? currencyCode;
+  }
+
+  List<String> _getAvailableCurrencies() {
+    return [
+      'INR',
+      'USD',
+      'EUR',
+      'GBP',
+      'JPY',
+      'AUD',
+      'CAD',
+      'CHF',
+      'CNY',
+      'SEK',
+      'NZD',
+      'SGD',
+      'HKD',
+      'NOK',
+      'KRW',
+      'TRY',
+      'RUB',
+      'BRL',
+      'ZAR',
+      'MXN',
+      'AED',
+      'SAR',
+      'THB',
+      'MYR',
+      'IDR',
+      'PHP',
+      'PKR',
+      'BDT',
+      'LKR',
+      'NPR',
+    ];
+  }
+
   DateTime? _parseDate(String s) {
     if (s.isEmpty) return null;
     try {
@@ -332,7 +440,7 @@ class _AccountingFormState extends State<AccountingForm> {
   // Show Basic Report Dialog
   void _showBasicReport(BuildContext context, AccountingModel model) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final currencySymbol = model.currency == 'INR' ? '₹' : model.currency;
+    final currencySymbol = _getCurrencySymbol(model.currency);
 
     // Calculate closing balance
     final closingBalance = model.netBalance;
@@ -497,7 +605,7 @@ class _AccountingFormState extends State<AccountingForm> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '(All amounts in ${model.currency == 'INR' ? 'Indian Rupees ₹' : model.currency})',
+                        '(All amounts in ${_getCurrencyName(model.currency)})',
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark ? Colors.grey[500] : Colors.grey[500],
@@ -907,7 +1015,7 @@ class _AccountingFormState extends State<AccountingForm> {
   // Show Detailed Report Dialog
   void _showDetailedReport(BuildContext context, AccountingModel model) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final currencySymbol = model.currency == 'INR' ? '₹' : model.currency;
+    final currencySymbol = _getCurrencySymbol(model.currency);
 
     // Calculate totals
     double totalReceiptsCash = model.openingCash;
@@ -1105,7 +1213,7 @@ class _AccountingFormState extends State<AccountingForm> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '(All amounts in ${model.currency == 'INR' ? 'Indian Rupees ₹' : model.currency})',
+                        '(All amounts in ${_getCurrencyName(model.currency)})',
                         style: TextStyle(
                           fontSize: 12,
                           color: isDark ? Colors.grey[500] : Colors.grey[500],
@@ -1740,48 +1848,150 @@ class _AccountingFormState extends State<AccountingForm> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Currency Button (show model.currency)
+                          // Currency Dropdown
                           Center(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              decoration: BoxDecoration(
-                                color: isDark
-                                    ? const Color(0xFF374151)
-                                    : Colors.white,
-                                border: Border.all(
+                            child: InkWell(
+                              onTap: () async {
+                                final selected = await showDialog<String>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    backgroundColor: isDark
+                                        ? const Color(0xFF1F2937)
+                                        : Colors.white,
+                                    title: Text(
+                                      'Select Currency',
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? Colors.white
+                                            : Colors.black87,
+                                      ),
+                                    ),
+                                    content: SizedBox(
+                                      width: double.maxFinite,
+                                      child: ListView.builder(
+                                        shrinkWrap: true,
+                                        itemCount:
+                                            _getAvailableCurrencies().length,
+                                        itemBuilder: (context, index) {
+                                          final currency =
+                                              _getAvailableCurrencies()[index];
+                                          final isSelected =
+                                              currency == model.currency;
+                                          return ListTile(
+                                            selected: isSelected,
+                                            selectedTileColor: isDark
+                                                ? const Color(0xFF374151)
+                                                : const Color(0xFFEEF2FF),
+                                            leading: Text(
+                                              _getCurrencySymbol(currency),
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: isSelected
+                                                    ? const Color(0xFF4F46E5)
+                                                    : (isDark
+                                                        ? Colors.grey[400]
+                                                        : Colors.grey[700]),
+                                              ),
+                                            ),
+                                            title: Text(
+                                              currency,
+                                              style: TextStyle(
+                                                fontWeight: isSelected
+                                                    ? FontWeight.bold
+                                                    : FontWeight.normal,
+                                                color: isSelected
+                                                    ? const Color(0xFF4F46E5)
+                                                    : (isDark
+                                                        ? Colors.white
+                                                        : Colors.black87),
+                                              ),
+                                            ),
+                                            subtitle: Text(
+                                              _getCurrencyName(currency),
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: isDark
+                                                    ? Colors.grey[400]
+                                                    : Colors.grey[600],
+                                              ),
+                                            ),
+                                            trailing: isSelected
+                                                ? const Icon(
+                                                    Icons.check_circle,
+                                                    color: Color(0xFF4F46E5),
+                                                  )
+                                                : null,
+                                            onTap: () => Navigator.pop(
+                                                context, currency),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            color: isDark
+                                                ? Colors.grey[400]
+                                                : Colors.grey[700],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                                if (selected != null &&
+                                    selected != model.currency) {
+                                  model.setCurrency(selected);
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                decoration: BoxDecoration(
                                   color: isDark
-                                      ? const Color(0xFF4B5563)
-                                      : const Color(0xFFD1D5DB),
+                                      ? const Color(0xFF374151)
+                                      : Colors.white,
+                                  border: Border.all(
+                                    color: isDark
+                                        ? const Color(0xFF4B5563)
+                                        : const Color(0xFFD1D5DB),
+                                  ),
+                                  borderRadius: BorderRadius.circular(6),
                                 ),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    model.currency == 'INR'
-                                        ? '₹'
-                                        : model.currency,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      _getCurrencySymbol(model.currency),
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w700,
+                                      ),
                                     ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    model.currency == 'INR'
-                                        ? '- Indian Rupee'
-                                        : '- ${model.currency}',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w500,
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '${model.currency} - ${_getCurrencyName(model.currency)}',
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        color: isDark
+                                            ? const Color(0xFFE5E7EB)
+                                            : const Color(0xFF374151),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Icon(
+                                      Icons.arrow_drop_down,
                                       color: isDark
-                                          ? const Color(0xFFE5E7EB)
-                                          : const Color(0xFF374151),
+                                          ? const Color(0xFF9CA3AF)
+                                          : const Color(0xFF6B7280),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
