@@ -506,22 +506,34 @@ class _AccountingFormState extends State<AccountingForm> {
                       ),
                       const SizedBox(height: 24),
 
-                      // Two Column Layout - Receipts and Payments
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      // Row-wise Layout - Receipts Section
+                      Column(
                         children: [
-                          // Receipts Column
-                          Expanded(
+                          // Receipts Section
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF111827)
+                                  : const Color(0xFFF0FDF4),
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF374151)
+                                    : const Color(0xFF86EFAC),
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             child: Column(
                               children: [
                                 // Receipts Header
                                 Container(
+                                  width: double.infinity,
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFF10B981),
                                     borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(8),
-                                      topRight: Radius.circular(8),
+                                      topLeft: Radius.circular(7),
+                                      topRight: Radius.circular(7),
                                     ),
                                   ),
                                   child: Text(
@@ -535,22 +547,8 @@ class _AccountingFormState extends State<AccountingForm> {
                                   ),
                                 ),
                                 // Receipts Content
-                                Container(
+                                Padding(
                                   padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: isDark
-                                        ? const Color(0xFF111827)
-                                        : const Color(0xFFF0FDF4),
-                                    border: Border.all(
-                                      color: isDark
-                                          ? const Color(0xFF374151)
-                                          : const Color(0xFF86EFAC),
-                                    ),
-                                    borderRadius: const BorderRadius.only(
-                                      bottomLeft: Radius.circular(8),
-                                      bottomRight: Radius.circular(8),
-                                    ),
-                                  ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -565,7 +563,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                       const SizedBox(height: 4),
                                       _buildReportItemRow(
                                         '  Balance B/F:',
-                                        '$currencySymbol${(model.openingCash + model.openingBank + model.openingOther).toStringAsFixed(2)}',
+                                        '$currencySymbol${_formatAmount(model.openingCash + model.openingBank + model.openingOther)}',
                                         isDark,
                                       ),
                                       const Divider(height: 16),
@@ -589,7 +587,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                             child: _buildReportItemRow(
                                               model.receiptLabels[entry.key] ??
                                                   entry.key,
-                                              '$currencySymbol${categoryTotal.toStringAsFixed(2)}',
+                                              '$currencySymbol${_formatAmount(categoryTotal)}',
                                               isDark,
                                             ),
                                           );
@@ -600,7 +598,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                       // Total Receipts
                                       _buildReportItemRow(
                                         'Total Receipts:',
-                                        '$currencySymbol${netReceipts.toStringAsFixed(2)}',
+                                        '$currencySymbol${_formatAmount(netReceipts)}',
                                         isDark,
                                         isBold: true,
                                         color: const Color(0xFF059669),
@@ -611,19 +609,34 @@ class _AccountingFormState extends State<AccountingForm> {
                               ],
                             ),
                           ),
-                          const SizedBox(width: 16),
-                          // Payments Column
-                          Expanded(
+
+                          const SizedBox(height: 20),
+
+                          // Payments Section
+                          Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF111827)
+                                  : const Color(0xFFFEF2F2),
+                              border: Border.all(
+                                color: isDark
+                                    ? const Color(0xFF374151)
+                                    : const Color(0xFFFCA5A5),
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                             child: Column(
                               children: [
                                 // Payments Header
                                 Container(
+                                  width: double.infinity,
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFDC2626),
                                     borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(8),
-                                      topRight: Radius.circular(8),
+                                      topLeft: Radius.circular(7),
+                                      topRight: Radius.circular(7),
                                     ),
                                   ),
                                   child: Text(
@@ -637,22 +650,8 @@ class _AccountingFormState extends State<AccountingForm> {
                                   ),
                                 ),
                                 // Payments Content
-                                Container(
+                                Padding(
                                   padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: isDark
-                                        ? const Color(0xFF111827)
-                                        : const Color(0xFFFEF2F2),
-                                    border: Border.all(
-                                      color: isDark
-                                          ? const Color(0xFF374151)
-                                          : const Color(0xFFFCA5A5),
-                                    ),
-                                    borderRadius: const BorderRadius.only(
-                                      bottomLeft: Radius.circular(8),
-                                      bottomRight: Radius.circular(8),
-                                    ),
-                                  ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -677,7 +676,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                             child: _buildReportItemRow(
                                               model.paymentLabels[entry.key] ??
                                                   entry.key,
-                                              '$currencySymbol${categoryTotal.toStringAsFixed(2)}',
+                                              '$currencySymbol${_formatAmount(categoryTotal)}',
                                               isDark,
                                             ),
                                           );
@@ -695,14 +694,14 @@ class _AccountingFormState extends State<AccountingForm> {
                                       const SizedBox(height: 4),
                                       _buildReportItemRow(
                                         '  Balance:',
-                                        '$currencySymbol${closingBalance.toStringAsFixed(2)}',
+                                        '$currencySymbol${_formatAmount(closingBalance)}',
                                         isDark,
                                       ),
                                       const Divider(height: 16, thickness: 2),
                                       // Total Payments
                                       _buildReportItemRow(
                                         'Total Payments:',
-                                        '$currencySymbol${netPayments.toStringAsFixed(2)}',
+                                        '$currencySymbol${_formatAmount(netPayments)}',
                                         isDark,
                                         isBold: true,
                                         color: const Color(0xFFDC2626),
@@ -742,7 +741,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    '$currencySymbol${netReceipts.toStringAsFixed(2)}',
+                                    '$currencySymbol${_formatAmount(netReceipts)}',
                                     style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
@@ -775,7 +774,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    '$currencySymbol${netPayments.toStringAsFixed(2)}',
+                                    '$currencySymbol${_formatAmount(netPayments)}',
                                     style: const TextStyle(
                                       fontSize: 22,
                                       fontWeight: FontWeight.bold,
@@ -812,7 +811,7 @@ class _AccountingFormState extends State<AccountingForm> {
                               ),
                             ),
                             Text(
-                              '$currencySymbol${closingBalance.toStringAsFixed(2)}',
+                              '$currencySymbol${_formatAmount(closingBalance)}',
                               style: const TextStyle(
                                 fontSize: 28,
                                 fontWeight: FontWeight.bold,
@@ -831,6 +830,27 @@ class _AccountingFormState extends State<AccountingForm> {
         ),
       ),
     );
+  }
+
+  // Helper: Format number for reports (removes .00, keeps decimals when needed)
+  String _formatAmount(double amount) {
+    if (amount == 0.0) {
+      return '0.00';
+    }
+    // Check if the number has decimals
+    if (amount == amount.roundToDouble()) {
+      // No decimals, show as integer
+      return amount.toInt().toString();
+    } else {
+      // Has decimals, show with decimals (remove trailing zeros)
+      String formatted = amount.toStringAsFixed(2);
+      // Remove trailing zeros after decimal point
+      if (formatted.contains('.')) {
+        formatted = formatted.replaceAll(RegExp(r'0+$'), '');
+        formatted = formatted.replaceAll(RegExp(r'\.$'), '');
+      }
+      return formatted;
+    }
   }
 
   // Helper: Build action button for report dialogs
@@ -1122,13 +1142,12 @@ class _AccountingFormState extends State<AccountingForm> {
                           _buildTableRow(
                             [
                               '   Balance B/F',
-                              model.openingCash.toStringAsFixed(2),
-                              (model.openingBank + model.openingOther)
-                                  .toStringAsFixed(2),
-                              (model.openingCash +
-                                      model.openingBank +
-                                      model.openingOther)
-                                  .toStringAsFixed(2)
+                              _formatAmount(model.openingCash),
+                              _formatAmount(
+                                  model.openingBank + model.openingOther),
+                              _formatAmount(model.openingCash +
+                                  model.openingBank +
+                                  model.openingOther)
                             ],
                             isDark,
                           ),
@@ -1146,9 +1165,9 @@ class _AccountingFormState extends State<AccountingForm> {
                                 _buildTableRow(
                                   [
                                     model.receiptLabels[entry.key] ?? entry.key,
-                                    cash.toStringAsFixed(2),
-                                    bank.toStringAsFixed(2),
-                                    (cash + bank).toStringAsFixed(2)
+                                    _formatAmount(cash),
+                                    _formatAmount(bank),
+                                    _formatAmount(cash + bank)
                                   ],
                                   isDark,
                                 )
@@ -1167,10 +1186,10 @@ class _AccountingFormState extends State<AccountingForm> {
                           _buildTableRow(
                             [
                               'Total Receipts',
-                              totalReceiptsCash.toStringAsFixed(2),
-                              totalReceiptsBank.toStringAsFixed(2),
-                              (totalReceiptsCash + totalReceiptsBank)
-                                  .toStringAsFixed(2)
+                              _formatAmount(totalReceiptsCash),
+                              _formatAmount(totalReceiptsBank),
+                              _formatAmount(
+                                  totalReceiptsCash + totalReceiptsBank)
                             ],
                             isDark,
                             isBold: true,
@@ -1215,9 +1234,9 @@ class _AccountingFormState extends State<AccountingForm> {
                                 _buildTableRow(
                                   [
                                     model.paymentLabels[entry.key] ?? entry.key,
-                                    cash.toStringAsFixed(2),
-                                    bank.toStringAsFixed(2),
-                                    (cash + bank).toStringAsFixed(2)
+                                    _formatAmount(cash),
+                                    _formatAmount(bank),
+                                    _formatAmount(cash + bank)
                                   ],
                                   isDark,
                                 )
@@ -1229,9 +1248,9 @@ class _AccountingFormState extends State<AccountingForm> {
                           _buildTableRow(
                             [
                               'Closing Balance C/F',
-                              closingCash.toStringAsFixed(2),
-                              closingBank.toStringAsFixed(2),
-                              totalClosing.toStringAsFixed(2)
+                              _formatAmount(closingCash),
+                              _formatAmount(closingBank),
+                              _formatAmount(totalClosing)
                             ],
                             isDark,
                             isBold: true,
@@ -1247,14 +1266,11 @@ class _AccountingFormState extends State<AccountingForm> {
                           _buildTableRow(
                             [
                               'Total Payments',
-                              (totalPaymentsCash + closingCash)
-                                  .toStringAsFixed(2),
-                              (totalPaymentsBank + closingBank)
-                                  .toStringAsFixed(2),
-                              (totalPaymentsCash +
-                                      totalPaymentsBank +
-                                      totalClosing)
-                                  .toStringAsFixed(2)
+                              _formatAmount(totalPaymentsCash + closingCash),
+                              _formatAmount(totalPaymentsBank + closingBank),
+                              _formatAmount(totalPaymentsCash +
+                                  totalPaymentsBank +
+                                  totalClosing)
                             ],
                             isDark,
                             isBold: true,
@@ -1306,7 +1322,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        '$currencySymbol${closingCash.toStringAsFixed(2)}',
+                                        '$currencySymbol${_formatAmount(closingCash)}',
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -1339,7 +1355,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        '$currencySymbol${closingBank.toStringAsFixed(2)}',
+                                        '$currencySymbol${_formatAmount(closingBank)}',
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -1372,7 +1388,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                       ),
                                       const SizedBox(height: 8),
                                       Text(
-                                        '$currencySymbol${totalClosing.toStringAsFixed(2)}',
+                                        '$currencySymbol${_formatAmount(totalClosing)}',
                                         style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold,
@@ -1544,148 +1560,6 @@ class _AccountingFormState extends State<AccountingForm> {
   }
 
   // Helper: Calculate receipts without opening balances
-  double _calculateReceiptsOnly(AccountingModel model) {
-    return model.receiptsTotal -
-        (model.openingCash + model.openingBank + model.openingOther);
-  }
-
-  // Helper: Build report section
-  Widget _buildReportSection(String title, List<Widget> children, bool isDark) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: isDark ? Colors.white : Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: isDark ? const Color(0xFF111827) : const Color(0xFFF9FAFB),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: isDark ? const Color(0xFF374151) : const Color(0xFFE5E7EB),
-            ),
-          ),
-          child: Column(
-            children: children,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // Helper: Build report row
-  Widget _buildReportRow(
-    String label,
-    double value,
-    bool isDark, {
-    bool isBold = false,
-    Color? color,
-    bool isCount = false,
-    bool isPercentage = false,
-  }) {
-    final currency =
-        Provider.of<AccountingModel>(context, listen: false).currency;
-    final currencySymbol = currency == 'INR' ? '₹' : currency;
-
-    String valueText;
-    if (isCount) {
-      valueText = value.toInt().toString();
-    } else if (isPercentage) {
-      valueText = '${value.toStringAsFixed(1)}%';
-    } else {
-      valueText = '$currencySymbol ${value.toStringAsFixed(2)}';
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
-              color: color ?? (isDark ? Colors.grey[300] : Colors.black87),
-            ),
-          ),
-          Text(
-            valueText,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-              color: color ?? (isDark ? Colors.white : Colors.black87),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // Helper: Build category breakdown for detailed report
-  List<Widget> _buildCategoryBreakdown(
-    Map<String, List<TransactionEntry>> accounts,
-    Map<String, String> labels,
-    bool isDark,
-  ) {
-    List<Widget> widgets = [];
-    double total = 0.0;
-
-    accounts.forEach((key, entries) {
-      final categoryTotal = entries.fold<double>(
-        0.0,
-        (sum, entry) =>
-            sum +
-            entry.rows.fold<double>(0.0, (s, row) => s + row.cash + row.bank),
-      );
-      total += categoryTotal;
-
-      if (categoryTotal > 0) {
-        widgets.add(_buildReportRow(labels[key] ?? key, categoryTotal, isDark));
-      }
-    });
-
-    if (widgets.isNotEmpty) {
-      widgets.add(const Divider(height: 20));
-      widgets.add(_buildReportRow('Total', total, isDark, isBold: true));
-    } else {
-      widgets.add(
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8),
-          child: Text(
-            'No entries recorded',
-            style: TextStyle(
-              fontSize: 14,
-              fontStyle: FontStyle.italic,
-              color: isDark ? Colors.grey[400] : Colors.grey[600],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return widgets;
-  }
-
-  // Helper: Get total entries count
-  int _getTotalEntriesCount(AccountingModel model) {
-    int count = 0;
-    model.receiptAccounts.forEach((_, entries) {
-      count += entries.length;
-    });
-    model.paymentAccounts.forEach((_, entries) {
-      count += entries.length;
-    });
-    return count;
-  }
-
   @override
   void dispose() {
     periodController.dispose();
