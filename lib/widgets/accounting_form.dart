@@ -489,9 +489,17 @@ class _AccountingFormState extends State<AccountingForm> {
                         ),
                         IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: Icon(Icons.close, size: 20),
-                          padding: EdgeInsets.zero,
-                          constraints: BoxConstraints(),
+                          icon: const Icon(Icons.close, size: 24),
+                          iconSize: 24,
+                          padding: const EdgeInsets.all(8),
+                          constraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 44,
+                          ),
+                          tooltip: 'Close',
+                          style: IconButton.styleFrom(
+                            tapTargetSize: MaterialTapTargetSize.padded,
+                          ),
                         ),
                       ],
                     ),
@@ -1089,9 +1097,17 @@ class _AccountingFormState extends State<AccountingForm> {
                         ),
                         IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: Icon(Icons.close, size: 20),
-                          padding: EdgeInsets.zero,
-                          constraints: BoxConstraints(),
+                          icon: const Icon(Icons.close, size: 24),
+                          iconSize: 24,
+                          padding: const EdgeInsets.all(8),
+                          constraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 44,
+                          ),
+                          tooltip: 'Close',
+                          style: IconButton.styleFrom(
+                            tapTargetSize: MaterialTapTargetSize.padded,
+                          ),
                         ),
                       ],
                     ),
