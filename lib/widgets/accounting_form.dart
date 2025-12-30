@@ -1145,7 +1145,7 @@ class _AccountingFormState extends State<AccountingForm> {
                               [
                                 '   Cash Balance B/F',
                                 _formatAmount(model.openingCash),
-                                '',
+                                '0.00',
                                 _formatAmount(model.openingCash)
                               ],
                               isDark,
@@ -1155,7 +1155,7 @@ class _AccountingFormState extends State<AccountingForm> {
                             _buildTableRow(
                               [
                                 '   Bank Balance B/F',
-                                '',
+                                '0.00',
                                 _formatAmount(model.openingBank),
                                 _formatAmount(model.openingBank)
                               ],
@@ -1166,7 +1166,7 @@ class _AccountingFormState extends State<AccountingForm> {
                             _buildTableRow(
                               [
                                 '   Other Balance B/F',
-                                '',
+                                '0.00',
                                 _formatAmount(model.openingOther),
                                 _formatAmount(model.openingOther)
                               ],
