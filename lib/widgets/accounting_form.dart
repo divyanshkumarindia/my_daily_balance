@@ -1139,18 +1139,39 @@ class _AccountingFormState extends State<AccountingForm> {
                             isDark,
                             isBold: true,
                           ),
-                          _buildTableRow(
-                            [
-                              '   Balance B/F',
-                              _formatAmount(model.openingCash),
-                              _formatAmount(
-                                  model.openingBank + model.openingOther),
-                              _formatAmount(model.openingCash +
-                                  model.openingBank +
-                                  model.openingOther)
-                            ],
-                            isDark,
-                          ),
+                          // Cash Balance B/F (show only if > 0)
+                          if (model.openingCash > 0)
+                            _buildTableRow(
+                              [
+                                '   Cash Balance B/F',
+                                _formatAmount(model.openingCash),
+                                '',
+                                _formatAmount(model.openingCash)
+                              ],
+                              isDark,
+                            ),
+                          // Bank Balance B/F (show only if > 0)
+                          if (model.openingBank > 0)
+                            _buildTableRow(
+                              [
+                                '   Bank Balance B/F',
+                                '',
+                                _formatAmount(model.openingBank),
+                                _formatAmount(model.openingBank)
+                              ],
+                              isDark,
+                            ),
+                          // Other Balance B/F (show only if > 0)
+                          if (model.openingOther > 0)
+                            _buildTableRow(
+                              [
+                                '   Other Balance B/F',
+                                '',
+                                _formatAmount(model.openingOther),
+                                _formatAmount(model.openingOther)
+                              ],
+                              isDark,
+                            ),
                           // Income Categories
                           ...model.receiptAccounts.entries.expand((entry) {
                             double cash = 0, bank = 0;
