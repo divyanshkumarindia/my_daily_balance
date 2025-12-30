@@ -71,19 +71,79 @@ class _BalanceCardState extends State<BalanceCard> {
                   final res = await showDialog<String>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text('Edit Title'),
+                      backgroundColor: widget.isDark
+                          ? const Color(0xFF1F2937)
+                          : Colors.white,
+                      title: Text(
+                        'Edit Title',
+                        style: TextStyle(
+                          color: widget.isDark ? Colors.white : Colors.black87,
+                        ),
+                      ),
                       content: TextField(
                         controller: controller,
-                        decoration: const InputDecoration(
+                        autofocus: true,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: widget.isDark ? Colors.white : Colors.black87,
+                        ),
+                        decoration: InputDecoration(
                           hintText: 'Enter title',
+                          hintStyle: TextStyle(
+                            color: widget.isDark
+                                ? const Color(0xFF6B7280)
+                                : const Color(0xFF9CA3AF),
+                          ),
+                          filled: true,
+                          fillColor: widget.isDark
+                              ? const Color(0xFF374151)
+                              : const Color(0xFFF9FAFB),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: widget.isDark
+                                  ? const Color(0xFF4B5563)
+                                  : const Color(0xFFD1D5DB),
+                              width: 1.5,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: widget.isDark
+                                  ? const Color(0xFF4B5563)
+                                  : const Color(0xFFD1D5DB),
+                              width: 1.5,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: const BorderSide(
+                              color: Color(0xFF6366F1),
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 12),
                         ),
                       ),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context),
-                          child: const Text('Cancel'),
+                          child: Text(
+                            'Cancel',
+                            style: TextStyle(
+                              color: widget.isDark
+                                  ? const Color(0xFF9CA3AF)
+                                  : const Color(0xFF6B7280),
+                            ),
+                          ),
                         ),
                         ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6366F1),
+                            foregroundColor: Colors.white,
+                          ),
                           onPressed: () =>
                               Navigator.pop(context, controller.text.trim()),
                           child: const Text('Save'),
