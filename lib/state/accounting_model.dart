@@ -260,6 +260,39 @@ class AccountingModel extends ChangeNotifier {
     _persist();
   }
 
+  // Helper method to generate smart copy names with incremental numbering
+  String _generateCopyName(
+      String originalName, Map<String, String> existingLabels) {
+    // Remove any existing copy suffix to get the base name
+    String baseName = originalName;
+
+    // Check if the name already has a (copy N) pattern
+    final copyPattern = RegExp(r'\s*\(copy\s*\d*\)\s*$', caseSensitive: false);
+    if (copyPattern.hasMatch(originalName)) {
+      baseName = originalName.replaceAll(copyPattern, '').trim();
+    }
+
+    // Find all existing copies of this base name
+    int maxCopyNumber = 0;
+    final copyNumberPattern = RegExp(r'\(copy\s*(\d+)\)', caseSensitive: false);
+
+    for (var label in existingLabels.values) {
+      // Check if this label is a copy of our base name
+      if (label.toLowerCase().startsWith(baseName.toLowerCase())) {
+        final match = copyNumberPattern.firstMatch(label);
+        if (match != null && match.group(1) != null) {
+          final number = int.tryParse(match.group(1)!) ?? 0;
+          if (number > maxCopyNumber) {
+            maxCopyNumber = number;
+          }
+        }
+      }
+    }
+
+    // Generate the new copy name with incremented number
+    return '$baseName (copy ${maxCopyNumber + 1})';
+  }
+
   void duplicateReceiptAccount(String originalKey) {
     if (!receiptAccounts.containsKey(originalKey)) return;
 
@@ -298,8 +331,8 @@ class AccountingModel extends ChangeNotifier {
       // Insert copy right after the original
       if (key == originalKey) {
         newReceiptAccounts[newKey] = copiedEntries;
-        newReceiptLabels[newKey] =
-            '${receiptLabels[originalKey] ?? "Category"} (Copy)';
+        newReceiptLabels[newKey] = _generateCopyName(
+            receiptLabels[originalKey] ?? "Category", receiptLabels);
       }
     }
 
@@ -348,8 +381,8 @@ class AccountingModel extends ChangeNotifier {
       // Insert copy right after the original
       if (key == originalKey) {
         newPaymentAccounts[newKey] = copiedEntries;
-        newPaymentLabels[newKey] =
-            '${paymentLabels[originalKey] ?? "Category"} (Copy)';
+        newPaymentLabels[newKey] = _generateCopyName(
+            paymentLabels[originalKey] ?? "Category", paymentLabels);
       }
     }
 
