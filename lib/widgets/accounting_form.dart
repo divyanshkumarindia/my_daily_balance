@@ -1188,14 +1188,6 @@ class _AccountingFormState extends State<AccountingForm> {
                         );
                       },
                     ),
-                    _buildActionButton(
-                      'Close',
-                      Icons.close,
-                      isDark
-                          ? const Color(0xFF6B7280)
-                          : const Color(0xFF9CA3AF),
-                      () => Navigator.pop(context),
-                    ),
                   ],
                 ),
               ),
@@ -2128,7 +2120,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                   },
                                   icon: const Icon(Icons.article, size: 20),
                                   label: const Text(
-                                    'Detailed View',
+                                    'Detail Report',
                                     style: TextStyle(
                                       fontSize: 15,
                                       fontWeight: FontWeight.w600,
