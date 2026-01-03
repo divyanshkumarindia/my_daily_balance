@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import '../state/accounting_model.dart';
 import '../models/accounting.dart';
 
@@ -12,11 +14,13 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   Map<UserType, String> displayTitles = {};
+  Map<String, String> customPages = {}; // Store custom pages
 
   @override
   void initState() {
     super.initState();
     _loadPageTitles();
+    _loadCustomPages();
   }
 
   @override
@@ -25,6 +29,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // Reload page titles when the screen becomes visible
     // This ensures we show updated custom names
     _loadPageTitles();
+    _loadCustomPages();
   }
 
   Future<void> _loadPageTitles() async {
@@ -40,6 +45,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
     }
     if (mounted) setState(() {});
+  }
+
+  Future<void> _loadCustomPages() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedPages = prefs.getString('custom_pages');
+    if (savedPages != null) {
+      final decoded = jsonDecode(savedPages) as Map<String, dynamic>;
+      if (mounted) {
+        setState(() {
+          customPages = decoded.map((k, v) => MapEntry(k, v.toString()));
+        });
+      }
+    }
   }
 
   @override
@@ -397,8 +415,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   // Dialog Functions
-  void _showPageTypeDialog(BuildContext context, AccountingModel model) {
+  void _showPageTypeDialog(BuildContext context, AccountingModel model) async {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Reload custom pages to ensure we have the latest list
+    await _loadCustomPages();
 
     // Build dynamic list of page types with their custom names
     final pageTypeOptions = UserType.values.map((userType) {
@@ -411,8 +432,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
       return {
         'display': displayName,
         'value': typeValue,
+        'isCustom': false,
       };
     }).toList();
+
+    // Add custom pages
+    final customPageOptions = customPages.entries.map((entry) {
+      return {
+        'display': entry.value,
+        'value': entry.key,
+        'isCustom': true,
+      };
+    }).toList();
+
+    final allOptions = [...pageTypeOptions, ...customPageOptions];
 
     showDialog(
       context: context,
@@ -420,20 +453,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: const Text('Default Page Type'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: pageTypeOptions.map((option) {
-            return RadioListTile<String>(
-              title: Text(option['display']!),
-              value: option['value']!,
-              groupValue: model.defaultPageType,
-              activeColor: const Color(0xFF10B981),
-              onChanged: (value) {
-                model.setDefaultPageType(value!);
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: allOptions.map((option) {
+              final isCustom = option['isCustom'] == true;
+              final displayText = option['display'] as String;
+              final valueText = option['value'] as String;
+
+              return RadioListTile<String>(
+                title: Row(
+                  children: [
+                    if (isCustom) ...[
+                      Icon(
+                        Icons.star,
+                        size: 16,
+                        color: Color(0xFF6366F1),
+                      ),
+                      SizedBox(width: 8),
+                    ],
+                    Expanded(child: Text(displayText)),
+                  ],
+                ),
+                value: valueText,
+                groupValue: model.defaultPageType,
+                activeColor: const Color(0xFF10B981),
+                onChanged: (value) {
+                  model.setDefaultPageType(value!);
+                  Navigator.pop(context);
+                },
+              );
+            }).toList(),
+          ),
         ),
       ),
     );
@@ -706,6 +757,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _getDefaultPageTypeLabel(String? defaultPageType) {
     if (defaultPageType == null || defaultPageType.isEmpty) {
       return 'Not Set';
+    }
+
+    // Check if it's a custom page
+    if (customPages.containsKey(defaultPageType)) {
+      return customPages[defaultPageType]!;
     }
 
     // Find the UserType and return its custom name

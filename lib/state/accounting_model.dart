@@ -490,9 +490,10 @@ class AccountingModel extends ChangeNotifier {
     if (entries == null) return;
     final id = '${accountKey}_entry_${DateTime.now().millisecondsSinceEpoch}';
 
-    // Generate default description based on entry count
+    // Generate default description based on entry count and type
     final entryNumber = entries.length + 1;
-    final defaultDescription = 'New Entry $entryNumber';
+    final entryType = receipt ? 'Income' : 'Expense';
+    final defaultDescription = 'New $entryType $entryNumber';
 
     entries.add(TransactionEntry(id: id, description: defaultDescription));
     notifyListeners();

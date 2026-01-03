@@ -284,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
     await _saveCustomPages();
 
     // Navigate to the new custom page
-    Navigator.push(
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AccountingTemplateScreen(
@@ -294,6 +294,9 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
+
+    // Reload custom pages when returning (in case page was deleted)
+    await _loadCustomPages();
   }
 
   @override

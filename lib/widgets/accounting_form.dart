@@ -501,18 +501,42 @@ class _AccountingFormState extends State<AccountingForm> {
     );
 
     if (confirmed == true && widget.customPageId != null) {
-      // Delete from SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      final savedPages = prefs.getString('custom_pages');
-      if (savedPages != null) {
-        final decoded = jsonDecode(savedPages) as Map<String, dynamic>;
-        decoded.remove(widget.customPageId);
-        await prefs.setString('custom_pages', jsonEncode(decoded));
-      }
+      try {
+        // Delete from SharedPreferences
+        final prefs = await SharedPreferences.getInstance();
+        final savedPages = prefs.getString('custom_pages');
+        if (savedPages != null) {
+          final decoded = jsonDecode(savedPages) as Map<String, dynamic>;
+          decoded.remove(widget.customPageId);
+          await prefs.setString('custom_pages', jsonEncode(decoded));
 
-      // Navigate back
-      if (mounted) {
-        Navigator.pop(context);
+          // Show success message
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Page deleted successfully'),
+                backgroundColor: Colors.green.shade600,
+                duration: Duration(seconds: 2),
+              ),
+            );
+          }
+        }
+
+        // Navigate back
+        if (mounted) {
+          Navigator.pop(context);
+        }
+      } catch (e) {
+        // Show error message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete page: $e'),
+              backgroundColor: Colors.red.shade600,
+              duration: Duration(seconds: 3),
+            ),
+          );
+        }
       }
     }
   }
