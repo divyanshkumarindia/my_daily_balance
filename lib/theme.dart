@@ -121,4 +121,113 @@ class AppTheme {
   static const Color neutral200 = Color(0xFFE5E7EB);
   static const Color neutral500 = Color(0xFF6B7280);
   static const Color accent900 = Color(0xFF1D4ED8);
+
+  // Dynamic theme generation based on color
+  static Color getPrimaryColor(String colorName) {
+    switch (colorName) {
+      case 'blue':
+        return const Color(0xFF6366F1);
+      case 'green':
+        return const Color(0xFF10B981);
+      case 'purple':
+        return const Color(0xFF8B5CF6);
+      case 'orange':
+        return const Color(0xFFF97316);
+      case 'red':
+        return const Color(0xFFEF4444);
+      case 'teal':
+        return const Color(0xFF14B8A6);
+      default:
+        return const Color(0xFF6366F1);
+    }
+  }
+
+  static ThemeData getTheme(String colorName, {bool isDark = false}) {
+    final primaryColor = getPrimaryColor(colorName);
+
+    if (isDark) {
+      return ThemeData(
+        primaryColor: primaryColor,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: const Color(0xFF111827),
+        colorScheme: ColorScheme.dark(
+          primary: primaryColor,
+          secondary: const Color(0xFF6B7280),
+          surface: const Color(0xFF1F2937),
+        ),
+        useMaterial3: true,
+        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
+        cardTheme: CardThemeData(
+          color: const Color(0xFF1F2937),
+          elevation: 2,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        ),
+        dialogTheme: DialogThemeData(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
+
+    // Light theme
+    return ThemeData(
+      primaryColor: primaryColor,
+      brightness: Brightness.light,
+      scaffoldBackgroundColor: Colors.white,
+      colorScheme: ColorScheme.light(
+        primary: primaryColor,
+        secondary: const Color(0xFF6B7280),
+        surface: const Color(0xFFF9FAFB),
+      ),
+      useMaterial3: true,
+      textTheme: GoogleFonts.interTextTheme().copyWith(
+        headlineLarge: GoogleFonts.inter(
+          fontSize: 32,
+          fontWeight: FontWeight.bold,
+          color: const Color(0xFF0F172A),
+        ),
+        headlineMedium: GoogleFonts.inter(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+          color: const Color(0xFF0F172A),
+        ),
+        bodyLarge:
+            GoogleFonts.inter(fontSize: 16, color: const Color(0xFF374151)),
+      ),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 2,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      ),
+      dialogTheme: DialogThemeData(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+  }
 }

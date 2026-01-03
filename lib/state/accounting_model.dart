@@ -638,6 +638,13 @@ class AccountingModel extends ChangeNotifier {
   String _selectedCurrency = 'INR';
   String get selectedCurrency => _selectedCurrency;
 
+  String _themeMode = 'system'; // 'light', 'dark', 'system'
+  String get themeMode => _themeMode;
+
+  String _themeColor =
+      'blue'; // 'blue', 'green', 'purple', 'orange', 'red', 'teal'
+  String get themeColor => _themeColor;
+
   bool _isDarkMode = false;
   bool get isDarkMode => _isDarkMode;
 
@@ -657,6 +664,8 @@ class AccountingModel extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       _selectedCurrency = prefs.getString('selected_currency') ?? 'INR';
+      _themeMode = prefs.getString('theme_mode') ?? 'system';
+      _themeColor = prefs.getString('theme_color') ?? 'blue';
       _isDarkMode = prefs.getBool('dark_mode') ?? false;
       _autoSaveReports = prefs.getBool('auto_save_reports') ?? false;
       _businessName = prefs.getString('business_name');
@@ -674,6 +683,20 @@ class AccountingModel extends ChangeNotifier {
     notifyListeners();
     SharedPreferences.getInstance()
         .then((p) => p.setString('selected_currency', currency));
+  }
+
+  void setThemeMode(String mode) {
+    _themeMode = mode;
+    notifyListeners();
+    SharedPreferences.getInstance()
+        .then((p) => p.setString('theme_mode', mode));
+  }
+
+  void setThemeColor(String color) {
+    _themeColor = color;
+    notifyListeners();
+    SharedPreferences.getInstance()
+        .then((p) => p.setString('theme_color', color));
   }
 
   void toggleDarkMode() {
