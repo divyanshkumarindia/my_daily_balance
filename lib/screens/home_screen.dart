@@ -284,7 +284,7 @@ class _HomeScreenState extends State<HomeScreen> {
     await _saveCustomPages();
 
     // Navigate to the new custom page
-    await Navigator.push(
+    final wasDeleted = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AccountingTemplateScreen(
@@ -297,6 +297,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     // Reload custom pages when returning (in case page was deleted)
     await _loadCustomPages();
+
+    // If page was deleted, reset selection
+    if (wasDeleted == true) {
+      setState(() {
+        selectedPageId = null;
+      });
+    }
   }
 
   @override
@@ -550,7 +557,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               : () async {
                                   if (selectedCustomPageId != null) {
                                     // Navigate to custom page
-                                    await Navigator.push(
+                                    final wasDeleted = await Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
@@ -563,6 +570,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ),
                                     );
                                     await _loadCustomPages();
+
+                                    // If page was deleted, reset selection
+                                    if (wasDeleted == true) {
+                                      setState(() {
+                                        selectedPageId = null;
+                                      });
+                                    }
                                   } else if (selectedUseCase != null) {
                                     // Navigate to standard page
                                     final model = AccountingModel(

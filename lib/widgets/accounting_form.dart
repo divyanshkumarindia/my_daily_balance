@@ -509,22 +509,12 @@ class _AccountingFormState extends State<AccountingForm> {
           final decoded = jsonDecode(savedPages) as Map<String, dynamic>;
           decoded.remove(widget.customPageId);
           await prefs.setString('custom_pages', jsonEncode(decoded));
-
-          // Show success message
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Page deleted successfully'),
-                backgroundColor: Colors.green.shade600,
-                duration: Duration(seconds: 2),
-              ),
-            );
-          }
         }
 
-        // Navigate back
+        // Navigate back and signal deletion occurred
         if (mounted) {
-          Navigator.pop(context);
+          Navigator.pop(
+              context, true); // Return true to indicate page was deleted
         }
       } catch (e) {
         // Show error message
