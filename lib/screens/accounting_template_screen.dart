@@ -6,11 +6,19 @@ import '../widgets/accounting_form.dart';
 /// so `AccountingForm` can adapt labels/defaults if necessary.
 class AccountingTemplateScreen extends StatelessWidget {
   final String templateKey;
-  const AccountingTemplateScreen({Key? key, required this.templateKey})
-      : super(key: key);
+  final String? customTitle;
+
+  const AccountingTemplateScreen({
+    Key? key,
+    required this.templateKey,
+    this.customTitle,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return AccountingForm(templateKey: templateKey);
+    return AccountingForm(
+      templateKey: templateKey,
+      customTitle: customTitle,
+    );
   }
 }

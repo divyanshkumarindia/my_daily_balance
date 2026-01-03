@@ -12,9 +12,14 @@ import 'components/duration_period_picker.dart';
 class AccountingForm extends StatefulWidget {
   final String templateKey;
   final AccountingModel? providedModel;
-  const AccountingForm(
-      {Key? key, required this.templateKey, this.providedModel})
-      : super(key: key);
+  final String? customTitle;
+
+  const AccountingForm({
+    Key? key,
+    required this.templateKey,
+    this.providedModel,
+    this.customTitle,
+  }) : super(key: key);
 
   @override
   State<AccountingForm> createState() => _AccountingFormState();
@@ -64,6 +69,12 @@ class _AccountingFormState extends State<AccountingForm> {
     } else {
       model = Provider.of<AccountingModel>(context);
     }
+
+    // If customTitle is provided, set it in the model
+    if (widget.customTitle != null && widget.customTitle!.isNotEmpty) {
+      model.pageTitle = widget.customTitle;
+    }
+
     periodController = TextEditingController(text: model.periodDate);
     periodStartController = TextEditingController(text: model.periodStartDate);
     periodEndController = TextEditingController(text: model.periodEndDate);

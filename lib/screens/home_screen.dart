@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../state/accounting_model.dart';
 import '../models/accounting.dart';
 import '../services/recent_service.dart';
+import 'accounting_template_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -125,6 +126,111 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) setState(() {});
   }
 
+  void _showAddNewPageDialog(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Row(
+          children: [
+            Icon(Icons.add_circle_outline, color: Color(0xFF6366F1)),
+            SizedBox(width: 12),
+            Text('New Accounting Page'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Enter a name for your new accounting page:',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Color(0xFF9CA3AF) : Color(0xFF6B7280),
+              ),
+            ),
+            SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'e.g., My Custom Page',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(
+                    color: isDark
+                        ? const Color(0xFF374151)
+                        : const Color(0xFFE5E7EB),
+                  ),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide:
+                      const BorderSide(color: Color(0xFF6366F1), width: 2),
+                ),
+                filled: true,
+                fillColor:
+                    isDark ? const Color(0xFF374151) : const Color(0xFFF9FAFB),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color:
+                    isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              String pageName = controller.text.trim();
+              if (pageName.isEmpty) {
+                pageName =
+                    'Custom Page ${DateTime.now().millisecondsSinceEpoch % 1000}';
+              }
+              Navigator.pop(context);
+              _navigateToNewCustomPage(pageName);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6366F1),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToNewCustomPage(String pageName) {
+    // Navigate to accounting screen with the custom page name
+    // We'll use the 'other' template as the base for custom pages
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AccountingTemplateScreen(
+          templateKey: 'other',
+          customTitle: pageName,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -205,64 +311,90 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Dropdown
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: isDark
-                              ? const Color(0xFF3F3F46)
-                              : const Color(0xFFF1F5F9),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isDark
-                                ? const Color(0xFF52525B)
-                                : const Color(0xFFCBD5E1),
-                          ),
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<UserType>(
-                            value: selectedUseCase,
-                            hint: Text(
-                              'Choose...',
-                              style: TextStyle(
+                      // Dropdown with Add New button
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF3F3F46)
+                                  : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
                                 color: isDark
-                                    ? const Color(0xFFA1A1AA)
-                                    : const Color(0xFF64748B),
+                                    ? const Color(0xFF52525B)
+                                    : const Color(0xFFCBD5E1),
                               ),
                             ),
-                            isExpanded: true,
-                            icon: Icon(
-                              Icons.keyboard_arrow_down,
-                              color: isDark
-                                  ? const Color(0xFFA1A1AA)
-                                  : const Color(0xFF64748B),
-                            ),
-                            dropdownColor:
-                                isDark ? const Color(0xFF3F3F46) : Colors.white,
-                            items: UserType.values.map((ut) {
-                              return DropdownMenuItem(
-                                value: ut,
-                                child: Text(
-                                  displayTitles[ut] ??
-                                      userTypeConfigs[ut]!.name,
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<UserType>(
+                                value: selectedUseCase,
+                                hint: Text(
+                                  'Choose...',
                                   style: TextStyle(
                                     color: isDark
-                                        ? Colors.white
-                                        : const Color(0xFF0F172A),
+                                        ? const Color(0xFFA1A1AA)
+                                        : const Color(0xFF64748B),
                                   ),
                                 ),
-                              );
-                            }).toList(),
-                            onChanged: (val) {
-                              setState(() {
-                                selectedUseCase = val;
-                                description = descriptions[val] ??
-                                    'Description will appear here';
-                              });
-                            },
+                                isExpanded: true,
+                                icon: Icon(
+                                  Icons.keyboard_arrow_down,
+                                  color: isDark
+                                      ? const Color(0xFFA1A1AA)
+                                      : const Color(0xFF64748B),
+                                ),
+                                dropdownColor: isDark
+                                    ? const Color(0xFF3F3F46)
+                                    : Colors.white,
+                                items: UserType.values.map((ut) {
+                                  return DropdownMenuItem(
+                                    value: ut,
+                                    child: Text(
+                                      displayTitles[ut] ??
+                                          userTypeConfigs[ut]!.name,
+                                      style: TextStyle(
+                                        color: isDark
+                                            ? Colors.white
+                                            : const Color(0xFF0F172A),
+                                      ),
+                                    ),
+                                  );
+                                }).toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    selectedUseCase = val;
+                                    description = descriptions[val] ??
+                                        'Description will appear here';
+                                  });
+                                },
+                              ),
+                            ),
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          // Add New Page Button
+                          OutlinedButton.icon(
+                            onPressed: () => _showAddNewPageDialog(context),
+                            icon: const Icon(Icons.add, size: 18),
+                            label: const Text('Add New Accounting Page'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: const Color(0xFF6366F1),
+                              side: const BorderSide(
+                                color: Color(0xFF6366F1),
+                                width: 1.5,
+                              ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
 
                       const SizedBox(height: 16),
