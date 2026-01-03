@@ -38,6 +38,14 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload page titles whenever this screen becomes visible
+    // This ensures dropdown shows updated custom names
+    _loadPageTitles();
+  }
+
   Future<void> _loadDefaultPageType() async {
     final model = Provider.of<AccountingModel>(context, listen: false);
     final defaultPage = model.defaultPageType;

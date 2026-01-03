@@ -1,9 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/accounting_model.dart';
+import '../models/accounting.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  Map<UserType, String> displayTitles = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPageTitles();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Reload page titles when the screen becomes visible
+    // This ensures we show updated custom names
+    _loadPageTitles();
+  }
+
+  Future<void> _loadPageTitles() async {
+    // Initialize with defaults
+    for (var ut in UserType.values) {
+      displayTitles[ut] = userTypeConfigs[ut]!.name;
+    }
+    // Load saved overrides
+    for (var ut in UserType.values) {
+      final saved = await AccountingModel.loadSavedPageTitle(ut);
+      if (saved != null && saved.isNotEmpty) {
+        displayTitles[ut] = saved;
+      }
+    }
+    if (mounted) setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +72,7 @@ class SettingsScreen extends StatelessWidget {
               _buildSettingTile(
                 context,
                 'Default Page Type',
-                model.defaultPageType ?? 'Personal',
+                _getDefaultPageTypeLabel(model.defaultPageType),
                 Icons.category,
                 () => _showPageTypeDialog(context, model),
                 isDark,
@@ -361,8 +398,21 @@ class SettingsScreen extends StatelessWidget {
 
   // Dialog Functions
   void _showPageTypeDialog(BuildContext context, AccountingModel model) {
-    final pageTypes = ['Personal', 'Business', 'Institute', 'Other'];
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    // Build dynamic list of page types with their custom names
+    final pageTypeOptions = UserType.values.map((userType) {
+      String displayName =
+          displayTitles[userType] ?? userTypeConfigs[userType]!.name;
+      String value = userType.toString().split('.').last;
+      // Convert to proper case (personal -> Personal)
+      String typeValue = value[0].toUpperCase() + value.substring(1);
+
+      return {
+        'display': displayName,
+        'value': typeValue,
+      };
+    }).toList();
 
     showDialog(
       context: context,
@@ -372,10 +422,10 @@ class SettingsScreen extends StatelessWidget {
         title: const Text('Default Page Type'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
-          children: pageTypes.map((type) {
+          children: pageTypeOptions.map((option) {
             return RadioListTile<String>(
-              title: Text(type),
-              value: type,
+              title: Text(option['display']!),
+              value: option['value']!,
               groupValue: model.defaultPageType,
               activeColor: const Color(0xFF10B981),
               onChanged: (value) {
@@ -651,6 +701,35 @@ class SettingsScreen extends StatelessWidget {
       default:
         return 'System Default';
     }
+  }
+
+  String _getDefaultPageTypeLabel(String? defaultPageType) {
+    if (defaultPageType == null || defaultPageType.isEmpty) {
+      return 'Not Set';
+    }
+
+    // Find the UserType and return its custom name
+    UserType? userType;
+    switch (defaultPageType) {
+      case 'Personal':
+        userType = UserType.personal;
+        break;
+      case 'Business':
+        userType = UserType.business;
+        break;
+      case 'Institute':
+        userType = UserType.institute;
+        break;
+      case 'Other':
+        userType = UserType.other;
+        break;
+    }
+
+    if (userType != null && displayTitles.containsKey(userType)) {
+      return displayTitles[userType]!;
+    }
+
+    return defaultPageType;
   }
 
   // Theme Mode Dialog
