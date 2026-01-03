@@ -60,15 +60,6 @@ class SettingsScreen extends StatelessWidget {
               _buildDivider(isDark),
               _buildSettingTile(
                 context,
-                'Theme Color',
-                _getThemeColorLabel(model.themeColor),
-                Icons.color_lens,
-                () => _showThemeColorDialog(context, model),
-                isDark,
-              ),
-              _buildDivider(isDark),
-              _buildSettingTile(
-                context,
                 'Font Size',
                 'Adjust text size',
                 Icons.text_fields,
@@ -662,25 +653,6 @@ class SettingsScreen extends StatelessWidget {
     }
   }
 
-  String _getThemeColorLabel(String themeColor) {
-    switch (themeColor) {
-      case 'blue':
-        return 'Blue';
-      case 'green':
-        return 'Green';
-      case 'purple':
-        return 'Purple';
-      case 'orange':
-        return 'Orange';
-      case 'red':
-        return 'Red';
-      case 'teal':
-        return 'Teal';
-      default:
-        return 'Blue';
-    }
-  }
-
   // Theme Mode Dialog
   void _showThemeModeDialog(BuildContext context, AccountingModel model) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -749,65 +721,6 @@ class SettingsScreen extends StatelessWidget {
               },
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  // Theme Color Dialog
-  void _showThemeColorDialog(BuildContext context, AccountingModel model) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
-    final colors = [
-      {'name': 'Blue', 'value': 'blue', 'color': const Color(0xFF6366F1)},
-      {'name': 'Green', 'value': 'green', 'color': const Color(0xFF10B981)},
-      {'name': 'Purple', 'value': 'purple', 'color': const Color(0xFF8B5CF6)},
-      {'name': 'Orange', 'value': 'orange', 'color': const Color(0xFFF97316)},
-      {'name': 'Red', 'value': 'red', 'color': const Color(0xFFEF4444)},
-      {'name': 'Teal', 'value': 'teal', 'color': const Color(0xFF14B8A6)},
-    ];
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
-          children: [
-            Icon(Icons.color_lens, color: Color(0xFF6366F1)),
-            SizedBox(width: 12),
-            Text('Theme Color'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: colors.map((colorData) {
-            final isSelected = model.themeColor == colorData['value'];
-            return ListTile(
-              leading: Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: colorData['color'] as Color,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected
-                        ? (colorData['color'] as Color)
-                        : Colors.transparent,
-                    width: 3,
-                  ),
-                ),
-                child: isSelected
-                    ? const Icon(Icons.check, color: Colors.white, size: 18)
-                    : null,
-              ),
-              title: Text(colorData['name'] as String),
-              onTap: () {
-                model.setThemeColor(colorData['value'] as String);
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
         ),
       ),
     );

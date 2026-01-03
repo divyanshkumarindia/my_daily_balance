@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../state/accounting_model.dart';
 import '../models/accounting.dart';
 import '../services/recent_service.dart';
@@ -31,6 +32,41 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadPageTitles();
     _loadRecents();
+    // Load default page type after the first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadDefaultPageType();
+    });
+  }
+
+  Future<void> _loadDefaultPageType() async {
+    final model = Provider.of<AccountingModel>(context, listen: false);
+    final defaultPage = model.defaultPageType;
+
+    if (defaultPage != null && defaultPage.isNotEmpty) {
+      UserType? selectedType;
+      switch (defaultPage) {
+        case 'Personal':
+          selectedType = UserType.personal;
+          break;
+        case 'Business':
+          selectedType = UserType.business;
+          break;
+        case 'Institute':
+          selectedType = UserType.institute;
+          break;
+        case 'Other':
+          selectedType = UserType.other;
+          break;
+      }
+
+      if (selectedType != null) {
+        setState(() {
+          selectedUseCase = selectedType;
+          description =
+              descriptions[selectedType] ?? 'Description will appear here';
+        });
+      }
+    }
   }
 
   List<RecentPage> _recents = [];
