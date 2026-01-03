@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'theme.dart';
-import 'screens/index_screen.dart';
+import 'screens/main_screen.dart';
 import 'screens/main_navigation.dart';
 import 'screens/accounting_screen.dart';
 import 'screens/accounting_template_screen.dart';
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // We provide a default AccountingModel for safe access; IndexScreen will push a configured model
+    // We provide a default AccountingModel for safe access; MainScreen will push a configured model
     return ChangeNotifierProvider<AccountingModel>(
       create: (_) => AccountingModel(userType: UserType.personal),
       child: MaterialApp(
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         initialRoute: '/',
         routes: {
-          '/': (context) => const IndexScreen(),
+          '/': (context) => const MainScreen(),
           '/main': (context) => const MainNavigation(),
           '/accounting': (context) => const AccountingScreen(),
           // Separate routes per use case
