@@ -4353,17 +4353,6 @@ class _AccountingFormState extends State<AccountingForm> {
                                 insertAfterRowId:
                                     row.id, // Insert directly after
                               );
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Row duplicated!'),
-                                  duration: const Duration(seconds: 1),
-                                  backgroundColor: Colors.blueAccent,
-                                  behavior: SnackBarBehavior.floating,
-                                  margin: const EdgeInsets.all(16),
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12)),
-                                ),
-                              );
                             },
                           ),
                         ],
