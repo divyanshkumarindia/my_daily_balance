@@ -541,18 +541,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 borderRadius: BorderRadius.circular(16),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? itemColor.withValues(alpha: 0.15)
-                                        : (isDark
-                                            ? itemColor.withValues(alpha: 0.05)
-                                            : itemColor.withValues(
-                                                alpha: 0.03)),
+                                    color: itemColor.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(16),
                                     border: Border.all(
-                                      color: isSelected
-                                          ? itemColor
-                                          : itemColor.withValues(alpha: 0.2),
-                                      width: isSelected ? 2 : 1,
+                                      color: itemColor.withValues(alpha: 0.6),
+                                      width: 1.5,
                                     ),
                                   ),
                                   child: Column(
