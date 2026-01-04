@@ -40,6 +40,10 @@ class _AccountingFormState extends State<AccountingForm> {
   late TextEditingController periodStartController;
   late TextEditingController periodEndController;
 
+  // Header Title Controller
+  late TextEditingController _headerTitleController;
+  bool _headerLoaded = false;
+
   // Balance card custom titles and descriptions
   Map<String, String> balanceCardTitles = {
     'cash': 'Balance B/F (Cash Book)',
@@ -55,7 +59,22 @@ class _AccountingFormState extends State<AccountingForm> {
   @override
   void initState() {
     super.initState();
+    _headerTitleController = TextEditingController();
     _loadBalanceCardData();
+  }
+
+  String _getHeaderHint(String key) {
+    switch (key) {
+      case 'personal':
+      case 'family':
+        return 'Enter Family Name';
+      case 'business':
+        return 'Enter Business Name';
+      case 'institute':
+        return 'Enter Institute Name';
+      default:
+        return 'Enter Name as per Use';
+    }
   }
 
   Future<void> _loadBalanceCardData() async {
@@ -86,6 +105,16 @@ class _AccountingFormState extends State<AccountingForm> {
 
     // Load balance card titles and descriptions
     _loadBalanceCardTitlesAndDescriptions();
+
+    // Initialize Header Title if not loaded
+    if (!_headerLoaded) {
+      final key = widget.customPageId ?? widget.templateKey;
+      final savedTitle = model.pageHeaderTitles[key];
+      if (savedTitle != null) {
+        _headerTitleController.text = savedTitle;
+      }
+      _headerLoaded = true;
+    }
   }
 
   Future<void> _loadBalanceCardTitlesAndDescriptions() async {
@@ -1810,6 +1839,7 @@ class _AccountingFormState extends State<AccountingForm> {
   // Helper: Calculate receipts without opening balances
   @override
   void dispose() {
+    _headerTitleController.dispose();
     periodController.dispose();
     periodStartController.dispose();
     periodEndController.dispose();
@@ -1867,93 +1897,190 @@ class _AccountingFormState extends State<AccountingForm> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Custom Page Title Input
+                          // Customizable Header Title (Replaces Logo)
                           Center(
-                            child: Consumer<AccountingModel>(
-                              builder: (context, model, child) {
-                                // Determine key: use customPageId if available, otherwise templateKey
-                                final key =
-                                    widget.customPageId ?? widget.templateKey;
-                                final initialValue =
-                                    model.getPageHeaderTitle(key) ?? '';
-
-                                return Column(
-                                  children: [
-                                    Container(
-                                      constraints:
-                                          const BoxConstraints(maxWidth: 300),
-                                      child: TextField(
-                                        controller: TextEditingController(
-                                            text: initialValue)
-                                          ..selection = TextSelection.collapsed(
-                                              offset: initialValue.length),
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.bold,
-                                          color: isDark
-                                              ? Colors.white
-                                              : const Color(0xFF1F2937),
-                                        ),
-                                        decoration: InputDecoration(
-                                          hintText: model.userType ==
-                                                  UserType.business
-                                              ? 'Enter Business Name'
-                                              : 'Enter Your Name',
-                                          hintStyle: TextStyle(
-                                            color: isDark
-                                                ? Colors.white38
-                                                : Colors.grey.withOpacity(0.5),
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                          border: InputBorder.none,
-                                          contentPadding: EdgeInsets.zero,
-                                          isDense: true,
-                                        ),
-                                        onChanged: (value) {
-                                          model.setPageHeaderTitle(key, value);
-                                        },
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          useCasePageTitle(model.userType),
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: isDark
-                                                ? const Color(0xFF9CA3AF)
-                                                : const Color(0xFF6B7280),
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                        if (widget.customPageId != null) ...[
-                                          const SizedBox(width: 8),
-                                          InkWell(
-                                            onTap: () =>
-                                                _showDeletePageDialog(context),
-                                            borderRadius:
-                                                BorderRadius.circular(12),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(4),
-                                              child: Icon(
-                                                Icons.delete_outline,
-                                                size: 16,
-                                                color: Colors.red.shade400,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ],
-                                    ),
-                                  ],
-                                );
-                              },
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 24.0),
+                              child: TextField(
+                                controller: _headerTitleController,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF4F46E5), // Premium Blue
+                                ),
+                                decoration: InputDecoration(
+                                  hintText: _getHeaderHint(widget.templateKey),
+                                  hintStyle: TextStyle(
+                                    color: isDark
+                                        ? Colors.white24
+                                        : Colors.black12,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  border: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                ),
+                                onChanged: (val) {
+                                  final key =
+                                      widget.customPageId ?? widget.templateKey;
+                                  model.setPageHeaderTitle(key, val);
+                                },
+                              ),
                             ),
                           ),
                           const SizedBox(height: 16),
+
+                          // Title (editable page title or fallback)
+                          Center(
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  model.pageTitle != null &&
+                                          model.pageTitle!.isNotEmpty
+                                      ? model.pageTitle!
+                                      : useCasePageTitle(model.userType),
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF4F46E5),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () async {
+                                    final current = model.pageTitle != null &&
+                                            model.pageTitle!.isNotEmpty
+                                        ? model.pageTitle!
+                                        : useCasePageTitle(model.userType);
+                                    final controller =
+                                        TextEditingController(text: current);
+                                    final res = await showDialog<String>(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        backgroundColor: isDark
+                                            ? const Color(0xFF1F2937)
+                                            : Colors.white,
+                                        title: Text(
+                                          'Edit Page Title',
+                                          style: TextStyle(
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.black87,
+                                          ),
+                                        ),
+                                        content: TextField(
+                                          controller: controller,
+                                          autofocus: true,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            color: isDark
+                                                ? Colors.white
+                                                : Colors.black87,
+                                          ),
+                                          decoration: InputDecoration(
+                                            hintText: 'Enter page title',
+                                            hintStyle: TextStyle(
+                                              color: isDark
+                                                  ? const Color(0xFF6B7280)
+                                                  : const Color(0xFF9CA3AF),
+                                            ),
+                                            filled: true,
+                                            fillColor: isDark
+                                                ? const Color(0xFF374151)
+                                                : const Color(0xFFF9FAFB),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              borderSide: BorderSide(
+                                                color: isDark
+                                                    ? const Color(0xFF4B5563)
+                                                    : const Color(0xFFD1D5DB),
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              borderSide: BorderSide(
+                                                color: isDark
+                                                    ? const Color(0xFF4B5563)
+                                                    : const Color(0xFFD1D5DB),
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              borderSide: const BorderSide(
+                                                color: AppTheme.primaryColor,
+                                                width: 2,
+                                              ),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 12),
+                                          ),
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(context),
+                                            child: Text(
+                                              'Cancel',
+                                              style: TextStyle(
+                                                color: isDark
+                                                    ? const Color(0xFF9CA3AF)
+                                                    : const Color(0xFF6B7280),
+                                              ),
+                                            ),
+                                          ),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  AppTheme.primaryColor,
+                                              foregroundColor: Colors.white,
+                                            ),
+                                            onPressed: () => Navigator.pop(
+                                                context,
+                                                controller.text.trim()),
+                                            child: const Text('Save'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (res != null && res.isNotEmpty) {
+                                      model.setPageTitle(res);
+                                    }
+                                  },
+                                  child: Icon(
+                                    Icons.edit_outlined,
+                                    size: 18,
+                                    color: isDark
+                                        ? const Color(0xFF9CA3AF)
+                                        : const Color(0xFF6B7280),
+                                  ),
+                                ),
+                                // Show delete button for custom pages
+                                if (widget.customPageId != null) ...[
+                                  const SizedBox(width: 8),
+                                  GestureDetector(
+                                    onTap: () => _showDeletePageDialog(context),
+                                    child: Icon(
+                                      Icons.delete_outline,
+                                      size: 18,
+                                      color: Colors.red.shade400,
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
 
                           // Subtitle
                           Center(

@@ -17,6 +17,10 @@ class AccountingModel extends ChangeNotifier {
   Map<String, String> receiptLabels = {};
   Map<String, String> paymentLabels = {};
 
+  // Store customizable header titles (My Family, My Business etc.)
+  // Key: customPageId ?? templateKey
+  Map<String, String> pageHeaderTitles = {};
+
   String? pageTitle;
 
   double openingCash = 0.0;
@@ -47,14 +51,28 @@ class AccountingModel extends ChangeNotifier {
       'receiptLabels': receiptLabels,
       'paymentLabels': paymentLabels,
       'currency': currency,
+      'pageHeaderTitles': pageHeaderTitles,
       // Don't save opening balances or entry data - they should reset each time
     };
 
     await prefs.setString('accounting_data_v1', jsonEncode(data));
+
+    // Also save specific header titles to a dedicated key for robustness
+    await prefs.setString('page_header_titles', jsonEncode(pageHeaderTitles));
   }
 
   Future<void> loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // Load header titles first
+    try {
+      final headers = prefs.getString('page_header_titles');
+      if (headers != null) {
+        final decoded = jsonDecode(headers) as Map<String, dynamic>;
+        pageHeaderTitles = decoded.map((k, v) => MapEntry(k, v.toString()));
+      }
+    } catch (_) {}
+
     final s = prefs.getString('accounting_data_v1');
     if (s == null) return;
     try {
@@ -64,6 +82,16 @@ class AccountingModel extends ChangeNotifier {
       pageTitle = data['pageTitle'] ?? pageTitle;
       firmName = data['firmName'] ?? firmName;
       currency = data['currency'] ?? currency;
+
+      // Load header titles from main blob if valid there (fallback)
+      if (data['pageHeaderTitles'] != null) {
+        final ph = data['pageHeaderTitles'] as Map<String, dynamic>;
+        // Merge, preferring the dedicated key load if it exists
+        if (pageHeaderTitles.isEmpty) {
+          pageHeaderTitles = ph.map((k, v) => MapEntry(k, v.toString()));
+        }
+      }
+
       // Opening balances always start at 0 - don't load from prefs
       openingCash = 0.0;
       openingBank = 0.0;
@@ -142,6 +170,12 @@ class AccountingModel extends ChangeNotifier {
     // persist per-userType payment labels so edits are isolated per template/userType
     SharedPreferences.getInstance().then((p) => p.setString(
         'payment_labels_${userType.toString()}', jsonEncode(paymentLabels)));
+  }
+
+  void setPageHeaderTitle(String key, String title) {
+    pageHeaderTitles[key] = title;
+    notifyListeners();
+    saveToPrefs();
   }
 
   // Balance card title and description persistence
@@ -707,18 +741,6 @@ class AccountingModel extends ChangeNotifier {
   bool _hasSkippedNameSetup = false;
   bool get hasSkippedNameSetup => _hasSkippedNameSetup;
 
-  Map<String, String> _pageHeaderTitles = {};
-  Map<String, String> get pageHeaderTitles => _pageHeaderTitles;
-
-  String? getPageHeaderTitle(String key) => _pageHeaderTitles[key];
-
-  void setPageHeaderTitle(String key, String title) {
-    _pageHeaderTitles[key] = title;
-    notifyListeners();
-    SharedPreferences.getInstance().then((p) =>
-        p.setString('page_header_titles', jsonEncode(_pageHeaderTitles)));
-  }
-
   Future<void> loadSettings() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -734,13 +756,6 @@ class AccountingModel extends ChangeNotifier {
           prefs.getString('default_report_format') ?? 'Basic';
       _userName = prefs.getString('user_name');
       _hasSkippedNameSetup = prefs.getBool('skipped_name_setup') ?? false;
-
-      final savedTitles = prefs.getString('page_header_titles');
-      if (savedTitles != null) {
-        final decoded = jsonDecode(savedTitles) as Map<String, dynamic>;
-        _pageHeaderTitles = decoded.map((k, v) => MapEntry(k, v.toString()));
-      }
-
       notifyListeners();
     } catch (e) {
       // ignore errors
