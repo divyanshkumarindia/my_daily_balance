@@ -504,23 +504,31 @@ class _HomeScreenState extends State<HomeScreen> {
                           // Palette for custom pages to ensure variety
                           final palette = [
                             const Color(0xFFEF4444), // Red
-                            const Color(0xFFF97316), // Orange
-                            const Color(0xFFF59E0B), // Amber
-                            const Color(0xFF84CC16), // Lime
-                            const Color(0xFF10B981), // Emerald
-                            const Color(0xFF06B6D4), // Cyan
-                            const Color(0xFF3B82F6), // Blue
-                            const Color(0xFF6366F1), // Indigo
-                            const Color(0xFF8B5CF6), // Violet
-                            const Color(0xFFD946EF), // Fuchsia
-                            const Color(0xFFEC4899), // Pink
+                            const Color(0xFFDB2777), // Pink
+                            const Color(0xFFC026D3), // Fuchsia
+                            const Color(0xFF9333EA), // Purple
+                            const Color(0xFF7C3AED), // Violet
+                            const Color(0xFF4F46E5), // Indigo
+                            const Color(0xFF2563EB), // Blue
+                            const Color(0xFF0284C7), // Light Blue
+                            const Color(0xFF0891B2), // Cyan
+                            const Color(0xFF0D9488), // Teal
+                            const Color(0xFF059669), // Emerald
+                            const Color(0xFF16A34A), // Green
+                            const Color(0xFF65A30D), // Lime
+                            const Color(0xFFCA8A04), // Yellow/Gold
+                            const Color(0xFFD97706), // Amber
+                            const Color(0xFFEA580C), // Orange
+                            const Color(0xFFDC2626), // Deep Orange
+                            const Color(0xFF795548), // Brown
+                            const Color(0xFF607D8B), // Blue Grey
                           ];
 
                           // Add custom pages
+                          int customIndex = 0;
                           customPages.forEach((key, value) {
-                            // Deterministic random color based on key
-                            final colorIndex =
-                                key.hashCode.abs() % palette.length;
+                            // Sequential assignment to avoid repeats until palette is exhausted
+                            final colorIndex = customIndex % palette.length;
                             items.add({
                               'id': key,
                               'title': value,
@@ -528,6 +536,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               'type': 'custom',
                               'color': palette[colorIndex],
                             });
+                            customIndex++;
                           });
 
                           // Add "Add New" card
