@@ -23,6 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
       selectedPageId; // Combined selector: 'standard_personal', 'standard_business', or custom page ID
   String description = 'Description will appear here';
 
+  String? _userName;
+
   // display titles for dropdown; can be overridden by user-saved values
   final Map<UserType, String> displayTitles = {};
 
@@ -43,7 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadPageTitles();
     _loadCustomPages();
+
     _loadRecents();
+    _loadUserName();
     // Load default page type after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadDefaultPageType();
@@ -75,6 +79,95 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _saveCustomPages() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('custom_pages', jsonEncode(customPages));
+  }
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('user_name');
+    if (name == null) {
+      // First time user, show dialog
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showNameInputDialog(context);
+      });
+    } else {
+      if (mounted) {
+        setState(() {
+          _userName = name;
+        });
+      }
+    }
+  }
+
+  Future<void> _saveUserName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_name', name);
+    if (mounted) {
+      setState(() {
+        _userName = name;
+      });
+    }
+  }
+
+  void _showNameInputDialog(BuildContext context) {
+    if (!mounted) return;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false, // Force user to enter name
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          final hasText = controller.text.trim().isNotEmpty;
+          return PopScope(
+            canPop: false,
+            child: AlertDialog(
+              title: const Text('Welcome!'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Please enter your name to personalize your experience.',
+                      style: TextStyle(
+                          color: isDark ? Colors.white70 : Colors.black87)),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: controller,
+                    autofocus: true,
+                    style:
+                        TextStyle(color: isDark ? Colors.white : Colors.black),
+                    decoration: InputDecoration(
+                      hintText: 'Your Name',
+                      hintStyle: TextStyle(
+                          color: isDark ? Colors.white38 : Colors.black38),
+                      filled: true,
+                      fillColor:
+                          isDark ? const Color(0xFF334155) : Colors.grey[100],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    onChanged: (_) => setDialogState(() {}),
+                  ),
+                ],
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: hasText
+                      ? () {
+                          _saveUserName(controller.text.trim());
+                          Navigator.pop(context);
+                        }
+                      : null,
+                  child: const Text('Continue'),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   Future<void> _loadDefaultPageType() async {
@@ -376,89 +469,105 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(
-          'My Kaccha-Pakka Khata',
-          style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.account_balance_wallet_rounded,
+                color: Theme.of(context).primaryColor,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'My Kaccha-Pakka Khata',
+                style: GoogleFonts.outfit(fontWeight: FontWeight.bold),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
         ),
         actions: const [],
       ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 32),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Group
-                Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            const Color(0xFF6366F1).withValues(alpha: 0.1),
-                            const Color(0xFF818CF8).withValues(alpha: 0.1),
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        shape: BoxShape.circle,
+                // Welcome Section
+                Text(
+                  _userName != null ? 'Welcome, $_userName!' : 'Welcome!',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: isDark ? Colors.white : const Color(0xFF0F172A),
                       ),
-                      child: Icon(
-                        Icons.account_balance_wallet_rounded,
-                        color: Theme.of(context).primaryColor,
-                        size: 48,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Premium Financial Management',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : const Color(0xFF64748B),
+                        fontSize: 16,
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Welcome Back!',
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineMedium
-                          ?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color:
-                                isDark ? Colors.white : const Color(0xFF0F172A),
-                          ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Premium Financial Management',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: isDark
-                                ? const Color(0xFF94A3B8)
-                                : const Color(0xFF64748B),
-                            fontSize: 16,
-                            height: 1.5,
-                          ),
-                    ),
-                  ],
                 ),
 
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
+
+                // Features Section (Moved to Top)
+                Container(
+                  width: double.infinity,
+                  constraints: const BoxConstraints(maxWidth: 600),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildFeatureItem(
+                        icon: Icons.receipt_long_rounded,
+                        label: 'Track\nReceipts',
+                        isDark: isDark,
+                        context: context,
+                      ),
+                      _buildFeatureItem(
+                        icon: Icons.payments_rounded,
+                        label: 'Track\nPayments',
+                        isDark: isDark,
+                        context: context,
+                      ),
+                      _buildFeatureItem(
+                        icon: Icons.analytics_rounded,
+                        label: 'Smart\nReports',
+                        isDark: isDark,
+                        context: context,
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
 
                 // Main Selection Card
                 PremiumCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Select Your Use Case',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
-                              color: isDark
-                                  ? Colors.white
-                                  : const Color(0xFF0F172A),
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'Select Your Use Case',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color:
+                              isDark ? Colors.white : const Color(0xFF0F172A),
+                        ),
                       ),
                       const SizedBox(height: 20),
 
@@ -503,12 +612,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           // Palette for custom pages to ensure variety
                           final palette = [
-                            const Color(0xFFC026D3), // Fuchsia
                             const Color(0xFFEF4444), // Red
-                            const Color(0xFF10B981), // Emerald
-                            const Color(0xFFCA8A04), // Yellow/Gold
                             const Color(0xFF2563EB), // Blue
+                            const Color(0xFFCA8A04), // Yellow/Gold
                             const Color(0xFF9333EA), // Purple
+                            const Color(0xFF10B981), // Emerald
                             const Color(0xFFEA580C), // Orange
                             const Color(0xFF0891B2), // Cyan
                             const Color(0xFFDB2777), // Pink
@@ -519,6 +627,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             const Color(0xFF7C3AED), // Violet
                             const Color(0xFFD97706), // Amber
                             const Color(0xFF0284C7), // Light Blue
+                            const Color(0xFFC026D3), // Fuchsia
                             const Color(0xFF16A34A), // Green
                             const Color(0xFF795548), // Brown
                             const Color(0xFF607D8B), // Blue Grey
@@ -679,8 +788,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         _routeForTemplate(recent.templateKey);
                                     await Navigator.pushNamed(context, route,
                                         arguments: model);
-                                    await _loadPageTitles();
-                                    await _loadRecents();
+                                    _loadPageTitles();
+                                    _loadRecents();
                                   },
                                   borderRadius: BorderRadius.circular(12),
                                   child: Container(
@@ -744,36 +853,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 ],
-
-                // Features Section
-                const SizedBox(height: 32),
-                Container(
-                  width: double.infinity,
-                  constraints: const BoxConstraints(maxWidth: 600),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildFeatureItem(
-                        icon: Icons.receipt_long_rounded,
-                        label: 'Track\nReceipts',
-                        isDark: isDark,
-                        context: context,
-                      ),
-                      _buildFeatureItem(
-                        icon: Icons.payments_rounded,
-                        label: 'Track\nPayments',
-                        isDark: isDark,
-                        context: context,
-                      ),
-                      _buildFeatureItem(
-                        icon: Icons.analytics_rounded,
-                        label: 'Smart\nReports',
-                        isDark: isDark,
-                        context: context,
-                      ),
-                    ],
-                  ),
-                ),
               ],
             ),
           ),
