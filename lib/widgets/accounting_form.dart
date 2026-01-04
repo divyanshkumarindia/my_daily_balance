@@ -3759,27 +3759,6 @@ class _AccountingFormState extends State<AccountingForm> {
                 Expanded(
                   child: Row(
                     children: [
-                      Flexible(
-                        child: Consumer<AccountingModel>(
-                          builder: (context, model, child) {
-                            final displayTitle = isExpense
-                                ? (model.paymentLabels[accountKey] ?? title)
-                                : (model.receiptLabels[accountKey] ?? title);
-
-                            return Text(
-                              displayTitle,
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? const Color(0xFFF9FAFB)
-                                    : const Color(0xFF1F2937),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 8),
                       GestureDetector(
                         onTap: () async {
                           // Read current title from model
@@ -3877,6 +3856,27 @@ class _AccountingFormState extends State<AccountingForm> {
                             size: 14,
                             color: Color(0xFF6366F1),
                           ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: Consumer<AccountingModel>(
+                          builder: (context, model, child) {
+                            final displayTitle = isExpense
+                                ? (model.paymentLabels[accountKey] ?? title)
+                                : (model.receiptLabels[accountKey] ?? title);
+
+                            return Text(
+                              displayTitle,
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: isDark
+                                    ? const Color(0xFFF9FAFB)
+                                    : const Color(0xFF1F2937),
+                              ),
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(width: 8),
