@@ -4089,17 +4089,18 @@ class _AccountingFormState extends State<AccountingForm> {
                           ),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.delete_outline, size: 18),
-                        color: Colors.redAccent,
-                        tooltip: 'Remove entry',
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () {
-                          m.removeEntryFromAccount(accountKey, entry.id,
-                              receipt: !isExpense);
-                        },
-                      ),
+                      if (entries.length > 1)
+                        IconButton(
+                          icon: const Icon(Icons.delete_outline, size: 18),
+                          color: Colors.redAccent,
+                          tooltip: 'Remove entry',
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                          onPressed: () {
+                            m.removeEntryFromAccount(accountKey, entry.id,
+                                receipt: !isExpense);
+                          },
+                        ),
                     ],
                   ),
                   const SizedBox(height: 12),
