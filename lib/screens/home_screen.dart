@@ -458,13 +458,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   : const Color(0xFF0F172A),
                             ),
                           ),
-                          // New "Add Page" button in header
-                          IconButton(
-                            onPressed: () => _showAddNewPageDialog(context),
-                            icon: const Icon(Icons.add_circle_outline_rounded),
-                            color: Theme.of(context).primaryColor,
-                            tooltip: 'New Accounting Page',
-                          ),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -519,6 +512,15 @@ class _HomeScreenState extends State<HomeScreen> {
                             });
                           });
 
+                          // Add "Add New" card
+                          items.add({
+                            'id': 'add_new',
+                            'title': 'Add New Page',
+                            'icon': Icons.add_rounded,
+                            'type': 'add_new',
+                            'color': const Color(0xFF94A3B8), // Neutral Gray
+                          });
+
                           return GridView.builder(
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -537,7 +539,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                   item['color'] as Color; // Use item color
 
                               return InkWell(
-                                onTap: () => _handleNavigation(item),
+                                onTap: () {
+                                  if (item['type'] == 'add_new') {
+                                    _showAddNewPageDialog(context);
+                                  } else {
+                                    _handleNavigation(item);
+                                  }
+                                },
                                 borderRadius: BorderRadius.circular(16),
                                 child: Container(
                                   decoration: BoxDecoration(
