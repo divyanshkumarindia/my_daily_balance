@@ -561,6 +561,77 @@ class _AccountingFormState extends State<AccountingForm> {
     }
   }
 
+  Future<void> _showHeadingEditDialog(BuildContext context, bool isDark) async {
+    final controller = TextEditingController(text: _headerTitleController.text);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          'Edit Heading',
+          style: TextStyle(
+            color: isDark ? Colors.white : Colors.black87,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: TextStyle(
+            fontSize: 18,
+            color: isDark ? Colors.white : Colors.black87,
+          ),
+          decoration: InputDecoration(
+            hintText: _getHeaderHint(widget.templateKey),
+            hintStyle: TextStyle(
+              color: isDark ? const Color(0xFF6B7280) : const Color(0xFF9CA3AF),
+            ),
+            filled: true,
+            fillColor:
+                isDark ? const Color(0xFF374151) : const Color(0xFFF9FAFB),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Cancel',
+              style: TextStyle(
+                color:
+                    isDark ? const Color(0xFF9CA3AF) : const Color(0xFF6B7280),
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4F46E5),
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8)),
+            ),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null) {
+      if (mounted) {
+        setState(() {
+          _headerTitleController.text = result;
+        });
+        final key = widget.customPageId ?? widget.templateKey;
+        model.setPageHeaderTitle(key, result);
+      }
+    }
+  }
+
   // Show Basic Report Dialog
   void _showBasicReport(BuildContext context, AccountingModel model) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -1899,36 +1970,37 @@ class _AccountingFormState extends State<AccountingForm> {
 
                           // Customizable Header Title (Replaces Logo)
                           Center(
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 24.0),
-                              child: TextField(
-                                controller: _headerTitleController,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF4F46E5), // Premium Blue
-                                ),
-                                decoration: InputDecoration(
-                                  hintText: _getHeaderHint(widget.templateKey),
-                                  hintStyle: TextStyle(
-                                    color: isDark
-                                        ? Colors.white24
-                                        : Colors.black12,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    _headerTitleController.text.isNotEmpty
+                                        ? _headerTitleController.text
+                                        : _getHeaderHint(widget.templateKey),
+                                    style: TextStyle(
+                                      fontSize: 28, // Bigger font size
+                                      fontWeight: FontWeight.bold,
+                                      color:
+                                          _headerTitleController.text.isNotEmpty
+                                              ? const Color(0xFF4F46E5)
+                                              : (isDark
+                                                  ? Colors.white24
+                                                  : Colors.black12),
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  border: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
                                 ),
-                                onChanged: (val) {
-                                  final key =
-                                      widget.customPageId ?? widget.templateKey;
-                                  model.setPageHeaderTitle(key, val);
-                                },
-                              ),
+                                const SizedBox(width: 8),
+                                IconButton(
+                                  onPressed: () =>
+                                      _showHeadingEditDialog(context, isDark),
+                                  icon: const Icon(Icons.edit_outlined,
+                                      size: 24), // Bigger icon
+                                  color: const Color(0xFF4F46E5),
+                                  tooltip: 'Edit Heading',
+                                ),
+                              ],
                             ),
                           ),
                           const SizedBox(height: 16),
