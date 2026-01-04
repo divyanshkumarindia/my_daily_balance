@@ -4320,22 +4320,6 @@ class _AccountingFormState extends State<AccountingForm> {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              if (entry.rows.length > 1)
-                                IconButton(
-                                  icon: const Icon(Icons.remove_circle_outline,
-                                      size: 18),
-                                  color: Colors.redAccent,
-                                  tooltip: 'Remove row',
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  onPressed: () {
-                                    m.removeRowFromEntry(
-                                        accountKey, entry.id, row.id,
-                                        receipt: !isExpense);
-                                  },
-                                ),
-                              if (entry.rows.length > 1)
-                                const SizedBox(height: 8),
                               IconButton(
                                 icon: const Icon(Icons.copy_rounded, size: 16),
                                 color: Colors.blueAccent,
@@ -4354,6 +4338,22 @@ class _AccountingFormState extends State<AccountingForm> {
                                   );
                                 },
                               ),
+                              if (entry.rows.length > 1)
+                                const SizedBox(height: 8),
+                              if (entry.rows.length > 1)
+                                IconButton(
+                                  icon: const Icon(Icons.remove_circle_outline,
+                                      size: 18),
+                                  color: Colors.redAccent,
+                                  tooltip: 'Remove row',
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  onPressed: () {
+                                    m.removeRowFromEntry(
+                                        accountKey, entry.id, row.id,
+                                        receipt: !isExpense);
+                                  },
+                                ),
                             ],
                           ),
                         ],
