@@ -1,66 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'theme.dart';
-import 'screens/main_screen.dart';
-import 'screens/main_navigation.dart';
-import 'screens/accounting_screen.dart';
-import 'screens/accounting_template_screen.dart';
-// legacy per-template screens left in the repo; routes now use the shared template screen
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'state/accounting_model.dart';
 import 'models/accounting.dart';
+import 'screens/accounting_template_screen.dart';
+import 'screens/auth_screen.dart';
+import 'screens/home_screen.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Supabase
+  // TODO: Replace with your actual Supabase URL and Anon Key
+  await Supabase.initialize(
+    url: 'YOUR_SUPABASE_URL',
+    anonKey: 'YOUR_SUPABASE_ANON_KEY',
+  );
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+            create: (_) => AccountingModel(userType: UserType.personal)),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // We provide a default AccountingModel for safe access
-    return ChangeNotifierProvider<AccountingModel>(
-      create: (_) => AccountingModel(userType: UserType.personal),
-      child: Consumer<AccountingModel>(
-        builder: (context, model, child) { 
-          // Determine theme mode
-          ThemeMode themeMode;
-          switch (model.themeMode) {
-            case 'light':
-              themeMode = ThemeMode.light;
-              break;
-            case 'dark':
-              themeMode = ThemeMode.dark;
-              break;
-            case 'system':
-            default:
-              themeMode = ThemeMode.system;
-          }
-
-          return MaterialApp(
-            title: 'My Daily Balance',
-            theme: AppTheme.getTheme(model.themeColor, isDark: false),
-            darkTheme: AppTheme.getTheme(model.themeColor, isDark: true),
-            themeMode: themeMode,
-            debugShowCheckedModeBanner: false,
-            initialRoute: '/',
-            routes: {
-              '/': (context) => const MainScreen(),
-              '/main': (context) => const MainNavigation(),
-              '/accounting': (context) => const AccountingScreen(),
-              // Separate routes per use case
-              '/accounting/family': (context) =>
-                  const AccountingTemplateScreen(templateKey: 'family'),
-              '/accounting/business': (context) =>
-                  const AccountingTemplateScreen(templateKey: 'business'),
-              '/accounting/institute': (context) =>
-                  const AccountingTemplateScreen(templateKey: 'institute'),
-              '/accounting/other': (context) =>
-                  const AccountingTemplateScreen(templateKey: 'other'),
-            },
+    return StreamBuilder<AuthState>(
+      stream: Supabase.instance.client.auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const MaterialApp(
+            home: Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
           );
-        },
-      ),
+        }
+
+        final session = snapshot.data?.session;
+
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Daily Balance',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+            useMaterial3: true,
+          ),
+          home: session != null ? const HomeScreen() : const AuthScreen(),
+          routes: {
+            '/accounting/other': (context) =>
+                const AccountingTemplateScreen(templateKey: 'other'),
+          },
+        );
+      },
     );
   }
 }
