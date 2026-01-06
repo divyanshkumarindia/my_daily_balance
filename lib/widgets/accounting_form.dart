@@ -1795,7 +1795,7 @@ class _AccountingFormState extends State<AccountingForm> {
             border: Border.all(
               color: isDark
                   ? const Color(0xFF374151)
-                  : headerColor.withOpacity(0.3),
+                  : headerColor.withValues(alpha: 0.3),
             ),
             borderRadius: const BorderRadius.only(
               bottomLeft: Radius.circular(12),

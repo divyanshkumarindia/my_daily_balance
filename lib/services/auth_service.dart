@@ -13,10 +13,12 @@ class AuthService {
   Future<AuthResponse> signUp({
     required String email,
     required String password,
+    String? fullName,
   }) async {
     return await _supabase.auth.signUp(
       email: email,
       password: password,
+      data: fullName != null ? {'full_name': fullName} : null,
     );
   }
 
@@ -29,6 +31,11 @@ class AuthService {
       email: email,
       password: password,
     );
+  }
+
+  // Reset Password
+  Future<void> resetPassword({required String email}) async {
+    await _supabase.auth.resetPasswordForEmail(email);
   }
 
   // Sign Out
