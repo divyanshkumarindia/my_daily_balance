@@ -46,8 +46,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     _loadRecents();
 
-    // Prompt for name if needed
+    // Prompt for name if needed and sync cloud data
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      final model = Provider.of<AccountingModel>(context, listen: false);
+      model.loadFromCloud(); // Fetch data from Supabase on login/startup
       _checkAndShowNameDialog();
       _loadDefaultPageType();
     });

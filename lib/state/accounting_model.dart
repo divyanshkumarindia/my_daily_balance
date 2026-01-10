@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/accounting.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -40,9 +41,10 @@ class AccountingModel extends ChangeNotifier {
     _initializeAccounts();
     loadSettings();
     loadSavedReports();
+    loadFromCloud(); // Try to sync from cloud on startup
   }
 
-  // Persistence: simple JSON save/load using SharedPreferences
+  // Persistence: simple JSON save/load using SharedPreferences + Supabase Cloud Sync
   Future<void> saveToPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final data = {
@@ -55,10 +57,56 @@ class AccountingModel extends ChangeNotifier {
       // Don't save opening balances or entry data - they should reset each time
     };
 
-    await prefs.setString('accounting_data_v1', jsonEncode(data));
+    final jsonData = jsonEncode(data);
+    await prefs.setString('accounting_data_v1', jsonData);
 
     // Also save specific header titles to a dedicated key for robustness
     await prefs.setString('page_header_titles', jsonEncode(pageHeaderTitles));
+
+    // CLOUD SYNC: Push to Supabase if logged in
+    await _syncToCloud(data);
+  }
+
+  Future<void> _syncToCloud(Map<String, dynamic> data) async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      await supabase.from('user_data').upsert({
+        'user_id': user.id,
+        'data': data,
+        'updated_at': DateTime.now().toIso8601String(),
+      }, onConflict: 'user_id');
+    } catch (e) {
+      if (kDebugMode) print('Cloud Sync Error: $e');
+    }
+  }
+
+  Future<void> loadFromCloud() async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+    if (user == null) return;
+
+    try {
+      final response = await supabase
+          .from('user_data')
+          .select()
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+      if (response != null && response['data'] != null) {
+        final data = response['data'] as Map<String, dynamic>;
+        // Save to local prefs to trigger the normal load flow
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('accounting_data_v1', jsonEncode(data));
+
+        // Load into memory
+        await loadFromPrefs();
+      }
+    } catch (e) {
+      if (kDebugMode) print('Cloud Load Error: $e');
+    }
   }
 
   Future<void> loadFromPrefs() async {

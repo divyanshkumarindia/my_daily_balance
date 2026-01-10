@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../state/accounting_model.dart';
 import '../models/accounting.dart';
+import '../services/auth_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -247,6 +248,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ],
           ),
           const SizedBox(height: 20),
+          _buildSectionHeader('Account', Icons.logout, isDark),
+          _buildSettingsCard(
+            isDark,
+            [
+              _buildSettingTile(
+                context,
+                'Log Out',
+                'Sign out of your account',
+                Icons.exit_to_app,
+                () => _handleLogout(context),
+                isDark,
+                textColor: const Color(0xFFDC2626),
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
         ],
       ),
     );
@@ -949,5 +966,41 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _handleLogout(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Log Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFDC2626),
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Log Out'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final authService = AuthService();
+      await authService.signOut();
+      if (mounted) {
+        // Clear local state if needed via AccountingModel
+        final model = Provider.of<AccountingModel>(context, listen: false);
+        model.clearAllData(); // Optional: Clear local data on logout
+
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+    }
   }
 }
