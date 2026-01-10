@@ -30,8 +30,29 @@ void main() async {
   );
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    // Listen to auth state changes for logging/persistence debugging
+    Supabase.instance.client.auth.onAuthStateChange.listen((data) {
+      final AuthChangeEvent event = data.event;
+      final Session? session = data.session;
+
+      if (event == AuthChangeEvent.signedIn) {
+        debugPrint("User Signed In: ${session?.user.email}");
+      } else if (event == AuthChangeEvent.signedOut) {
+        debugPrint("User Signed Out");
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

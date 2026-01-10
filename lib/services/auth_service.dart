@@ -1,6 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -10,7 +9,6 @@ class AuthService {
 
   // Stream auth state changes
   Stream<AuthState> get authStateChanges => _supabase.auth.onAuthStateChange;
-
   // Sign Up with Email
   Future<AuthResponse> signUp({
     required String email,
@@ -35,34 +33,49 @@ class AuthService {
     );
   }
 
+  // Use the Web Client ID you generated in Google Cloud:
+  static const String kWebClientId =
+      '524174187471-p6lib92th7u9tu8po0dn2loatu9bnosj.apps.googleusercontent.com';
+  // your Android ID
+  static const String kAndroidClientId =
+      '524174187471-ihpc8l17uiuti2eo0psbco3vh2h6o3ag.apps.googleusercontent.com';
+
   // Sign In with Google
   Future<AuthResponse> signInWithGoogle() async {
-    final webClientId = dotenv.env['GOOGLE_WEB_CLIENT_ID'];
-    final iosClientId = dotenv.env['GOOGLE_IOS_CLIENT_ID'];
+    try {
+      // Configure GoogleSignIn based on the platform
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        clientId: kWebClientId, // Use clientId for all platforms
 
-    final GoogleSignIn googleSignIn = GoogleSignIn(
-      clientId: iosClientId,
-      serverClientId: webClientId,
-    );
+        // **REMOVE or comment out the serverClientId line**
+        // serverClientId: kAndroidClientId, // This causes the error on Web
+      );
 
-    final googleUser = await googleSignIn.signIn();
-    if (googleUser == null) {
-      throw Exception('Google Sign-In was cancelled');
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        throw Exception('Google Sign-In was cancelled');
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+      final accessToken = googleAuth.accessToken;
+      final idToken = googleAuth.idToken;
+
+      if (accessToken == null) {
+        throw Exception('No Access Token found.');
+      }
+
+      // Exchange the tokens for a Supabase session
+      return await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken!,
+        accessToken: accessToken,
+      );
+    } catch (e) {
+      print("Supabase Google Sign-In Error: $e");
+      rethrow;
     }
-
-    final googleAuth = await googleUser.authentication;
-    final idToken = googleAuth.idToken;
-    final accessToken = googleAuth.accessToken;
-
-    if (idToken == null) {
-      throw Exception('No ID Token found');
-    }
-
-    return await _supabase.auth.signInWithIdToken(
-      provider: OAuthProvider.google,
-      idToken: idToken,
-      accessToken: accessToken,
-    );
   }
 
   // Reset Password
