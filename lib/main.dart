@@ -43,6 +43,12 @@ class MyApp extends StatelessWidget {
       ),
       home: const HomeScreen(),
       routes: {
+        '/accounting/family': (context) =>
+            const AccountingTemplateScreen(templateKey: 'family'),
+        '/accounting/business': (context) =>
+            const AccountingTemplateScreen(templateKey: 'business'),
+        '/accounting/institute': (context) =>
+            const AccountingTemplateScreen(templateKey: 'institute'),
         '/accounting/other': (context) =>
             const AccountingTemplateScreen(templateKey: 'other'),
       },
