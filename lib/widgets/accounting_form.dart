@@ -46,9 +46,9 @@ class _AccountingFormState extends State<AccountingForm> {
 
   // Balance card custom titles and descriptions
   Map<String, String> balanceCardTitles = {
-    'cash': 'Balance B/F (Cash Book)',
-    'bank': 'Balance B/F (Bank)',
-    'other': 'Balance B/F (Other Funds)',
+    'cash': "Yesterday's Cash (B/F)",
+    'bank': "Yesterday's Bank (B/F)",
+    'other': "Other Funds (B/F)",
   };
   Map<String, String> balanceCardDescriptions = {
     'cash': '', // Empty by default, will show ghost text
@@ -2454,14 +2454,35 @@ class _AccountingFormState extends State<AccountingForm> {
           if (isOpeningBalancesExpanded) ...[
             const SizedBox(height: 12),
             // Default balance cards (non-deletable)
-            _buildBalanceCard(isDark, 'cash', balanceCardTitles['cash']!,
-                balanceCardDescriptions['cash']!, false),
+            _buildBalanceCard(
+                isDark,
+                'cash',
+                balanceCardTitles['cash']!,
+                balanceCardDescriptions['cash']!,
+                false,
+                Icons.account_balance_wallet_outlined,
+                const Color(0xFF10B981), // Green
+                "PREVIOUS DAY'S CLOSING"),
             const SizedBox(height: 12),
-            _buildBalanceCard(isDark, 'bank', balanceCardTitles['bank']!,
-                balanceCardDescriptions['bank']!, false),
+            _buildBalanceCard(
+                isDark,
+                'bank',
+                balanceCardTitles['bank']!,
+                balanceCardDescriptions['bank']!,
+                false,
+                Icons.account_balance_outlined,
+                const Color(0xFF3B82F6), // Blue
+                "PREVIOUS DAY'S CLOSING"),
             const SizedBox(height: 12),
-            _buildBalanceCard(isDark, 'other', balanceCardTitles['other']!,
-                balanceCardDescriptions['other']!, false),
+            _buildBalanceCard(
+                isDark,
+                'other',
+                balanceCardTitles['other']!,
+                balanceCardDescriptions['other']!,
+                false,
+                Icons.savings_outlined,
+                const Color(0xFFF59E0B), // Amber
+                "PREVIOUS DAY'S CLOSING"),
 
             // Custom balance cards (deletable)
             ...model.customOpeningBalances.keys.map((key) {
@@ -2495,11 +2516,21 @@ class _AccountingFormState extends State<AccountingForm> {
     );
   }
 
-  Widget _buildBalanceCard(bool isDark, String cardType, String title,
-      String description, bool isDeletable) {
+  Widget _buildBalanceCard(
+      bool isDark,
+      String cardType,
+      String title,
+      String description,
+      bool isDeletable,
+      IconData icon,
+      Color iconColor,
+      String subtitle) {
     return BalanceCard(
       isDark: isDark,
       title: title,
+      subtitle: subtitle,
+      icon: icon,
+      iconColor: iconColor,
       initialDescription: description,
       onTitleChanged: (newTitle) {
         model.setBalanceCardTitle(cardType, newTitle);
@@ -2553,6 +2584,9 @@ class _AccountingFormState extends State<AccountingForm> {
         BalanceCard(
           isDark: isDark,
           title: balanceCardTitles[key]!,
+          subtitle: 'CUSTOM OPENING BALANCE',
+          icon: Icons.account_balance_wallet_outlined,
+          iconColor: const Color(0xFF8B5CF6), // Purple
           initialDescription: balanceCardDescriptions[key]!,
           onTitleChanged: (newTitle) {
             model.setBalanceCardTitle(key, newTitle);

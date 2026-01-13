@@ -4,6 +4,9 @@ import 'package:flutter/services.dart';
 class BalanceCard extends StatefulWidget {
   final bool isDark;
   final String title;
+  final String? subtitle;
+  final IconData? icon;
+  final Color? iconColor;
   final String? initialDescription;
   final Function(String)? onTitleChanged;
   final Function(String)? onDescriptionChanged;
@@ -13,6 +16,9 @@ class BalanceCard extends StatefulWidget {
     Key? key,
     required this.isDark,
     required this.title,
+    this.subtitle,
+    this.icon,
+    this.iconColor,
     this.initialDescription,
     this.onTitleChanged,
     this.onDescriptionChanged,
@@ -52,22 +58,12 @@ class _BalanceCardState extends State<BalanceCard> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        gradient: widget.isDark
-            ? const LinearGradient(
-                colors: [Color(0xFF1F2937), Color(0xFF111827)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : const LinearGradient(
-                colors: [Colors.white, Color(0xFFF8FAFC)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+        color: widget.isDark ? const Color(0xFF1F2937) : Colors.white,
         border: Border.all(
           color:
               widget.isDark ? const Color(0xFF374151) : const Color(0xFFE2E8F0),
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: widget.isDark
             ? []
             : [
@@ -83,111 +79,152 @@ class _BalanceCardState extends State<BalanceCard> {
         children: [
           Row(
             children: [
-              GestureDetector(
-                onTap: () async {
-                  final controller = TextEditingController(text: widget.title);
-                  final res = await showDialog<String>(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      backgroundColor: widget.isDark
-                          ? const Color(0xFF1F2937)
-                          : Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                      title: Text(
-                        'Edit Title',
-                        style: TextStyle(
-                          color: widget.isDark
-                              ? Colors.white
-                              : const Color(0xFF0F172A),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      content: TextField(
-                        controller: controller,
-                        autofocus: true,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: widget.isDark
-                              ? Colors.white
-                              : const Color(0xFF0F172A),
-                        ),
-                        decoration: InputDecoration(
-                          hintText: 'Enter title',
-                          hintStyle: TextStyle(
-                            color: widget.isDark
-                                ? const Color(0xFF64748B)
-                                : const Color(0xFF94A3B8),
-                          ),
-                          filled: true,
-                          fillColor: widget.isDark
-                              ? const Color(0xFF374151)
-                              : const Color(0xFFF1F5F9),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 12),
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
+              // Icon Container
+              if (widget.icon != null) ...[
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: (widget.iconColor ?? Colors.blue).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(
+                    widget.icon,
+                    color: widget.iconColor ?? Colors.blue,
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+
+              // Title and Subtitle
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
                           child: Text(
-                            'Cancel',
+                            widget.title,
                             style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                               color: widget.isDark
-                                  ? const Color(0xFF94A3B8)
-                                  : const Color(0xFF64748B),
+                                  ? Colors.white
+                                  : const Color(0xFF0F172A),
                             ),
                           ),
                         ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6366F1),
-                            foregroundColor: Colors.white,
-                            elevation: 0,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () async {
+                            final controller =
+                                TextEditingController(text: widget.title);
+                            final res = await showDialog<String>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: widget.isDark
+                                    ? const Color(0xFF1F2937)
+                                    : Colors.white,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16)),
+                                title: Text(
+                                  'Edit Title',
+                                  style: TextStyle(
+                                    color: widget.isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                content: TextField(
+                                  controller: controller,
+                                  autofocus: true,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: widget.isDark
+                                        ? Colors.white
+                                        : const Color(0xFF0F172A),
+                                  ),
+                                  decoration: InputDecoration(
+                                    hintText: 'Enter title',
+                                    hintStyle: TextStyle(
+                                      color: widget.isDark
+                                          ? const Color(0xFF64748B)
+                                          : const Color(0xFF94A3B8),
+                                    ),
+                                    filled: true,
+                                    fillColor: widget.isDark
+                                        ? const Color(0xFF374151)
+                                        : const Color(0xFFF1F5F9),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 16, vertical: 12),
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        color: widget.isDark
+                                            ? const Color(0xFF94A3B8)
+                                            : const Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color(0xFF6366F1),
+                                      foregroundColor: Colors.white,
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onPressed: () => Navigator.pop(
+                                        context, controller.text.trim()),
+                                    child: const Text('Save'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (res != null &&
+                                res.isNotEmpty &&
+                                widget.onTitleChanged != null) {
+                              widget.onTitleChanged!(res);
+                            }
+                          },
+                          child: Icon(
+                            Icons.edit_outlined,
+                            size: 16,
+                            color: widget.isDark
+                                ? Colors.grey[500]
+                                : Colors.grey[400],
                           ),
-                          onPressed: () =>
-                              Navigator.pop(context, controller.text.trim()),
-                          child: const Text('Save'),
                         ),
                       ],
                     ),
-                  );
-                  if (res != null &&
-                      res.isNotEmpty &&
-                      widget.onTitleChanged != null) {
-                    widget.onTitleChanged!(res);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF6366F1).withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.edit_outlined,
-                    size: 14,
-                    color: Color(0xFF6366F1),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  widget.title,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color:
-                        widget.isDark ? Colors.white : const Color(0xFF0F172A),
-                  ),
+                    if (widget.subtitle != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.subtitle!,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                          color: widget.isDark
+                              ? const Color(0xFF94A3B8)
+                              : const Color(0xFF94A3B8),
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               ),
             ],
