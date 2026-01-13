@@ -4558,10 +4558,11 @@ class _AccountingFormState extends State<AccountingForm> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(10), // Reduced from 12
                 decoration: BoxDecoration(
                   color: const Color(0xFF0F172A),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius:
+                      BorderRadius.circular(14), // Slightly tighter radius
                 ),
                 child: const Icon(
                   Icons.bar_chart_rounded,
@@ -4569,7 +4570,7 @@ class _AccountingFormState extends State<AccountingForm> {
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8), // Increased from 12
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -4577,7 +4578,7 @@ class _AccountingFormState extends State<AccountingForm> {
                     Text(
                       '${model.duration.toString().split('.').last.toUpperCase()} SUMMARY',
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 19, // Slightly smaller to "fit in"
                         fontWeight: FontWeight.w900,
                         color: isDark ? Colors.white : const Color(0xFF0F172A),
                         letterSpacing: 0.5,
@@ -4585,7 +4586,7 @@ class _AccountingFormState extends State<AccountingForm> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2), // Reduced from 4
                     Text(
                       'LIVE FINANCIAL ASSESSMENT',
                       style: TextStyle(
@@ -4603,31 +4604,54 @@ class _AccountingFormState extends State<AccountingForm> {
                 ),
               ),
               const SizedBox(width: 8),
-              ElevatedButton.icon(
+              ElevatedButton(
                 onPressed: () {
                   _showSaveReportDialog(context, model);
                 },
-                icon: const Icon(Icons.save_outlined, size: 18),
-                label: const Text('SAVE REPORT'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0F172A),
+                  backgroundColor: const Color(0xFF2563EB), // Vibrant Blue
                   foregroundColor: Colors.white,
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  textStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
-                  ),
+                      const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  elevation: 0,
+                  elevation: 4,
+                  shadowColor: const Color(0xFF2563EB).withValues(alpha: 0.5),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.save_outlined, size: 28),
+                    const SizedBox(width: 8),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: const [
+                        Text(
+                          'Save',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            height: 1.0,
+                          ),
+                        ),
+                        Text(
+                          'Report',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            height: 1.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24), // Increased from 20
           Row(
             children: [
               Expanded(
@@ -4709,7 +4733,7 @@ class _AccountingFormState extends State<AccountingForm> {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 28), // Increased from 24
           Consumer<AccountingModel>(
             builder: (context, model, child) {
               final netSurplus = model.receiptsTotal - model.paymentsTotal;
@@ -4766,7 +4790,7 @@ class _AccountingFormState extends State<AccountingForm> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20), // Increased from 16
                   Row(
                     children: [
                       // Total Opening (B/F) Box
