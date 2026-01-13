@@ -4811,15 +4811,39 @@ class _AccountingFormState extends State<AccountingForm> {
                           ),
                           child: Column(
                             children: [
-                              Text(
-                                'Total Opening (B/F)',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w500,
-                                  color: isDark
-                                      ? const Color(0xFFD1D5DB)
-                                      : const Color(0xFF4B5563),
-                                ),
+                              Column(
+                                children: [
+                                  Text(
+                                    'Total Balance (B/F)',
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDark
+                                          ? const Color(0xFFD1D5DB)
+                                          : const Color(0xFF4B5563),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    model.duration == DurationType.Daily
+                                        ? "Today's Opening Balance"
+                                        : model.duration == DurationType.Weekly
+                                            ? "This Week's Opening Balance"
+                                            : model.duration ==
+                                                    DurationType.Monthly
+                                                ? "This Month's Opening Balance"
+                                                : "This Year's Opening Balance",
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w400,
+                                      color: isDark
+                                          ? const Color(0xFF9CA3AF)
+                                          : const Color(0xFF6B7280),
+                                      letterSpacing: 0.3,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: 8),
                               Text(
