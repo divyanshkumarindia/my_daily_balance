@@ -6,6 +6,22 @@ class TransactionRow {
 
   TransactionRow(
       {required this.id, this.cash = 0, this.bank = 0, this.particulars = ''});
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'cash': cash,
+        'bank': bank,
+        'particulars': particulars,
+      };
+
+  factory TransactionRow.fromJson(Map<String, dynamic> json) {
+    return TransactionRow(
+      id: json['id'],
+      cash: (json['cash'] as num?)?.toDouble() ?? 0.0,
+      bank: (json['bank'] as num?)?.toDouble() ?? 0.0,
+      particulars: json['particulars'] ?? '',
+    );
+  }
 }
 
 class TransactionEntry {
@@ -16,6 +32,22 @@ class TransactionEntry {
   TransactionEntry(
       {required this.id, this.description = '', List<TransactionRow>? rows})
       : rows = rows ?? [TransactionRow(id: '${id}_row_1')];
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'description': description,
+        'rows': rows.map((e) => e.toJson()).toList(),
+      };
+
+  factory TransactionEntry.fromJson(Map<String, dynamic> json) {
+    return TransactionEntry(
+      id: json['id'],
+      description: json['description'] ?? '',
+      rows: (json['rows'] as List?)
+          ?.map((e) => TransactionRow.fromJson(e))
+          .toList(),
+    );
+  }
 }
 
 enum DurationType { Daily, Weekly, Monthly, Yearly }

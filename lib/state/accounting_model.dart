@@ -757,6 +757,89 @@ class AccountingModel extends ChangeNotifier {
     }
   }
 
+  // ====== SERIALIZATION FOR SAVED REPORTS ======
+  Map<String, dynamic> exportState() {
+    return {
+      'userType': userType.index, // Save as index for enum
+      'firmName': firmName,
+      'currency': currency,
+      'duration': duration.index,
+      'periodDate': periodDate,
+      'periodStartDate': periodStartDate,
+      'periodEndDate': periodEndDate,
+      'receiptLabels': receiptLabels,
+      'paymentLabels': paymentLabels,
+      'openingCash': openingCash,
+      'openingBank': openingBank,
+      'openingOther': openingOther,
+      'customOpeningBalances': customOpeningBalances,
+      'pageTitle': pageTitle,
+      'receiptAccounts': receiptAccounts.map(
+          (key, value) => MapEntry(key, value.map((e) => e.toJson()).toList())),
+      'paymentAccounts': paymentAccounts.map(
+          (key, value) => MapEntry(key, value.map((e) => e.toJson()).toList())),
+    };
+  }
+
+  Future<void> importState(Map<String, dynamic> data) async {
+    try {
+      // 1. Restore basic fields
+      if (data['userType'] != null) {
+        userType = UserType.values[data['userType']];
+      }
+      firmName = data['firmName'] ?? firmName;
+      currency = data['currency'] ?? currency;
+      if (data['duration'] != null) {
+        duration = DurationType.values[data['duration']];
+      }
+      periodDate = data['periodDate'] ?? '';
+      periodStartDate = data['periodStartDate'] ?? '';
+      periodEndDate = data['periodEndDate'] ?? '';
+      pageTitle = data['pageTitle'];
+
+      // 2. Restore Labels
+      if (data['receiptLabels'] != null) {
+        receiptLabels = Map<String, String>.from(data['receiptLabels']);
+      }
+      if (data['paymentLabels'] != null) {
+        paymentLabels = Map<String, String>.from(data['paymentLabels']);
+      }
+
+      // 3. Restore Opening Balances
+      openingCash = (data['openingCash'] as num?)?.toDouble() ?? 0.0;
+      openingBank = (data['openingBank'] as num?)?.toDouble() ?? 0.0;
+      openingOther = (data['openingOther'] as num?)?.toDouble() ?? 0.0;
+      if (data['customOpeningBalances'] != null) {
+        customOpeningBalances =
+            Map<String, double>.from(data['customOpeningBalances']);
+      }
+
+      // 4. Restore Accounts (Deep copy)
+      if (data['receiptAccounts'] != null) {
+        final Map<String, dynamic> rawReceipts = data['receiptAccounts'];
+        receiptAccounts = rawReceipts.map((key, value) {
+          final list =
+              (value as List).map((e) => TransactionEntry.fromJson(e)).toList();
+          return MapEntry(key, list);
+        });
+      }
+
+      if (data['paymentAccounts'] != null) {
+        final Map<String, dynamic> rawPayments = data['paymentAccounts'];
+        paymentAccounts = rawPayments.map((key, value) {
+          final list =
+              (value as List).map((e) => TransactionEntry.fromJson(e)).toList();
+          return MapEntry(key, list);
+        });
+      }
+
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) print('Error importing state: $e');
+      rethrow; // Allow UI to handle error
+    }
+  }
+
   // ====== SETTINGS FUNCTIONALITY ======
   String _selectedCurrency = 'INR';
   String get selectedCurrency => _selectedCurrency;
