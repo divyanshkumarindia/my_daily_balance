@@ -702,6 +702,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             IconData icon;
                             Color color;
                             String subtitle;
+                            String title;
 
                             switch (ut) {
                               case UserType.personal:
@@ -710,27 +711,30 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color = const Color(
                                     0xFF00C853); // Green (Matches Image)
                                 subtitle = 'HOME EXPENSES & SAVINGS';
+                                title = 'My Personal / Family Accounts';
                                 break;
                               case UserType.business:
                                 icon = Icons.store_rounded;
                                 color = const Color(0xFF2563EB); // Blue
                                 subtitle = 'DAILY CASH FLOW & PROFITS';
+                                title = 'My Business / Shop / Firm Accounts';
                                 break;
                               case UserType.institute:
                                 icon = Icons.school_rounded;
                                 color = const Color(0xFF7C3AED); // Purple
                                 subtitle = 'FEES & STAFF SALARIES';
+                                title = 'My Institute / Organization Accounts';
                                 break;
                               case UserType.other:
                                 icon = Icons.category_rounded;
                                 color = const Color(0xFFF59E0B); // Amber
                                 subtitle = 'CUSTOM LEDGER & TRACKING';
+                                title = 'My Other Accounts';
                                 break;
                             }
                             items.add({
                               'id': 'standard_${ut.toString().split('.').last}',
-                              'title': displayTitles[ut] ??
-                                  userTypeConfigs[ut]!.name,
+                              'title': title,
                               'subtitle': subtitle,
                               'icon': icon,
                               'type': 'standard',
@@ -842,14 +846,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   fontWeight: FontWeight.bold,
                                                   color: isAddNew
                                                       ? itemColor
-                                                      : (itemColor ==
-                                                              const Color(
-                                                                  0xFF00C853)
-                                                          ? itemColor
-                                                          : (isDark
-                                                              ? Colors.white
-                                                              : const Color(
-                                                                  0xFF0F172A))),
+                                                      : (isDark
+                                                          ? Colors.white
+                                                          : const Color(
+                                                              0xFF0F172A)),
                                                 ),
                                               ),
                                               const SizedBox(height: 4),
