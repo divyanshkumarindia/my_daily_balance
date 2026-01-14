@@ -66,16 +66,25 @@ class WelcomeScreen extends StatelessWidget {
                 text: TextSpan(
                   style: GoogleFonts.outfit(
                     fontSize: 18,
-                    fontWeight: FontWeight.bold, // Make whole line bold
-                    color: const Color(0xFF00C853),
                     height: 1.3,
                   ),
-                  children: const [
+                  children: [
                     TextSpan(
                       text: 'The Simplest Way to Track Your\n',
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.w500, // Medium
+                        color: isDark
+                            ? Colors.white
+                            : const Color.fromARGB(
+                                255, 60, 60, 60), // Black text
+                      ),
                     ),
                     TextSpan(
                       text: 'Daily Balance.',
+                      style: GoogleFonts.outfit(
+                        fontWeight: FontWeight.bold,
+                        color: const Color(0xFF00C853), // Green
+                      ),
                     ),
                   ],
                 ),
@@ -100,9 +109,9 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
+                child: Text(
                   'Create Account',
-                  style: TextStyle(
+                  style: GoogleFonts.roboto(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -129,9 +138,9 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   elevation: 0,
                 ),
-                child: const Text(
+                child: Text(
                   'Login',
-                  style: TextStyle(
+                  style: GoogleFonts.roboto(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),

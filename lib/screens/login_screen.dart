@@ -120,6 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 8),
+                        const Spacer(),
 
                         // Icon
                         Center(
@@ -281,6 +282,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                        ),
+                        const SizedBox(height: 24),
+
+                        // "Or log in with" Divider
+                        Row(
+                          children: [
+                            Expanded(child: Divider(color: borderColor)),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
+                              child: Text(
+                                'Or log in with',
+                                style: GoogleFonts.outfit(
+                                  fontSize: 14,
+                                  color: labelColor,
+                                ),
+                              ),
+                            ),
+                            Expanded(child: Divider(color: borderColor)),
+                          ],
                         ),
                         const SizedBox(height: 24),
 
