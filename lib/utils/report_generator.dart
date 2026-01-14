@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:universal_html/html.dart' as html;
 import '../state/accounting_model.dart';
 import 'package:intl/intl.dart';
 
@@ -180,7 +182,7 @@ class ReportGenerator {
     }
   }
 
-  /// Generate and share CSV report (Excel-compatible)
+  /// Generate and share/download CSV report
   static Future<void> generateAndShareExcel(
       BuildContext context, AccountingModel model) async {
     try {
@@ -262,33 +264,48 @@ class ReportGenerator {
 
       if (context.mounted) Navigator.pop(context);
 
-      // Share the file using XFile.fromData (Compatible with Web)
-      final box = context.findRenderObject() as RenderBox?;
-      final csvData = utf8.encode(csv.toString());
-      final xFile = XFile.fromData(
-        csvData,
-        mimeType: 'text/csv',
-        name: 'report_${DateFormat('yyyyMMdd_HHmmss').format(now)}.csv',
-      );
+      final fileName =
+          'report_${DateFormat('yyyyMMdd_HHmmss').format(now)}.csv';
+      final csvString = csv.toString();
 
-      final result = await Share.shareXFiles(
-        [xFile],
-        subject: 'Financial Report - $dateStr',
-        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
-      );
+      if (kIsWeb) {
+        // Direct Download for Web
+        final bytes = utf8.encode(csvString);
+        final blob = html.Blob([bytes]);
+        final url = html.Url.createObjectUrlFromBlob(blob);
+        html.AnchorElement(href: url)
+          ..setAttribute("download", fileName)
+          ..click();
+        html.Url.revokeObjectUrl(url);
 
-      if (context.mounted) {
-        if (result.status == ShareResultStatus.success) {
+        if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Report shared successfully!'),
+              content: Text('Report downloaded successfully!'),
               backgroundColor: Color(0xFF10B981),
             ),
           );
-        } else {
+        }
+      } else {
+        // Native Share (Mobile/Desktop)
+        final box = context.findRenderObject() as RenderBox?;
+        final csvData = utf8.encode(csvString);
+        final xFile = XFile.fromData(
+          csvData,
+          mimeType: 'text/csv',
+          name: fileName,
+        );
+
+        final result = await Share.shareXFiles(
+          [xFile],
+          subject: 'Financial Report - $dateStr',
+          sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
+        );
+
+        if (context.mounted && result.status == ShareResultStatus.success) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Export completed.'),
+              content: Text('Report shared successfully!'),
               backgroundColor: Color(0xFF10B981),
             ),
           );
