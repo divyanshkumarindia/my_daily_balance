@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'reset_password_screen.dart';
 
 class VerifyOtpScreen extends StatefulWidget {
   const VerifyOtpScreen({Key? key}) : super(key: key);
@@ -46,7 +47,10 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('OTP Verified! (Mock)')),
       );
-      // TODO: Navigate to Reset Password Screen
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
+      );
     }
   }
 
