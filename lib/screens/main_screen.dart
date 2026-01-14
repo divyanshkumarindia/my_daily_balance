@@ -21,19 +21,12 @@ class _MainScreenState extends State<MainScreen> {
 
     return Scaffold(
       extendBody: true,
-      body: IndexedStack(
-        index: _currentIndex,
-        children: [
-          const HomeScreen(),
-          const SavedReportsScreen(),
-          const SettingsScreen(),
-          Container(
-            color: isDark ? const Color(0xFF111827) : Colors.white,
-            child: const Center(
-              child: Text('Profile Coming Soon'),
-            ),
-          ),
-        ],
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 200),
+        child: KeyedSubtree(
+          key: ValueKey<int>(_currentIndex),
+          child: _buildPage(_currentIndex, isDark),
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Container(
@@ -62,6 +55,25 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildPage(int index, bool isDark) {
+    switch (index) {
+      case 0:
+        return const HomeScreen();
+      case 1:
+        return const SavedReportsScreen();
+      case 2:
+        return const SettingsScreen();
+      case 3:
+      default:
+        return Container(
+          color: isDark ? const Color(0xFF111827) : Colors.white,
+          child: const Center(
+            child: Text('Profile Coming Soon'),
+          ),
+        );
+    }
   }
 
   Widget _buildNavItem(int index, String label, IconData icon) {
