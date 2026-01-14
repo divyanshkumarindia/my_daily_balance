@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -260,33 +260,39 @@ class ReportGenerator {
       final closingBalance = openingBalance + netBalance;
       addRow(['Closing Balance (C/F)', closingBalance.toStringAsFixed(2)]);
 
-      // Save file to system temp directory
-      final directory = Directory.systemTemp;
-      final filePath =
-          '${directory.path}/report_${DateFormat('yyyyMMdd_HHmmss').format(now)}.csv';
-      final file = File(filePath);
-      await file.writeAsString(csv.toString());
-
       if (context.mounted) Navigator.pop(context);
 
-      // Share the file
-      final result = await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(filePath)],
-          subject: 'Financial Report - $dateStr',
-        ),
+      // Share the file using XFile.fromData (Compatible with Web)
+      final box = context.findRenderObject() as RenderBox?;
+      final csvData = utf8.encode(csv.toString());
+      final xFile = XFile.fromData(
+        csvData,
+        mimeType: 'text/csv',
+        name: 'report_${DateFormat('yyyyMMdd_HHmmss').format(now)}.csv',
+      );
+
+      final result = await Share.shareXFiles(
+        [xFile],
+        subject: 'Financial Report - $dateStr',
+        sharePositionOrigin: box!.localToGlobal(Offset.zero) & box.size,
       );
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(result.status == ShareResultStatus.success
-                ? 'Report shared successfully! (Open with Excel or Google Sheets)'
-                : 'Report saved! You can open it with Excel or Google Sheets.'),
-            backgroundColor: const Color(0xFF10B981),
-            duration: const Duration(seconds: 3),
-          ),
-        );
+        if (result.status == ShareResultStatus.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Report shared successfully!'),
+              backgroundColor: Color(0xFF10B981),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Export completed.'),
+              backgroundColor: Color(0xFF10B981),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (context.mounted) {
