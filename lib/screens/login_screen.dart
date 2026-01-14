@@ -31,8 +31,8 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       await _authService.signIn(email: email, password: password);
       if (mounted) {
-        // Pop back to AuthScreen - AuthState change in main.dart handles navigation to Home
-        Navigator.popUntil(context, (route) => route.isFirst);
+        // Navigate to Home and remove all previous routes (like Welcome/Login)
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } catch (e) {
       if (mounted) {

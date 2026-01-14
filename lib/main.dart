@@ -3,10 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'services/auth_service.dart';
 import 'state/accounting_model.dart';
 import 'models/accounting.dart';
 import 'screens/accounting_template_screen.dart';
 import 'screens/main_screen.dart';
+import 'screens/welcome_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/signup_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -41,8 +45,13 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MainScreen(),
+      home: AuthService().currentUser != null
+          ? const MainScreen()
+          : const WelcomeScreen(),
       routes: {
+        '/login': (context) => const LoginScreen(),
+        '/signup': (context) => const SignupScreen(),
+        '/home': (context) => const MainScreen(),
         '/accounting/family': (context) =>
             const AccountingTemplateScreen(templateKey: 'family'),
         '/accounting/business': (context) =>
