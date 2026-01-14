@@ -499,13 +499,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF00C853).withOpacity(0.3),
+                    color: const Color(0xFF00C853).withValues(alpha: 0.3),
                     spreadRadius: 1,
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
                 ],
-              ),  
+              ),
               child: const Icon(
                 Icons.menu_book_rounded,
                 color: Colors.white,
@@ -804,7 +804,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         BoxShadow(
                                           color: isDark
                                               ? Colors.black26
-                                              : Colors.grey.withOpacity(0.05),
+                                              : Colors.grey
+                                                  .withValues(alpha: 0.05),
                                           blurRadius: 10,
                                           offset: const Offset(0, 4),
                                         ),
@@ -812,7 +813,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       border: Border.all(
                                         color: isDark
                                             ? const Color(0xFF374151)
-                                            : Colors.grey.withOpacity(0.1),
+                                            : Colors.grey
+                                                .withValues(alpha: 0.1),
                                         width: 1,
                                       ),
                                     ),
@@ -823,7 +825,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           width: 48,
                                           height: 48,
                                           decoration: BoxDecoration(
-                                            color: itemColor.withOpacity(0.1),
+                                            color: itemColor.withValues(
+                                                alpha: 0.1),
                                             shape: BoxShape.circle,
                                           ),
                                           child: Icon(

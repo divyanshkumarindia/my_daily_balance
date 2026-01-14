@@ -85,7 +85,8 @@ class _BalanceCardState extends State<BalanceCard> {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: (widget.iconColor ?? Colors.blue).withOpacity(0.1),
+                    color: (widget.iconColor ?? Colors.blue)
+                        .withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Icon(
