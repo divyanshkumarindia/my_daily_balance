@@ -275,7 +275,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 30),
 
                   // Reset Button
                   ElevatedButton(
@@ -284,7 +284,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF10B981), // Emerald Green
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 18),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -335,7 +335,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                               ),
                   ),
 
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
 
                   // Cancel
                   Center(
@@ -351,7 +351,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 70),
+                  const SizedBox(height: 80),
                 ],
               ),
             ),

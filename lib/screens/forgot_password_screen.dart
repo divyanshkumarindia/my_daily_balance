@@ -79,8 +79,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               // Lock Icon
               Center(
                 child: Container(
-                  width: 100,
-                  height: 100,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
                     color: const Color(0xFFECFDF5), // Light Green background
                     borderRadius: BorderRadius.circular(24),
@@ -92,7 +92,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         Icons
                             .lock_reset_outlined, // Or similar lock/refresh icon
                         color: Color(0xFF10B981), // Emerald Green
-                        size: 50,
+                        size: 40,
                       ),
                       // Small yellow dot indicator (from wireframe)
                       Positioned(

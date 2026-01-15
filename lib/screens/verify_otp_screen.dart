@@ -45,8 +45,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
 
     if (mounted) {
       setState(() => _isLoading = false);
-      ToastUtils.showSuccessToast(context, 'OTP Verified! (Mock)',
-          bottomPadding: 280.0);
+      ToastUtils.showSuccessToast(context, 'OTP Verified!',
+          bottomPadding: 25.0);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
@@ -96,8 +96,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                         // Shield Icon
                         Center(
                           child: Container(
-                            width: 100,
-                            height: 100,
+                            width: 80,
+                            height: 80,
                             decoration: BoxDecoration(
                               color: const Color(
                                   0xFFECFDF5), // Light Green background
@@ -109,7 +109,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                                 const Icon(
                                   Icons.verified_user_outlined,
                                   color: Color(0xFF10B981), // Emerald Green
-                                  size: 50,
+                                  size: 40,
                                 ),
                                 // Small yellow dot indicator
                                 Positioned(
