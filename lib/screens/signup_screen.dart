@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
 import 'signup_verify_otp_screen.dart';
+import '../utils/toast_utils.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({Key? key}) : super(key: key);
@@ -25,10 +26,8 @@ class _SignupScreenState extends State<SignupScreen> {
     final password = _passwordController.text.trim();
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please fill in name, email, and password.')),
-      );
+      ToastUtils.showErrorToast(
+          context, 'Please fill in name, email, and password.');
       return;
     }
 
@@ -53,9 +52,8 @@ class _SignupScreenState extends State<SignupScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to initiate signup: ${e.toString()}')),
-        );
+        ToastUtils.showErrorToast(
+            context, 'Failed to initiate signup: ${e.toString()}');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -72,9 +70,8 @@ class _SignupScreenState extends State<SignupScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Google Sign-In failed: ${e.toString()}')),
-        );
+        ToastUtils.showErrorToast(
+            context, 'Google Sign-In failed: ${e.toString()}');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

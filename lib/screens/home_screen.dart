@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'package:google_fonts/google_fonts.dart';
 import '../state/accounting_model.dart';
 import '../models/accounting.dart';
+import '../utils/toast_utils.dart';
 import '../services/recent_service.dart';
 import 'accounting_template_screen.dart';
 import '../widgets/premium_components.dart';
@@ -477,14 +478,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 onSelected: (value) {
                   model.setLanguage(value);
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          'Language switched to ${value == 'en' ? 'English' : 'Hindi'}'),
-                      backgroundColor: const Color(0xFF10B981),
-                      duration: const Duration(seconds: 1),
-                    ),
-                  );
+                  ToastUtils.showSuccessToast(context,
+                      'Language switched to ${value == 'en' ? 'English' : 'Hindi'}');
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(

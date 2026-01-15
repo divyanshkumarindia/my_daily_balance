@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'reset_password_screen.dart';
+import '../utils/toast_utils.dart';
 
 class VerifyOtpScreen extends StatefulWidget {
   const VerifyOtpScreen({Key? key}) : super(key: key);
@@ -31,9 +32,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   void _verifyOtp() async {
     String otp = _controllers.map((e) => e.text).join();
     if (otp.length < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the 4-digit code.')),
-      );
+      ToastUtils.showErrorToast(context, 'Please enter the 4-digit code.');
       return;
     }
 
@@ -44,9 +43,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
 
     if (mounted) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('OTP Verified! (Mock)')),
-      );
+      ToastUtils.showSuccessToast(context, 'OTP Verified! (Mock)');
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
@@ -296,10 +293,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                               const SizedBox(height: 8),
                               GestureDetector(
                                 onTap: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text('Code resent! (Mock)')),
-                                  );
+                                  ToastUtils.showSuccessToast(
+                                      context, 'Code resent! (Mock)');
                                 },
                                 child: Text(
                                   'Resend Code',

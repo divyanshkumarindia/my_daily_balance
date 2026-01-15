@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'verify_otp_screen.dart';
+import '../utils/toast_utils.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({Key? key}) : super(key: key);
@@ -19,10 +20,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final phone = _phoneController.text.trim();
 
     if (email.isEmpty && phone.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please enter your email address or phone number.')),
-      );
+      ToastUtils.showErrorToast(
+          context, 'Please enter your email address or phone number.');
       return;
     }
 
@@ -33,9 +32,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       await Future.delayed(const Duration(seconds: 2));
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('OTP sent successfully! (Mock)')),
-        );
+        ToastUtils.showSuccessToast(context, 'OTP sent successfully! (Mock)');
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const VerifyOtpScreen()),
@@ -43,9 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
-        );
+        ToastUtils.showErrorToast(context, 'Error: ${e.toString()}');
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

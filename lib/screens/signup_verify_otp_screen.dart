@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
 import '../state/accounting_model.dart';
+import '../utils/toast_utils.dart';
 import 'main_screen.dart';
 
 class SignupVerifyOtpScreen extends StatefulWidget {
@@ -45,9 +46,7 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
   void _verifyOtp() async {
     String otp = _controllers.map((e) => e.text).join();
     if (otp.length < 4) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter the 4-digit code.')),
-      );
+      ToastUtils.showErrorToast(context, 'Please enter the 4-digit code.');
       return;
     }
 
@@ -95,10 +94,8 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
             (route) => false,
           );
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Account created successfully! Welcome.')),
-          );
+          ToastUtils.showSuccessToast(
+              context, 'Account created successfully! Welcome.');
         }
       }
     } catch (e) {
@@ -373,10 +370,8 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
                               const SizedBox(height: 8),
                               GestureDetector(
                                 onTap: () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                        content: Text('Code resent! (Mock)')),
-                                  );
+                                  ToastUtils.showSuccessToast(
+                                      context, 'Code resent! (Mock)');
                                 },
                                 child: Text(
                                   'Resend Code',

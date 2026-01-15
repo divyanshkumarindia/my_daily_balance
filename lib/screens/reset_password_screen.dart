@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'login_screen.dart'; // For navigation back to login
+import '../utils/toast_utils.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
   const ResetPasswordScreen({Key? key}) : super(key: key);
@@ -57,16 +58,12 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final confirmPass = _confirmPasswordController.text;
 
     if (newPass.isEmpty || confirmPass.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all fields.')),
-      );
+      ToastUtils.showErrorToast(context, 'Please fill in all fields.');
       return;
     }
 
     if (newPass != confirmPass) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Passwords do not match.')),
-      );
+      ToastUtils.showErrorToast(context, 'Passwords do not match.');
       return;
     }
 
