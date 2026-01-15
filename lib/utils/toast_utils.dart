@@ -109,7 +109,7 @@ class _ToastWidgetState extends State<_ToastWidget>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 50, // Position from bottom of screen
+      bottom: 110, // Position higher to avoid floating navbar
       left: 20,
       right: 20,
       child: Material(

@@ -22,47 +22,57 @@ class _MainScreenState extends State<MainScreen> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      extendBody: true,
-      body: AnimatedSwitcher(
-        duration: _getTransitionDuration(_currentIndex),
-        transitionBuilder: (child, animation) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        child: KeyedSubtree(
-          key: ValueKey<int>(_currentIndex),
-          child: _buildPage(_currentIndex, isDark),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          height: 74,
-          margin: const EdgeInsets.only(left: 24, right: 24, bottom: 20),
-          decoration: BoxDecoration(
-            color: const Color(0xFF1E293B), // Dark Navy Blue
-            borderRadius: BorderRadius.circular(40),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.3),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              ),
-            ],
-          ),
-          child: Consumer<AccountingModel>(
-            builder: (context, model, child) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildNavItem(0, model.t('nav_home'), Icons.home_outlined),
-                  _buildNavItem(
-                      1, model.t('nav_reports'), Icons.pie_chart_outline),
-                  _buildNavItem(
-                      2, model.t('nav_settings'), Icons.settings_outlined),
-                ],
-              );
+      body: Stack(
+        children: [
+          // Main content
+          AnimatedSwitcher(
+            duration: _getTransitionDuration(_currentIndex),
+            transitionBuilder: (child, animation) {
+              return FadeTransition(opacity: animation, child: child);
             },
+            child: KeyedSubtree(
+              key: ValueKey<int>(_currentIndex),
+              child: _buildPage(_currentIndex, isDark),
+            ),
           ),
-        ),
+
+          // Floating Navigation Bar
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: SafeArea(
+              child: Container(
+                height: 74,
+                margin: const EdgeInsets.only(left: 24, right: 24, bottom: 20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1E293B), // Dark Navy Blue
+                  borderRadius: BorderRadius.circular(40),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Consumer<AccountingModel>(
+                  builder: (context, model, child) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _buildNavItem(
+                            0, model.t('nav_home'), Icons.home_outlined),
+                        _buildNavItem(
+                            1, model.t('nav_reports'), Icons.pie_chart_outline),
+                        _buildNavItem(2, model.t('nav_settings'),
+                            Icons.settings_outlined),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
