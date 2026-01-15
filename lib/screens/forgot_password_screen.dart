@@ -18,7 +18,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _sendOtp() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      ToastUtils.showErrorToast(context, 'Please enter your email address.');
+      ToastUtils.showErrorToast(context, 'Please enter your email address.',
+          bottomPadding: 30.0);
       return;
     }
 
@@ -29,7 +30,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       await Future.delayed(const Duration(seconds: 2));
 
       if (mounted) {
-        ToastUtils.showSuccessToast(context, 'OTP sent successfully! (Mock)');
+        ToastUtils.showSuccessToast(context, 'OTP sent successfully! (Mock)',
+            bottomPadding: 140.0);
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const VerifyOtpScreen()),
@@ -37,7 +39,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ToastUtils.showErrorToast(context, 'Error: ${e.toString()}');
+        ToastUtils.showErrorToast(context, 'Error: ${e.toString()}',
+            bottomPadding: 280.0);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -163,9 +166,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   iconColor: labelColor,
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 18),
 
               // Send OTP Button
               ElevatedButton(
@@ -173,7 +176,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF10B981), // Emerald Green
                   foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -204,7 +207,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
               ),
 
-              const SizedBox(height: 32),
+              const SizedBox(height: 24),
 
               // Back to Login
               Center(

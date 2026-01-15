@@ -59,12 +59,14 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     final confirmPass = _confirmPasswordController.text;
 
     if (newPass.isEmpty || confirmPass.isEmpty) {
-      ToastUtils.showErrorToast(context, 'Please fill in all fields.');
+      ToastUtils.showErrorToast(context, 'Please fill in all fields.',
+          bottomPadding: 40.0);
       return;
     }
 
     if (newPass != confirmPass) {
-      ToastUtils.showErrorToast(context, 'Passwords do not match.');
+      ToastUtils.showErrorToast(context, 'Passwords do not match.',
+          bottomPadding: 40.0);
       return;
     }
 
@@ -108,240 +110,250 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     return Scaffold(
       backgroundColor: cardColor,
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Custom Back Button
-              const PremiumBackButton(),
-              const SizedBox(height: 32),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 450),
+            child: SingleChildScrollView(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Custom Back Button
+                  const PremiumBackButton(),
+                  const SizedBox(height: 10),
 
-              // Shield Icon (Same as Verify OTP)
-              Center(
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFECFDF5), // Light Green background
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const Icon(
-                        Icons.verified_user_outlined, // Reuse check shield
-                        color: Color(0xFF10B981), // Emerald Green
-                        size: 50,
+                  // Shield Icon (Same as Verify OTP)
+                  Center(
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color:
+                            const Color(0xFFECFDF5), // Light Green background
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      // Small yellow dot indicator
-                      Positioned(
-                        top: 16,
-                        right: 18,
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFBBF24), // Amber/Yellow
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          const Icon(
+                            Icons.verified_user_outlined, // Reuse check shield
+                            color: Color(0xFF10B981), // Emerald Green
+                            size: 40,
                           ),
+                          // Small yellow dot indicator
+                          Positioned(
+                            top: 16,
+                            right: 18,
+                            child: Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFBBF24), // Amber/Yellow
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+
+                  // Title
+                  Text(
+                    'Reset Password',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.outfit(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Description
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      'Please create a new, strong password for your account.',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        color: labelColor,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+
+                  // New Password Label
+                  Text(
+                    'NEW PASSWORD',
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: labelColor,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // New Password Input
+                  TextField(
+                    controller: _newPasswordController,
+                    obscureText: _obscureNewPassword,
+                    style: TextStyle(color: textColor),
+                    decoration: _inputDecoration(
+                      hintText: 'Enter new password',
+                      icon: Icons.lock_outline,
+                      isObscured: _obscureNewPassword,
+                      toggleVisibility: () {
+                        setState(
+                            () => _obscureNewPassword = !_obscureNewPassword);
+                      },
+                      fillColor: inputFillColor,
+                      borderColor: borderColor,
+                      iconColor: labelColor,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Confirm Password Label
+                  Text(
+                    'CONFIRM PASSWORD',
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: labelColor,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Confirm Password Input
+                  TextField(
+                    controller: _confirmPasswordController,
+                    obscureText: _obscureConfirmPassword,
+                    style: TextStyle(color: textColor),
+                    decoration: _inputDecoration(
+                      hintText: 'Confirm new password',
+                      icon: Icons.lock_outline,
+                      isObscured: _obscureConfirmPassword,
+                      toggleVisibility: () {
+                        setState(() =>
+                            _obscureConfirmPassword = !_obscureConfirmPassword);
+                      },
+                      fillColor: inputFillColor,
+                      borderColor: borderColor,
+                      iconColor: labelColor,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Strength Indicator
+                  Row(
+                    children: [
+                      Expanded(child: _buildStrengthBar(0, _strengthLevel)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildStrengthBar(1, _strengthLevel)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildStrengthBar(2, _strengthLevel)),
+                      const SizedBox(width: 8),
+                      Expanded(child: _buildStrengthBar(3, _strengthLevel)),
+                      const SizedBox(width: 16),
+                      Text(
+                        _getStrengthText(_strengthLevel),
+                        style: GoogleFonts.outfit(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: _getStrengthColor(_strengthLevel),
                         ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              const SizedBox(height: 32),
+                  const SizedBox(height: 40),
 
-              // Title
-              Text(
-                'Reset Password',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: textColor,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Description
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  'Please create a new, strong password for your account.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 16,
-                    color: labelColor,
-                    height: 1.5,
+                  // Reset Button
+                  ElevatedButton(
+                    onPressed:
+                        (_isLoading || _isSuccess) ? null : _resetPassword,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF10B981), // Emerald Green
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                      disabledBackgroundColor: _isSuccess
+                          ? const Color(0xFF10B981)
+                          : null, // Keep green when success
+                      disabledForegroundColor:
+                          _isSuccess ? Colors.white : null, // Keep white text
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : _isSuccess
+                            ? Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Password Reset Successfully',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.check, size: 20),
+                                ],
+                              )
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Reset Password',
+                                    style: GoogleFonts.outfit(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.check_circle, size: 20),
+                                ],
+                              ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 40),
 
-              // New Password Label
-              Text(
-                'NEW PASSWORD',
-                style: GoogleFonts.outfit(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: labelColor,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 8),
+                  const SizedBox(height: 32),
 
-              // New Password Input
-              TextField(
-                controller: _newPasswordController,
-                obscureText: _obscureNewPassword,
-                style: TextStyle(color: textColor),
-                decoration: _inputDecoration(
-                  hintText: 'Enter new password',
-                  icon: Icons.lock_outline,
-                  isObscured: _obscureNewPassword,
-                  toggleVisibility: () {
-                    setState(() => _obscureNewPassword = !_obscureNewPassword);
-                  },
-                  fillColor: inputFillColor,
-                  borderColor: borderColor,
-                  iconColor: labelColor,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Confirm Password Label
-              Text(
-                'CONFIRM PASSWORD',
-                style: GoogleFonts.outfit(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: labelColor,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Confirm Password Input
-              TextField(
-                controller: _confirmPasswordController,
-                obscureText: _obscureConfirmPassword,
-                style: TextStyle(color: textColor),
-                decoration: _inputDecoration(
-                  hintText: 'Confirm new password',
-                  icon: Icons.lock_outline,
-                  isObscured: _obscureConfirmPassword,
-                  toggleVisibility: () {
-                    setState(() =>
-                        _obscureConfirmPassword = !_obscureConfirmPassword);
-                  },
-                  fillColor: inputFillColor,
-                  borderColor: borderColor,
-                  iconColor: labelColor,
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Strength Indicator
-              Row(
-                children: [
-                  Expanded(child: _buildStrengthBar(0, _strengthLevel)),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildStrengthBar(1, _strengthLevel)),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildStrengthBar(2, _strengthLevel)),
-                  const SizedBox(width: 8),
-                  Expanded(child: _buildStrengthBar(3, _strengthLevel)),
-                  const SizedBox(width: 16),
-                  Text(
-                    _getStrengthText(_strengthLevel),
-                    style: GoogleFonts.outfit(
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                      color: _getStrengthColor(_strengthLevel),
+                  // Cancel
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Text(
+                        'Cancel and Go Back',
+                        style: GoogleFonts.outfit(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: labelColor,
+                        ),
+                      ),
                     ),
                   ),
+                  const SizedBox(height: 24),
                 ],
               ),
-              const SizedBox(height: 40),
-
-              // Reset Button
-              ElevatedButton(
-                onPressed: (_isLoading || _isSuccess) ? null : _resetPassword,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF10B981), // Emerald Green
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                  disabledBackgroundColor: _isSuccess
-                      ? const Color(0xFF10B981)
-                      : null, // Keep green when success
-                  disabledForegroundColor:
-                      _isSuccess ? Colors.white : null, // Keep white text
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : _isSuccess
-                        ? Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Password Reset Successfully',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(Icons.check, size: 20),
-                            ],
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Reset Password',
-                                style: GoogleFonts.outfit(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(Icons.check_circle, size: 20),
-                            ],
-                          ),
-              ),
-
-              const SizedBox(height: 32),
-
-              // Cancel
-              Center(
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Text(
-                    'Cancel and Go Back',
-                    style: GoogleFonts.outfit(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: labelColor,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
         ),
       ),

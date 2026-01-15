@@ -47,7 +47,8 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
   void _verifyOtp() async {
     String otp = _controllers.map((e) => e.text).join();
     if (otp.length < 4) {
-      ToastUtils.showErrorToast(context, 'Please enter the 4-digit code.');
+      ToastUtils.showErrorToast(context, 'Please enter the 4-digit code.',
+          bottomPadding: 130.0);
       return;
     }
 
@@ -96,7 +97,8 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
           );
 
           ToastUtils.showSuccessToast(
-              context, 'Account created successfully! Welcome.');
+              context, 'Account created successfully! Welcome.',
+              bottomPadding: 130.0);
         }
       }
     } catch (e) {
@@ -352,7 +354,8 @@ class _SignupVerifyOtpScreenState extends State<SignupVerifyOtpScreen> {
                               GestureDetector(
                                 onTap: () {
                                   ToastUtils.showSuccessToast(
-                                      context, 'Code resent! (Mock)');
+                                      context, 'Code resent! (Mock)',
+                                      bottomPadding: 130.0);
                                 },
                                 child: Text(
                                   'Resend Code',

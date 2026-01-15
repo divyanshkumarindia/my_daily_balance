@@ -25,7 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      ToastUtils.showErrorToast(context, 'Please enter email and password.');
+      ToastUtils.showErrorToast(context, 'Please enter email and password.',
+          bottomPadding: 140.0);
       return;
     }
 
@@ -39,7 +40,8 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ToastUtils.showErrorToast(context, 'Login failed: ${e.toString()}');
+        ToastUtils.showErrorToast(context, 'Login failed: ${e.toString()}',
+            bottomPadding: 130.0);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -56,7 +58,8 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       if (mounted) {
         ToastUtils.showErrorToast(
-            context, 'Google Sign-In failed: ${e.toString()}');
+            context, 'Google Sign-In failed: ${e.toString()}',
+            bottomPadding: 130.0);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -258,8 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         OutlinedButton(
                           onPressed: _isLoading ? null : _googleSignIn,
                           style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12), // Reduced vertical padding
+                            padding: const EdgeInsets.symmetric(vertical: 16),
                             side: BorderSide(color: borderColor),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
@@ -297,21 +299,17 @@ class _LoginScreenState extends State<LoginScreen> {
                               Text(
                                 'Continue with Google',
                                 style: GoogleFonts.roboto(
-                                  // Using Roboto to match standard look
                                   fontSize: 16,
-                                  fontWeight: FontWeight.w500, // Medium weight
-                                  color: const Color(
-                                      0xFF1F1F1F), // Dark grey/black for text
+                                  fontWeight: FontWeight.w500,
+                                  color: const Color(0xFF1F1F1F),
                                 ),
                               ),
                             ],
                           ),
                         ),
-
-                        const Spacer(),
+                        const SizedBox(height: 16),
 
                         // Footer: Don't have an account? Sign Up
-                        const SizedBox(height: 16),
                         Center(
                           child: GestureDetector(
                             onTap: () {
@@ -342,6 +340,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
+
+                        const Spacer(),
                         const SizedBox(height: 8),
                       ],
                     ),

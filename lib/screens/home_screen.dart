@@ -479,7 +479,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 onSelected: (value) {
                   model.setLanguage(value);
                   ToastUtils.showSuccessToast(context,
-                      'Language switched to ${value == 'en' ? 'English' : 'Hindi'}');
+                      'Language switched to ${value == 'en' ? 'English' : 'Hindi'}',
+                      bottomPadding: 110.0);
                 },
                 itemBuilder: (context) => [
                   const PopupMenuItem(

@@ -4,16 +4,21 @@ import 'package:google_fonts/google_fonts.dart';
 class ToastUtils {
   static OverlayEntry? _currentEntry;
 
-  static void showSuccessToast(BuildContext context, String message) {
-    _showToast(context, message, const Color(0xFF10B981), Icons.check_circle);
+  static void showSuccessToast(BuildContext context, String message,
+      {required double bottomPadding}) {
+    _showToast(context, message, const Color(0xFF10B981), Icons.check_circle,
+        bottomPadding: bottomPadding);
   }
 
-  static void showErrorToast(BuildContext context, String message) {
-    _showToast(context, message, const Color(0xFFEF4444), Icons.error_outline);
+  static void showErrorToast(BuildContext context, String message,
+      {required double bottomPadding}) {
+    _showToast(context, message, const Color(0xFFEF4444), Icons.error_outline,
+        bottomPadding: bottomPadding);
   }
 
   static void _showToast(
-      BuildContext context, String message, Color color, IconData icon) {
+      BuildContext context, String message, Color color, IconData icon,
+      {required double bottomPadding}) {
     // If a toast is currently showing, remove it immediately so the new one can take place
     // Or we could let it animate out, but for responsiveness, immediate replacement is often better
     if (_currentEntry != null) {
@@ -27,6 +32,7 @@ class ToastUtils {
         message: message,
         color: color,
         icon: icon,
+        bottomPadding: bottomPadding,
         onDismiss: () {
           if (_currentEntry != null) {
             _currentEntry!.remove();
@@ -46,6 +52,7 @@ class _ToastWidget extends StatefulWidget {
   final Color color;
   final IconData icon;
   final VoidCallback onDismiss;
+  final double? bottomPadding;
 
   const _ToastWidget({
     Key? key,
@@ -53,6 +60,7 @@ class _ToastWidget extends StatefulWidget {
     required this.color,
     required this.icon,
     required this.onDismiss,
+    this.bottomPadding,
   }) : super(key: key);
 
   @override
@@ -109,7 +117,7 @@ class _ToastWidgetState extends State<_ToastWidget>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: 130, // Positined higher to avoid Welcome buttons & Nav Bar
+      bottom: widget.bottomPadding ?? 130, // Default to 130 if not specified
       left: 20,
       right: 20,
       child: Material(

@@ -33,7 +33,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   void _verifyOtp() async {
     String otp = _controllers.map((e) => e.text).join();
     if (otp.length < 4) {
-      ToastUtils.showErrorToast(context, 'Please enter the 4-digit code.');
+      ToastUtils.showErrorToast(context, 'Please enter the 4-digit code.',
+          bottomPadding: 25.0);
       return;
     }
 
@@ -44,7 +45,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
 
     if (mounted) {
       setState(() => _isLoading = false);
-      ToastUtils.showSuccessToast(context, 'OTP Verified! (Mock)');
+      ToastUtils.showSuccessToast(context, 'OTP Verified! (Mock)',
+          bottomPadding: 280.0);
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const ResetPasswordScreen()),
@@ -55,6 +57,12 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+// ... (omitting intermediate code if needed, but replace_file_content needs contiguous)
+// I will target _verifyOtp separately from build/Resend Code call if they are far apart.
+// _verifyOtp is lines 33-53.
+// Resend logic is line 276.
+// I should make 2 edits or use multi_replace.
+// I will use multi_replace.
     final cardColor = isDark ? const Color(0xFF1F2937) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF111827);
     final labelColor =
@@ -211,12 +219,12 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                             );
                           }),
                         ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 25),
 
                         // Verify Button
                         Center(
                           child: SizedBox(
-                            width: 300, // Fixed max width
+                            width: 380, // Fixed max width
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _verifyOtp,
                               style: ElevatedButton.styleFrom(
@@ -224,7 +232,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                                     const Color(0xFF10B981), // Emerald Green
                                 foregroundColor: Colors.white,
                                 padding:
-                                    const EdgeInsets.symmetric(vertical: 16),
+                                    const EdgeInsets.symmetric(vertical: 20),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
@@ -246,19 +254,19 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                                         Text(
                                           'Verify',
                                           style: GoogleFonts.outfit(
-                                            fontSize: 16,
+                                            fontSize: 17,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         const SizedBox(width: 8),
-                                        const Icon(Icons.verified, size: 20),
+                                        const Icon(Icons.verified, size: 22),
                                       ],
                                     ),
                             ),
                           ),
                         ),
 
-                        const Spacer(),
+                        const SizedBox(height: 40),
 
                         // Resend Code
                         Center(
@@ -275,7 +283,8 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
                               GestureDetector(
                                 onTap: () {
                                   ToastUtils.showSuccessToast(
-                                      context, 'Code resent! (Mock)');
+                                      context, 'Code resent! (Mock)',
+                                      bottomPadding: 280.0);
                                 },
                                 child: Text(
                                   'Resend Code',

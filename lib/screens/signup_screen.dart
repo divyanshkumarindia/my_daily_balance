@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+  import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
@@ -28,7 +28,8 @@ class _SignupScreenState extends State<SignupScreen> {
 
     if (name.isEmpty || email.isEmpty || password.isEmpty) {
       ToastUtils.showErrorToast(
-          context, 'Please fill in name, email, and password.');
+          context, 'Please fill in name, email, and password.',
+          bottomPadding: 120.0);
       return;
     }
 
@@ -54,7 +55,8 @@ class _SignupScreenState extends State<SignupScreen> {
     } catch (e) {
       if (mounted) {
         ToastUtils.showErrorToast(
-            context, 'Failed to initiate signup: ${e.toString()}');
+            context, 'Failed to initiate signup: ${e.toString()}',
+            bottomPadding: 120.0);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -72,7 +74,8 @@ class _SignupScreenState extends State<SignupScreen> {
     } catch (e) {
       if (mounted) {
         ToastUtils.showErrorToast(
-            context, 'Google Sign-In failed: ${e.toString()}');
+            context, 'Google Sign-In failed: ${e.toString()}',
+            bottomPadding: 120.0);
       }
     } finally {
       if (mounted) setState(() => _isLoading = false);

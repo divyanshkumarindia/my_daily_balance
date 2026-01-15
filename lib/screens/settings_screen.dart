@@ -980,7 +980,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (confirmed == true && mounted) {
       // Show loading feedback
-      ToastUtils.showSuccessToast(context, 'Logging out...');
+      ToastUtils.showSuccessToast(context, 'Logging out...',
+          bottomPadding: 170.0);
 
       try {
         final authService = AuthService();
