@@ -60,13 +60,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
     if (newPass.isEmpty || confirmPass.isEmpty) {
       ToastUtils.showErrorToast(context, 'Please fill in all fields.',
-          bottomPadding: 40.0);
+          bottomPadding: 25.0);
       return;
     }
 
     if (newPass != confirmPass) {
       ToastUtils.showErrorToast(context, 'Passwords do not match.',
-          bottomPadding: 40.0);
+          bottomPadding: 25.0);
       return;
     }
 
@@ -110,7 +110,8 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     return Scaffold(
       backgroundColor: cardColor,
       body: SafeArea(
-        child: Center(
+        child: Align(
+          alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 450),
             child: SingleChildScrollView(
@@ -160,7 +161,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
 
                   // Title
                   Text(
@@ -350,7 +351,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 70),
                 ],
               ),
             ),
