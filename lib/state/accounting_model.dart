@@ -1024,6 +1024,8 @@ class AccountingModel extends ChangeNotifier {
       _businessName = null;
       _defaultPageType = 'Personal';
       _defaultReportFormat = 'Basic';
+      _userName = null;
+      _hasSkippedNameSetup = false;
 
       // Reset accounting data
       openingCash = 0.0;

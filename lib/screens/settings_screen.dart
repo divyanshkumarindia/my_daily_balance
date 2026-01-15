@@ -4,7 +4,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import '../state/accounting_model.dart';
 import '../models/accounting.dart';
+import '../utils/toast_utils.dart';
 import '../services/auth_service.dart';
+import 'welcome_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -977,14 +979,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
 
     if (confirmed == true && mounted) {
-      final authService = AuthService();
-      await authService.signOut();
-      if (mounted) {
-        // Clear local state if needed via AccountingModel
-        // Model already fetched above
-        model.clearAllData(); // Optional: Clear local data on logout
+      // Show loading feedback
+      ToastUtils.showSuccessToast(context, 'Logging out...');
 
-        Navigator.of(context).popUntil((route) => route.isFirst);
+      try {
+        final authService = AuthService();
+        await authService.signOut();
+      } catch (e) {
+        // Continue even if remote logout fails
+        print('Logout error: $e');
+      }
+
+      if (mounted) {
+        // Clear local state
+        model.clearAllData();
+
+        // Navigate to Welcome Screen and clear stack
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+          (route) => false,
+        );
       }
     }
   }
