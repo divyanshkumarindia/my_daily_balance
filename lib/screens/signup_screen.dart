@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
-import 'signup_verify_otp_screen.dart';
 import '../utils/toast_utils.dart';
 import '../widgets/premium_back_button.dart';
 
@@ -43,7 +42,7 @@ class _SignupScreenState extends State<SignupScreen> {
     setState(() => _isLoading = true);
 
     try {
-      // 1. Trigger Supabase Signup (Sends OTP Email)
+      // 1. Trigger Supabase Signup
       await _authService.signUp(
         email: email,
         password: password,
@@ -51,18 +50,28 @@ class _SignupScreenState extends State<SignupScreen> {
       );
 
       if (mounted) {
-        // Navigate to OTP Screen
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => SignupVerifyOtpScreen(
-              fullName: name,
-              email: email,
-              password:
-                  password, // Still passing password if needed for auto-login fallback?
-              // Actually verifyOTP logs them in, so pw might not be needed
-              // but keep it just in case logic changes.
-            ),
+        // Show Confirmation Dialog
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) => AlertDialog(
+            title: const Text('Check your inbox'),
+            content: Text(
+                'We have sent a confirmation link to $email.\n\nPlease click the link in the email to activate your account, then log in.'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  // Navigate to Login Screen
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const LoginScreen()),
+                    (route) => false,
+                  );
+                },
+                child: const Text('Go to Login'),
+              ),
+            ],
           ),
         );
       }

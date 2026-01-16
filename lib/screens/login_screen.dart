@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'; // Added using correct package
 import '../services/auth_service.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
@@ -37,6 +38,14 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         // Navigate to Home and remove all previous routes
         Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+      }
+    } on AuthException catch (e) {
+      if (mounted) {
+        String message = e.message;
+        if (message.toLowerCase().contains('email not confirmed')) {
+          message = 'Please confirm your email address before logging in.';
+        }
+        ToastUtils.showErrorToast(context, message, bottomPadding: 25.0);
       }
     } catch (e) {
       if (mounted) {
