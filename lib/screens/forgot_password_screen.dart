@@ -66,169 +66,176 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         isDark ? const Color(0xFF374151) : const Color(0xFFF9FAFB);
 
     return Scaffold(
-      backgroundColor: cardColor,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const PremiumBackButton(),
-              const SizedBox(height: 32),
+        backgroundColor: cardColor,
+        body: SafeArea(
+            child: Align(
+          alignment: Alignment.topCenter,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 450),
+            child: SingleChildScrollView(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const PremiumBackButton(),
+                  const SizedBox(height: 32),
 
-              // Lock Icon
-              Center(
-                child: Container(
-                  width: 80,
-                  height: 80,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFECFDF5), // Light Green background
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      const Icon(
-                        Icons
-                            .lock_reset_outlined, // Or similar lock/refresh icon
-                        color: Color(0xFF10B981), // Emerald Green
-                        size: 40,
+                  // Lock Icon
+                  Center(
+                    child: Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color:
+                            const Color(0xFFECFDF5), // Light Green background
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      // Small yellow dot indicator (from wireframe)
-                      Positioned(
-                        top: 16,
-                        right: 18, // Adjust based on exact icon geometry
-                        child: Container(
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFFBBF24), // Amber/Yellow
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 2),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-
-              // Title
-              Text(
-                'Forgot Password?',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.outfit(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w700,
-                  color: textColor,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              // Description
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Text(
-                  'Enter your details associated with your account and we will send you a link to reset your password.',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.outfit(
-                    fontSize: 16,
-                    color: labelColor,
-                    height: 1.5,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-
-              // Email Label
-              Text(
-                'EMAIL ADDRESS',
-                style: GoogleFonts.outfit(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: labelColor,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 8),
-
-              // Email Input
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                style: TextStyle(color: textColor),
-                decoration: _inputDecoration(
-                  hintText: 'Enter your email',
-                  icon: Icons.email_outlined,
-                  fillColor: inputFillColor,
-                  borderColor: borderColor,
-                  iconColor: labelColor,
-                ),
-              ),
-              const SizedBox(height: 12),
-
-              const SizedBox(height: 18),
-
-              // Send OTP Button
-              ElevatedButton(
-                onPressed: _isLoading ? null : _sendOtp,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF10B981), // Emerald Green
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 0,
-                ),
-                child: _isLoading
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      child: Stack(
+                        alignment: Alignment.center,
                         children: [
-                          Text(
-                            'Send OTP', // Changed text as requested
-                            style: GoogleFonts.outfit(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          const Icon(
+                            Icons
+                                .lock_reset_outlined, // Or similar lock/refresh icon
+                            color: Color(0xFF10B981), // Emerald Green
+                            size: 40,
+                          ),
+                          // Small yellow dot indicator (from wireframe)
+                          Positioned(
+                            top: 16,
+                            right: 18, // Adjust based on exact icon geometry
+                            child: Container(
+                              width: 12,
+                              height: 12,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFBBF24), // Amber/Yellow
+                                shape: BoxShape.circle,
+                                border:
+                                    Border.all(color: Colors.white, width: 2),
+                              ),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward, size: 20),
                         ],
                       ),
-              ),
-
-              const SizedBox(height: 24),
-
-              // Back to Login
-              Center(
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Text(
-                    'Back to Login',
-                    style: GoogleFonts.outfit(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: labelColor,
                     ),
                   ),
-                ),
+                  const SizedBox(height: 32),
+
+                  // Title
+                  Text(
+                    'Forgot Password?',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.outfit(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Description
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      'Enter your details associated with your account and we will send you a link to reset your password.',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.outfit(
+                        fontSize: 16,
+                        color: labelColor,
+                        height: 1.5,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Email Label
+                  Text(
+                    'EMAIL ADDRESS',
+                    style: GoogleFonts.outfit(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: labelColor,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+
+                  // Email Input
+                  TextField(
+                    controller: _emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    style: TextStyle(color: textColor),
+                    decoration: _inputDecoration(
+                      hintText: 'Enter your email',
+                      icon: Icons.email_outlined,
+                      fillColor: inputFillColor,
+                      borderColor: borderColor,
+                      iconColor: labelColor,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+
+                  const SizedBox(height: 18),
+
+                  // Send OTP Button
+                  ElevatedButton(
+                    onPressed: _isLoading ? null : _sendOtp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF10B981), // Emerald Green
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Send OTP', // Changed text as requested
+                                style: GoogleFonts.outfit(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.arrow_forward, size: 20),
+                            ],
+                          ),
+                  ),
+
+                  const SizedBox(height: 24),
+
+                  // Back to Login
+                  Center(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Text(
+                        'Back to Login',
+                        style: GoogleFonts.outfit(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: labelColor,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ),
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
-        ),
-      ),
-    );
+        )));
   }
 
   InputDecoration _inputDecoration({
