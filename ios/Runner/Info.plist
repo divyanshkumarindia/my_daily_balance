@@ -53,9 +53,8 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<!-- TODO: Replace this value with the REVERSED_CLIENT_ID from your Google Cloud Console -->
-				<!-- Example: com.googleusercontent.apps.524174187471-xxxxxxxxxxxx -->
-				<string>YOUR_IOS_REVERSED_CLIENT_ID</string>
+				<!-- Google Sign-In Reversed Client ID -->
+				<string>com.googleusercontent.apps.524174187471-hkk0s53v63qobin5p72p9m9tmkvrfpn9</string>
 			</array>
 		</dict>
 	</array>

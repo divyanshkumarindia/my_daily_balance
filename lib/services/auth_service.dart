@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:io';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -39,13 +40,16 @@ class AuthService {
   static String get kWebClientId => dotenv.env['GOOGLE_WEB_CLIENT_ID'] ?? '';
   static String get kAndroidClientId =>
       dotenv.env['GOOGLE_ANDROID_CLIENT_ID'] ?? '';
+  static String get kIosClientId => dotenv.env['GOOGLE_IOS_CLIENT_ID'] ?? '';
 
   // Sign In with Google
   Future<AuthResponse> signInWithGoogle() async {
     try {
       // Initialize GoogleSignIn (v7.x uses singleton pattern)
+      // Initialize GoogleSignIn
       await GoogleSignIn.instance.initialize(
         serverClientId: kWebClientId,
+        clientId: Platform.isIOS ? kIosClientId : null,
       );
 
       // Authenticate using the new v7.x API
