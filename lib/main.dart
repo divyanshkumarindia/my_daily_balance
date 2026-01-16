@@ -49,13 +49,21 @@ class MyApp extends StatelessWidget {
         stream: AuthService().authStateChanges,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            // Check current user while waiting for stream
-            return AuthService().currentUser != null
-                ? const MainScreen()
-                : const WelcomeScreen();
+            // While waiting for the stream to emit the first event,
+            // check the current synchronous session as a hint,
+            // but prefer showing a loader or Welcome to prevent authorized flash.
+            final user = AuthService().currentUser;
+            if (user != null) {
+              return const MainScreen();
+            }
+            return const WelcomeScreen();
           }
+
           final session = snapshot.data?.session;
-          return session != null ? const MainScreen() : const WelcomeScreen();
+          if (session != null) {
+            return const MainScreen();
+          }
+          return const WelcomeScreen();
         },
       ),
       routes: {

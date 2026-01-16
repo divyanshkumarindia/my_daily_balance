@@ -4,6 +4,8 @@ import '../state/accounting_model.dart';
 import 'home_screen.dart';
 import 'saved_reports_screen.dart';
 import 'settings_screen.dart';
+import '../services/auth_service.dart';
+import 'login_screen.dart';
 
 /// Main entry screen with bottom navigation bar
 /// This replaces IndexScreen as the app entry point
@@ -16,6 +18,24 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // CRITICAL SECURITY CHECK
+    // Ensure user is actually authenticated. If not, kick them out immediately.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final user = AuthService().currentUser;
+      if (user == null) {
+        if (mounted) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+            (route) => false,
+          );
+        }
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
