@@ -4,7 +4,6 @@ import '../state/accounting_model.dart';
 import 'home_screen.dart';
 import 'saved_reports_screen.dart';
 import 'settings_screen.dart';
-import 'notes_screen.dart';
 
 /// Main entry screen with bottom navigation bar
 /// This replaces IndexScreen as the app entry point
@@ -60,8 +59,6 @@ class _MainScreenState extends State<MainScreen> {
                       1, model.t('nav_reports'), Icons.pie_chart_outline),
                   _buildNavItem(
                       2, model.t('nav_settings'), Icons.settings_outlined),
-                  _buildNavItem(
-                      3, model.t('nav_notes'), Icons.note_alt_outlined),
                 ],
               );
             },
@@ -79,8 +76,6 @@ class _MainScreenState extends State<MainScreen> {
         return const SavedReportsScreen();
       case 2:
         return const SettingsScreen();
-      case 3:
-        return const NotesScreen();
       default:
         return const HomeScreen();
     }
