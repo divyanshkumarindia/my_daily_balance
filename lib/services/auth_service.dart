@@ -1,5 +1,6 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
@@ -34,11 +35,10 @@ class AuthService {
   }
 
   // Use the Web Client ID you generated in Google Cloud:
-  static const String kWebClientId =
-      '524174187471-p6lib92th7u9tu8po0dn2loatu9bnosj.apps.googleusercontent.com';
-  // your Android ID
-  static const String kAndroidClientId =
-      '524174187471-ihpc8l17uiuti2eo0psbco3vh2h6o3ag.apps.googleusercontent.com';
+  // Google Client IDs from Environment
+  static String get kWebClientId => dotenv.env['GOOGLE_WEB_CLIENT_ID'] ?? '';
+  static String get kAndroidClientId =>
+      dotenv.env['GOOGLE_ANDROID_CLIENT_ID'] ?? '';
 
   // Sign In with Google
   Future<AuthResponse> signInWithGoogle() async {
