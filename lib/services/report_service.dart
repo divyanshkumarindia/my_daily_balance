@@ -29,17 +29,35 @@ class ReportService {
     }
   }
 
-  /// Fetches a stream of reports for the current user, ordered by creation date descending.
-  Stream<List<Map<String, dynamic>>> getReportsStream() {
+  /// Fetches a stream of reports for the current user.
+  ///
+  /// [query] - Optional search query for report type or date.
+  /// [isDescending] - Sort order for creation date (default: true).
+  Stream<List<Map<String, dynamic>>> getReportsStream({
+    String? query,
+    bool isDescending = true,
+  }) {
     final user = _supabase.auth.currentUser;
     if (user == null) {
       return Stream.value([]);
     }
 
+    // specific search query
+    if (query != null && query.isNotEmpty) {
+      return _supabase
+          .from('reports')
+          .select()
+          .eq('user_id', user.id)
+          .or('report_type.ilike.%$query%,report_date.ilike.%$query%')
+          .order('created_at', ascending: !isDescending)
+          .asStream();
+    }
+
+    // default realtime stream
     return _supabase
         .from('reports')
         .stream(primaryKey: ['id'])
         .eq('user_id', user.id)
-        .order('created_at', ascending: false);
+        .order('created_at', ascending: !isDescending);
   }
 }

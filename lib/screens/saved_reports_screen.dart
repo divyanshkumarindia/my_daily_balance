@@ -13,6 +13,15 @@ class SavedReportsScreen extends StatefulWidget {
 
 class _SavedReportsScreenState extends State<SavedReportsScreen> {
   final ReportService _reportService = ReportService();
+  final TextEditingController _searchController = TextEditingController();
+  bool _isDescending = true;
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,59 +36,119 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
         foregroundColor: isDark ? Colors.white : Colors.black87,
         elevation: 0,
         centerTitle: true,
-      ),
-      body: StreamBuilder<List<Map<String, dynamic>>>(
-        stream: _reportService.getReportsStream(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error loading reports',
-                style: TextStyle(
-                  color: isDark ? Colors.white70 : Colors.black54,
-                ),
-              ),
-            );
-          }
-
-          final reports = snapshot.data ?? [];
-
-          if (reports.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.folder_open_outlined,
-                    size: 64,
-                    color: isDark ? Colors.white30 : Colors.black26,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No saved reports yet',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: isDark ? Colors.white70 : Colors.black54,
-                    ),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: reports.length,
-            itemBuilder: (context, index) {
-              final report = reports[index];
-              return _buildReportCard(context, report, isDark);
+        actions: [
+          IconButton(
+            onPressed: () {
+              setState(() {
+                _isDescending = !_isDescending;
+              });
             },
-          );
-        },
+            icon: Icon(
+              _isDescending ? Icons.arrow_downward : Icons.arrow_upward,
+            ),
+            tooltip: _isDescending ? 'Newest First' : 'Oldest First',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          // Search Bar
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search by type or date...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
+
+          // Reports List
+          Expanded(
+            child: StreamBuilder<List<Map<String, dynamic>>>(
+              stream: _reportService.getReportsStream(
+                query: _searchQuery,
+                isDescending: _isDescending,
+              ),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Error loading reports',
+                      style: TextStyle(
+                        color: isDark ? Colors.white70 : Colors.black54,
+                      ),
+                    ),
+                  );
+                }
+
+                final reports = snapshot.data ?? [];
+
+                if (reports.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.folder_open_outlined,
+                          size: 64,
+                          color: isDark ? Colors.white30 : Colors.black26,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _searchQuery.isNotEmpty
+                              ? 'No matching reports found'
+                              : 'No saved reports yet',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: isDark ? Colors.white70 : Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                  itemCount: reports.length,
+                  itemBuilder: (context, index) {
+                    final report = reports[index];
+                    return _buildReportCard(context, report, isDark);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
