@@ -11,6 +11,7 @@ import 'components/balance_card.dart';
 import 'components/duration_period_picker.dart';
 import 'components/premium_card.dart';
 import '../utils/report_generator.dart';
+import 'package:my_daily_balance_flutter/services/report_service.dart';
 import 'package:my_daily_balance_flutter/services/user_config_service.dart';
 
 /// Shared accounting form widget extracted from the Family screen.
@@ -38,6 +39,7 @@ class _AccountingFormState extends State<AccountingForm> {
 
   // Services
   final UserConfigService _userConfigService = UserConfigService();
+  final ReportService _reportService = ReportService();
 
   // Header Title Controller
   final TextEditingController _headerTitleController = TextEditingController();
@@ -5338,14 +5340,26 @@ class _AccountingFormState extends State<AccountingForm> {
             child: Text(model.t('btn_cancel')),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (nameController.text.isNotEmpty) {
-                final data = jsonEncode(model.exportState());
-                model.saveReport(
+                final stateMap = model.exportState();
+                final data = jsonEncode(stateMap);
+
+                // 1. Save locally
+                await model.saveReport(
                   nameController.text,
                   DateFormat('dd MMM yyyy').format(DateTime.now()),
                   data,
                 );
+
+                // 2. Save to Supabase
+                try {
+                  await _reportService.saveReport('Normal', stateMap);
+                } catch (e) {
+                  print('Remote save error: $e');
+                }
+
+                if (!context.mounted) return;
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
