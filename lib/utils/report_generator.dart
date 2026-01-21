@@ -22,6 +22,10 @@ class ReportGenerator {
       final now = DateTime.now();
       final dateStr = DateFormat('dd MMM yyyy').format(now);
 
+      // Load Fonts for Currency Support
+      final font = await PdfGoogleFonts.robotoRegular();
+      final boldFont = await PdfGoogleFonts.robotoBold();
+
       // Get data from model
       final firmName = model.firmName;
       final currency = model.currency;
@@ -35,6 +39,10 @@ class ReportGenerator {
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
+          theme: pw.ThemeData.withFont(
+            base: font,
+            bold: boldFont,
+          ),
           margin: const pw.EdgeInsets.all(32),
           build: (pw.Context context) => [
             // Header
@@ -333,6 +341,11 @@ class ReportGenerator {
       final pdf = pw.Document();
       final now = DateTime.now();
       final dateStr = DateFormat('dd MMM yyyy').format(now);
+
+      // Load Fonts for Currency Support
+      final font = await PdfGoogleFonts.robotoRegular();
+      final boldFont = await PdfGoogleFonts.robotoBold();
+
       final currency = model.currency;
       final firmName = model.firmName;
       final totalReceipts = model.receiptsTotal;
@@ -345,6 +358,10 @@ class ReportGenerator {
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
+          theme: pw.ThemeData.withFont(
+            base: font,
+            bold: boldFont,
+          ),
           margin: const pw.EdgeInsets.all(32),
           build: (pw.Context context) => [
             // Header
