@@ -1,8 +1,10 @@
 import 'dart:async';
-
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:my_daily_balance_flutter/services/report_service.dart';
+import 'package:my_daily_balance_flutter/state/app_state.dart';
 import 'package:my_daily_balance_flutter/theme.dart';
 import 'report_viewer_screen.dart';
 
@@ -24,16 +26,29 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
   // Filter state
   bool _isDescending = true;
   String _searchQuery = '';
+  String? _selectedUseCase; // null = All, or 'Personal', 'Business', etc.
 
   // Optimistic delete state
   final Set<String> _pendingDeleteIds = {};
+  final Map<String, bool> _animatingOut = {};
   Timer? _pendingDeleteTimer;
   Map<String, dynamic>? _pendingDeleteReport;
 
   @override
   void initState() {
     super.initState();
-    _refreshReports();
+    // Initialize filter from AppState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final appState = Provider.of<AppState>(context, listen: false);
+      if (appState.activeUseCaseString != null) {
+        setState(() {
+          _selectedUseCase = appState.activeUseCaseString;
+          _refreshReports();
+        });
+      } else {
+        _refreshReports();
+      }
+    });
   }
 
   @override
@@ -49,6 +64,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
       _reportsStream = _reportService.getReportsStream(
         query: _searchQuery,
         isDescending: _isDescending,
+        useCaseType: _selectedUseCase,
       );
     });
   }
@@ -71,15 +87,20 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
     // Cancel any existing pending delete
     _pendingDeleteTimer?.cancel();
 
-    // If there was a previous pending delete that hasn't executed,
-    // we effectively commit it (or we could just clear it, but let's assume
-    // the user only does one undoable action at a time for simplicity
-    // or we just overwrite the "undoable" slot).
-    // For a simple singular "Undo" slot:
-
+    // Start slide-out animation
     setState(() {
-      _pendingDeleteReport = report;
-      _pendingDeleteIds.add(reportId);
+      _animatingOut[reportId] = true;
+    });
+
+    // Wait for animation to complete, then mark as deleted
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _pendingDeleteReport = report;
+          _pendingDeleteIds.add(reportId);
+          _animatingOut.remove(reportId);
+        });
+      }
     });
 
     // Show SnackBar with Undo option
@@ -192,6 +213,30 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
             ),
           ),
 
+          // Use Case Filter Tabs
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                _buildFilterChip('All', null, isDark),
+                const SizedBox(width: 8),
+                _buildFilterChip('Personal', 'Personal', isDark,
+                    color: const Color(0xFF00C853)),
+                const SizedBox(width: 8),
+                _buildFilterChip('Business', 'Business', isDark,
+                    color: const Color(0xFF2563EB)),
+                const SizedBox(width: 8),
+                _buildFilterChip('Institute', 'Institute', isDark,
+                    color: const Color(0xFF7C3AED)),
+                const SizedBox(width: 8),
+                _buildFilterChip('Other', 'Other', isDark,
+                    color: const Color(0xFFF59E0B)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+
           // Reports List
           Expanded(
             child: StreamBuilder<List<Map<String, dynamic>>>(
@@ -266,21 +311,47 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
     Map<String, dynamic> report,
     bool isDark,
   ) {
-    return Dismissible(
-      key: Key(report['id'].toString()),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 20),
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: Colors.red,
-          borderRadius: BorderRadius.circular(12),
+    final reportId = report['id'].toString();
+    final isAnimatingOut = _animatingOut[reportId] ?? false;
+
+    return AnimatedSlide(
+      offset: isAnimatingOut ? const Offset(-1.0, 0.0) : Offset.zero,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      child: Slidable(
+        key: Key(reportId),
+        endActionPane: ActionPane(
+          motion: const ScrollMotion(),
+          extentRatio: 0.25,
+          children: [
+            CustomSlidableAction(
+              onPressed: (_) => _deleteReport(report),
+              backgroundColor: const Color(0xFFFE4A49),
+              foregroundColor: Colors.white,
+              borderRadius: const BorderRadius.only(
+                topRight: Radius.circular(12),
+                bottomRight: Radius.circular(12),
+              ),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.delete, color: Colors.white, size: 24),
+                  SizedBox(height: 4),
+                  Text(
+                    'Delete',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: _buildReportCard(context, report, isDark),
       ),
-      onDismissed: (_) => _deleteReport(report),
-      child: _buildReportCard(context, report, isDark),
     );
   }
 
@@ -351,21 +422,53 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.grey[800] : Colors.grey[100],
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Text(
-                      type,
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark ? Colors.grey[300] : Colors.grey[700],
-                        fontWeight: FontWeight.w500,
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: isDark ? Colors.grey[800] : Colors.grey[100],
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          type,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: isDark ? Colors.grey[300] : Colors.grey[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
-                    ),
+
+                      // Use Case Badge
+                      if (report['use_case_type'] != null) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: _getUseCaseColor(report['use_case_type'])
+                                .withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(
+                              color: _getUseCaseColor(report['use_case_type'])
+                                  .withValues(alpha: 0.3),
+                              width: 0.5,
+                            ),
+                          ),
+                          child: Text(
+                            report['use_case_type'],
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: _getUseCaseColor(report['use_case_type']),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ],
               ),
@@ -394,5 +497,54 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildFilterChip(String label, String? useCase, bool isDark,
+      {Color? color}) {
+    final isSelected = _selectedUseCase == useCase;
+    final primaryColor = color ?? AppTheme.primaryColor;
+
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (bool selected) {
+        setState(() {
+          _selectedUseCase = selected ? useCase : null;
+          _refreshReports();
+        });
+      },
+      backgroundColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+      selectedColor: primaryColor.withValues(alpha: 0.2),
+      checkmarkColor: primaryColor,
+      labelStyle: TextStyle(
+        color: isSelected
+            ? primaryColor
+            : (isDark ? Colors.white70 : Colors.black87),
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: isSelected
+              ? primaryColor
+              : (isDark ? Colors.grey[800]! : Colors.grey[300]!),
+        ),
+      ),
+    );
+  }
+
+  Color _getUseCaseColor(String? useCase) {
+    switch (useCase) {
+      case 'Personal':
+        return const Color(0xFF00C853);
+      case 'Business':
+        return const Color(0xFF2563EB);
+      case 'Institute':
+        return const Color(0xFF7C3AED);
+      case 'Other':
+        return const Color(0xFFF59E0B);
+      default:
+        return Colors.grey;
+    }
   }
 }

@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'services/auth_service.dart';
 import 'state/accounting_model.dart';
+import 'state/app_state.dart';
 import 'models/accounting.dart';
 import 'screens/accounting_template_screen.dart';
 import 'screens/main_screen.dart';
@@ -27,6 +28,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(
             create: (_) => AccountingModel(userType: UserType.personal)),
+        ChangeNotifierProvider(create: (_) => AppState()),
       ],
       child: const MyApp(),
     ),

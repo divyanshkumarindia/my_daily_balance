@@ -7,6 +7,7 @@ import '../state/accounting_model.dart';
 import '../models/accounting.dart';
 import '../utils/toast_utils.dart';
 import '../services/recent_service.dart';
+import '../state/app_state.dart';
 import 'accounting_template_screen.dart';
 import '../widgets/premium_components.dart';
 
@@ -315,8 +316,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!mounted) return;
 
+    // Get AppState to save the active use case
+    final appState = Provider.of<AppState>(context, listen: false);
+
     if (type == 'custom') {
       final customTitle = item['title'];
+
+      // Set active use case to 'Other' for custom pages
+      await appState.setActiveUseCase(UserType.other);
 
       // Create a new model with UserType.other for custom pages
       final customModel = AccountingModel(userType: UserType.other);
@@ -346,6 +353,9 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       // Standard page
       final ut = item['userType'] as UserType;
+
+      // Save the selected use case to AppState
+      await appState.setActiveUseCase(ut);
 
       // Navigate to standard page
       final model = AccountingModel(userType: ut);
