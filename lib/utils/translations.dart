@@ -12,9 +12,9 @@ const Map<String, Map<String, String>> appTranslations = {
     'greeting_default': 'Hello there!',
     'app_title_1': 'KPK ',
     'app_title_2': 'ACCOUNTING',
-    'app_subtitle': 'PREMIUM DIGITAL LEDGER',
+    'app_subtitle': 'PREMIUM DIGITAL LEDGER FOR ALL',
     'hero_title_1': 'Track Your ',
-    'hero_title_2': 'Daily Balance',
+    'hero_title_2': 'Daily Balance Easily',
     'hero_subtitle':
         'Select a category below to start managing your daily receipts and payments.',
     'section_use_case': 'Select Your Use Case',

@@ -536,7 +536,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     RichText(
                       text: TextSpan(
                         style: GoogleFonts.outfit(
-                          fontSize: 36, // Large Hero Title
+                          fontSize: 33, // Large Hero Title
                           fontWeight: FontWeight.w800,
                           height: 1.1,
                           letterSpacing: -0.5,

@@ -16,32 +16,70 @@ class SavedReportsScreen extends StatefulWidget {
 class _SavedReportsScreenState extends State<SavedReportsScreen> {
   final ReportService _reportService = ReportService();
   final TextEditingController _searchController = TextEditingController();
+
+  // Stream state
+  late Stream<List<Map<String, dynamic>>> _reportsStream;
+  Timer? _debounce;
+
+  // Filter state
   bool _isDescending = true;
   String _searchQuery = '';
 
-  // Local state for optimistic UI updates
-  List<Map<String, dynamic>> _localReports = [];
-  bool _hasPendingDelete = false;
+  // Optimistic delete state
+  final Set<String> _pendingDeleteIds = {};
   Timer? _pendingDeleteTimer;
   Map<String, dynamic>? _pendingDeleteReport;
-  int? _pendingDeleteIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _refreshReports();
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _debounce?.cancel();
     _pendingDeleteTimer?.cancel();
     super.dispose();
   }
 
-  void _deleteReport(Map<String, dynamic> report, int index) {
+  void _refreshReports() {
+    setState(() {
+      _reportsStream = _reportService.getReportsStream(
+        query: _searchQuery,
+        isDescending: _isDescending,
+      );
+    });
+  }
+
+  void _onSearchChanged(String value) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        setState(() {
+          _searchQuery = value;
+          _refreshReports();
+        });
+      }
+    });
+  }
+
+  void _deleteReport(Map<String, dynamic> report) {
+    final reportId = report['id'].toString();
+
     // Cancel any existing pending delete
     _pendingDeleteTimer?.cancel();
 
+    // If there was a previous pending delete that hasn't executed,
+    // we effectively commit it (or we could just clear it, but let's assume
+    // the user only does one undoable action at a time for simplicity
+    // or we just overwrite the "undoable" slot).
+    // For a simple singular "Undo" slot:
+
     setState(() {
-      _hasPendingDelete = true;
       _pendingDeleteReport = report;
-      _pendingDeleteIndex = index;
-      _localReports.removeAt(index);
+      _pendingDeleteIds.add(reportId);
     });
 
     // Show SnackBar with Undo option
@@ -49,7 +87,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: const Text('Report Deleted'),
-        duration: const Duration(seconds: 5),
+        duration: const Duration(seconds: 4),
         action: SnackBarAction(
           label: 'Undo',
           onPressed: _undoDelete,
@@ -57,12 +95,19 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
       ),
     );
 
-    // Start timer to actually delete after 5 seconds
-    _pendingDeleteTimer = Timer(const Duration(seconds: 5), () async {
-      if (_pendingDeleteReport != null) {
+    // Start timer to actually delete after 4 seconds
+    _pendingDeleteTimer = Timer(const Duration(seconds: 4), () async {
+      if (mounted && _pendingDeleteIds.contains(reportId)) {
         try {
-          await _reportService
-              .deleteReport(_pendingDeleteReport!['id'].toString());
+          await _reportService.deleteReport(reportId);
+          if (mounted) {
+            setState(() {
+              _pendingDeleteIds.remove(reportId);
+              if (_pendingDeleteReport == report) {
+                _pendingDeleteReport = null;
+              }
+            });
+          }
         } catch (e) {
           // If delete fails, restore the item
           if (mounted) {
@@ -72,33 +117,20 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
             );
           }
         }
-        _clearPendingDelete();
       }
     });
   }
 
   void _undoDelete() {
     _pendingDeleteTimer?.cancel();
-    if (_pendingDeleteReport != null && _pendingDeleteIndex != null) {
+    if (_pendingDeleteReport != null) {
+      final reportId = _pendingDeleteReport!['id'].toString();
       setState(() {
-        // Re-insert at original position, clamping to valid range
-        final insertIndex = _pendingDeleteIndex!.clamp(0, _localReports.length);
-        _localReports.insert(insertIndex, _pendingDeleteReport!);
+        _pendingDeleteIds.remove(reportId);
+        _pendingDeleteReport = null;
       });
     }
-    _clearPendingDelete();
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-  }
-
-  void _clearPendingDelete() {
-    _pendingDeleteTimer = null;
-    _pendingDeleteReport = null;
-    _pendingDeleteIndex = null;
-    if (mounted) {
-      setState(() {
-        _hasPendingDelete = false;
-      });
-    }
   }
 
   @override
@@ -119,6 +151,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
             onPressed: () {
               setState(() {
                 _isDescending = !_isDescending;
+                _refreshReports();
               });
             },
             icon: Icon(
@@ -138,14 +171,12 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
               decoration: InputDecoration(
                 hintText: 'Search by type or date...',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchQuery.isNotEmpty
+                suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          setState(() {
-                            _searchQuery = '';
-                          });
+                          _onSearchChanged('');
                         },
                       )
                     : null,
@@ -157,21 +188,14 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                 ),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
               ),
-              onChanged: (value) {
-                setState(() {
-                  _searchQuery = value;
-                });
-              },
+              onChanged: _onSearchChanged,
             ),
           ),
 
           // Reports List
           Expanded(
             child: StreamBuilder<List<Map<String, dynamic>>>(
-              stream: _reportService.getReportsStream(
-                query: _searchQuery,
-                isDescending: _isDescending,
-              ),
+              stream: _reportsStream,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
@@ -190,18 +214,13 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
 
                 final reports = snapshot.data ?? [];
 
-                // Sync local state with stream (only when no pending delete)
-                if (!_hasPendingDelete) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted && !_hasPendingDelete) {
-                      setState(() {
-                        _localReports = List.from(reports);
-                      });
-                    }
-                  });
-                }
+                // Filter out items that are pending deletion (optimistic UI)
+                final displayReports = reports
+                    .where(
+                        (r) => !_pendingDeleteIds.contains(r['id'].toString()))
+                    .toList();
 
-                if (_localReports.isEmpty && reports.isEmpty) {
+                if (displayReports.isEmpty) {
                   return Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -226,17 +245,12 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                   );
                 }
 
-                // Use local reports for display
-                final displayReports =
-                    _localReports.isNotEmpty ? _localReports : reports;
-
                 return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                   itemCount: displayReports.length,
                   itemBuilder: (context, index) {
                     final report = displayReports[index];
-                    return _buildDismissibleReportCard(
-                        context, report, index, isDark);
+                    return _buildDismissibleReportCard(context, report, isDark);
                   },
                 );
               },
@@ -250,7 +264,6 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
   Widget _buildDismissibleReportCard(
     BuildContext context,
     Map<String, dynamic> report,
-    int index,
     bool isDark,
   ) {
     return Dismissible(
@@ -266,7 +279,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
         ),
         child: const Icon(Icons.delete, color: Colors.white),
       ),
-      onDismissed: (_) => _deleteReport(report, index),
+      onDismissed: (_) => _deleteReport(report),
       child: _buildReportCard(context, report, isDark),
     );
   }
