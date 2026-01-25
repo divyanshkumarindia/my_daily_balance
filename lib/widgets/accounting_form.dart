@@ -2017,7 +2017,20 @@ class _AccountingFormState extends State<AccountingForm> {
 
                           // Report Duration and Select Period
                           _buildDurationAndPeriod(isDark, model),
-                          const SizedBox(height: 16),
+
+                          const SizedBox(height: 24),
+
+                          // Opening Balances Section
+                          _buildOpeningBalancesSection(isDark, model),
+                          const SizedBox(height: 24),
+
+                          // Income Section
+                          _buildIncomeSection(isDark, model),
+                          const SizedBox(height: 24),
+
+                          // Expenses Section
+                          _buildExpensesSection(isDark, model),
+                          const SizedBox(height: 24),
 
                           // Report Buttons
                           Row(
@@ -2030,7 +2043,7 @@ class _AccountingFormState extends State<AccountingForm> {
                                   },
                                   icon: const Icon(Icons.article, size: 20),
                                   label: const Text(
-                                    'View Balance Report',
+                                    'Generate Balance Report',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontSize: 15,
@@ -2055,79 +2068,6 @@ class _AccountingFormState extends State<AccountingForm> {
                           ),
                           const SizedBox(height: 24),
 
-                          // Opening Balances Section
-                          _buildOpeningBalancesSection(isDark, model),
-                          const SizedBox(height: 24),
-
-                          // Income Section
-                          _buildIncomeSection(isDark, model),
-                          const SizedBox(height: 24),
-
-                          // Expenses Section
-                          _buildExpensesSection(isDark, model),
-                          const SizedBox(height: 24),
-
-                          // Save Data Button (Quick Action)
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () async {
-                                    // Save the current state to local preferences
-                                    await model.saveToPrefs();
-
-                                    // Trigger cloud sync as well via the model's persistence
-                                    // model.saveToPrefs() already calls _syncToCloud() internally
-
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                          content: const Row(
-                                            children: [
-                                              Icon(Icons.check_circle,
-                                                  color: Colors.white,
-                                                  size: 20),
-                                              SizedBox(width: 8),
-                                              Text('Data saved successfully'),
-                                            ],
-                                          ),
-                                          backgroundColor:
-                                              AppTheme.receiptColor,
-                                          behavior: SnackBarBehavior.floating,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                          ),
-                                          duration: const Duration(seconds: 2),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  icon:
-                                      const Icon(Icons.save_rounded, size: 20),
-                                  label: const Text(
-                                    'Save Data',
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.receiptColor,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 2,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
                           const SizedBox(height: 24),
 
                           // Financial Summary
