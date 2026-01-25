@@ -138,6 +138,53 @@ class _CategoryReportsScreenState extends State<CategoryReportsScreen> {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
   }
 
+  Future<void> _confirmAndDelete(Map<String, dynamic> report) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Theme.of(context).brightness == Brightness.dark
+            ? const Color(0xFF1F2937)
+            : Colors.white,
+        title: const Text('Delete Report?'),
+        content: const Text(
+            'Are you sure you want to delete this report permanently? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final reportId = report['id'].toString();
+      // Animate out
+      setState(() {
+        _animatingOut[reportId] = true;
+      });
+
+      // Wait for animation then delete
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (mounted) {
+        setState(() {
+          _pendingDeleteIds.add(reportId);
+        });
+        await _reportService.deleteReport(reportId);
+        setState(() {
+          _pendingDeleteIds
+              .remove(reportId); // Remove from ignore list as it's gone
+          _animatingOut.remove(reportId);
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -322,7 +369,34 @@ class _CategoryReportsScreenState extends State<CategoryReportsScreen> {
           style: TextStyle(
               fontSize: 12, color: isDark ? Colors.white54 : Colors.black54),
         ),
-        trailing: const Icon(Icons.chevron_right),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Delete Button with Hover effect
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: IconButton(
+                onPressed: () => _confirmAndDelete(report),
+                icon: const Icon(Icons.delete_outline, size: 22),
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+                hoverColor: Colors.red.withValues(alpha: 0.1),
+                highlightColor: Colors.red.withValues(alpha: 0.2),
+                splashColor: Colors.red.withValues(alpha: 0.2),
+                style: IconButton.styleFrom(
+                  foregroundColor: Colors.red[
+                      400], // Icon color when hovered/focused if supported, strictly icon color is set above
+                ),
+                tooltip: 'Delete Permanently',
+              ),
+            ),
+            const SizedBox(width: 24), // Increased spacing
+            // Chevron
+            Icon(
+              Icons.chevron_right,
+              color: isDark ? Colors.grey[500] : Colors.grey[400],
+            ),
+          ],
+        ),
         onTap: () {
           Navigator.push(
             context,
