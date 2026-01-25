@@ -450,8 +450,14 @@ class _HoverableCategoryCardState extends State<_HoverableCategoryCard> {
             color: displayBg,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: widget.isActive ? widget.color : baseBorder,
-              width: widget.isActive ? 2 : (widget.isAddNew ? 2 : 1),
+              // User requested darker outerline "like 1st button".
+              // We'll use the main color for border, slightly transparent if inactive.
+              color: widget.isActive
+                  ? widget.color
+                  : (widget.isAddNew
+                      ? baseBorder
+                      : widget.color.withOpacity(0.6)), // Darker border
+              width: widget.isActive ? 2 : (widget.isAddNew ? 2 : 1.5),
               style: BorderStyle.solid,
             ),
             boxShadow: [
