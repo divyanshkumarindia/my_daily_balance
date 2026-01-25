@@ -315,8 +315,14 @@ class ReportGenerator {
       // Share/Save the PDF
       final bytes = await pdf.save();
 
-      // Close loading dialog before showing share dialog
-      if (context.mounted) Navigator.pop(context);
+      // Close loading dialog with proper context check
+      if (context.mounted) {
+        try {
+          Navigator.of(context, rootNavigator: true).pop();
+        } catch (e) {
+          // Dialog might already be closed
+        }
+      }
 
       await Printing.sharePdf(
         bytes: bytes,
@@ -333,7 +339,12 @@ class ReportGenerator {
       }
     } catch (e) {
       if (context.mounted) {
-        Navigator.pop(context); // Close loading dialog
+        try {
+          Navigator.of(context, rootNavigator: true)
+              .pop(); // Close loading dialog
+        } catch (_) {
+          // Dialog might already be closed
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error generating PDF: $e'),
@@ -459,7 +470,13 @@ class ReportGenerator {
         ]);
       }
 
-      if (context.mounted) Navigator.pop(context);
+      if (context.mounted) {
+        try {
+          Navigator.of(context, rootNavigator: true).pop();
+        } catch (_) {
+          // Dialog might already be closed
+        }
+      }
 
       final fileName =
           'report_${DateFormat('yyyyMMdd_HHmmss').format(now)}.csv';
@@ -510,7 +527,11 @@ class ReportGenerator {
       }
     } catch (e) {
       if (context.mounted) {
-        Navigator.pop(context);
+        try {
+          Navigator.of(context, rootNavigator: true).pop();
+        } catch (_) {
+          // Dialog might already be closed
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error generating report: $e'),
@@ -704,7 +725,13 @@ class ReportGenerator {
         ),
       );
 
-      if (context.mounted) Navigator.pop(context);
+      if (context.mounted) {
+        try {
+          Navigator.of(context, rootNavigator: true).pop();
+        } catch (_) {
+          // Dialog might already be closed
+        }
+      }
 
       // Open print dialog
       await Printing.layoutPdf(
@@ -713,7 +740,11 @@ class ReportGenerator {
       );
     } catch (e) {
       if (context.mounted) {
-        Navigator.pop(context);
+        try {
+          Navigator.of(context, rootNavigator: true).pop();
+        } catch (_) {
+          // Dialog might already be closed
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error printing: $e'),
@@ -743,6 +774,7 @@ class ReportGenerator {
     showDialog(
       context: context,
       barrierDismissible: false,
+      useRootNavigator: true,
       builder: (context) => AlertDialog(
         content: Row(
           children: [
