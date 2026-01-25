@@ -185,6 +185,22 @@ class _CategoryReportsScreenState extends State<CategoryReportsScreen> {
     }
   }
 
+  void _openReport(Map<String, dynamic> report, DateTime? reportDate) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReportViewerScreen(
+          reportData: report['report_data'] ?? {},
+          reportType: report['report_type'] ?? 'Normal',
+          reportDate: reportDate != null
+              ? DateFormat('dd MMM yyyy').format(reportDate)
+              : '',
+          reportId: report['id'].toString(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -373,45 +389,41 @@ class _CategoryReportsScreenState extends State<CategoryReportsScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Delete Button with Hover effect
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: IconButton(
-                onPressed: () => _confirmAndDelete(report),
-                icon: const Icon(Icons.delete_outline, size: 22),
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-                hoverColor: Colors.red.withValues(alpha: 0.1),
-                highlightColor: Colors.red.withValues(alpha: 0.2),
-                splashColor: Colors.red.withValues(alpha: 0.2),
-                style: IconButton.styleFrom(
-                  foregroundColor: Colors.red[
-                      400], // Icon color when hovered/focused if supported, strictly icon color is set above
-                ),
-                tooltip: 'Delete Permanently',
-              ),
+            IconButton(
+              onPressed: () => _confirmAndDelete(report),
+              icon: const Icon(Icons.delete_outline, size: 22),
+              color: isDark ? Colors.grey[400] : Colors.grey[600],
+              hoverColor: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.1),
+              highlightColor: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.1),
+              splashColor: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.1),
+              tooltip: 'Delete Permanently',
             ),
             const SizedBox(width: 24), // Increased spacing
             // Chevron
-            Icon(
-              Icons.chevron_right,
+            IconButton(
+              onPressed: () => _openReport(report, reportDate),
+              icon: const Icon(Icons.chevron_right),
               color: isDark ? Colors.grey[500] : Colors.grey[400],
+              hoverColor: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.1),
+              highlightColor: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.1),
+              splashColor: isDark
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.black.withValues(alpha: 0.1),
+              tooltip: 'View Report',
             ),
           ],
         ),
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ReportViewerScreen(
-                reportData: report['report_data'] ?? {},
-                reportType: report['report_type'] ?? 'Normal',
-                reportDate: reportDate != null
-                    ? DateFormat('dd MMM yyyy').format(reportDate)
-                    : '',
-                reportId: report['id'].toString(),
-              ),
-            ),
-          );
-        },
+        onTap: () => _openReport(report, reportDate),
       ),
     );
   }
