@@ -349,39 +349,16 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
   }
 
   Widget _buildAddNewCard(BuildContext context, bool isDark, double size) {
-    return GestureDetector(
+    return _HoverableCategoryCard(
+      title: 'Add New',
+      icon: Icons.add_rounded,
+      color: isDark ? Colors.white54 : Colors.grey.shade400,
+      bgColor: isDark ? const Color(0xFF1F2937) : Colors.white,
+      borderColor: isDark ? Colors.white24 : Colors.grey.shade300,
+      isActive: false,
       onTap: () => _showAddNewPageDialog(context),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF1F2937) : Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isDark ? Colors.white24 : Colors.grey.shade300,
-            style: BorderStyle.solid,
-            width: 2,
-          ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.add_rounded,
-              size: 38,
-              color: isDark ? Colors.white54 : Colors.grey.shade400,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Add New',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.outfit(
-                fontSize: 13,
-                fontWeight: FontWeight.bold,
-                color: isDark ? Colors.white54 : Colors.grey.shade500,
-              ),
-            ),
-          ],
-        ),
-      ),
+      isDark: isDark,
+      isAddNew: true,
     );
   }
 
@@ -396,77 +373,177 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
     required VoidCallback onTap,
     required bool isDark,
   }) {
-    // If dark mode, adjust colors to be darker
-    final cardBg = isDark ? color.withOpacity(0.15) : bgColor;
-    final cardBorder = isDark ? color.withOpacity(0.3) : borderColor;
-
-    return GestureDetector(
+    return _HoverableCategoryCard(
+      title: title,
+      icon: icon,
+      color: color,
+      bgColor: bgColor,
+      borderColor: borderColor,
+      isActive: isActive,
       onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isActive ? color : cardBorder,
-            width: isActive ? 2 : 1,
-          ),
-          boxShadow: [
-            if (isActive)
-              BoxShadow(
-                color: color.withOpacity(0.3),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    icon,
-                    size: 38,
-                    color: color,
-                  ),
-                  const SizedBox(height: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.outfit(
-                        fontSize: 13,
-                        fontWeight: FontWeight.bold,
-                        color: isDark ? Colors.white : const Color(0xFF1F2937),
-                        height: 1.1,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+      isDark: isDark,
+    );
+  }
+}
+
+class _HoverableCategoryCard extends StatefulWidget {
+  final String title;
+  final IconData icon;
+  final Color color;
+  final Color bgColor;
+  final Color borderColor;
+  final bool isActive;
+  final VoidCallback onTap;
+  final bool isDark;
+  final bool isAddNew;
+
+  const _HoverableCategoryCard({
+    required this.title,
+    required this.icon,
+    required this.color,
+    required this.bgColor,
+    required this.borderColor,
+    required this.isActive,
+    required this.onTap,
+    required this.isDark,
+    this.isAddNew = false,
+  });
+
+  @override
+  State<_HoverableCategoryCard> createState() => _HoverableCategoryCardState();
+}
+
+class _HoverableCategoryCardState extends State<_HoverableCategoryCard> {
+  bool _isHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    // Base colors
+    final baseBg = widget.isAddNew
+        ? widget.bgColor
+        : (widget.isDark ? widget.color.withOpacity(0.15) : widget.bgColor);
+
+    final baseBorder = widget.isAddNew
+        ? widget.borderColor
+        : (widget.isDark ? widget.color.withOpacity(0.3) : widget.borderColor);
+
+    // Hover adjustments
+    Color displayBg = baseBg;
+    if (_isHovered) {
+      if (widget.isAddNew) {
+        displayBg = widget.isDark ? Colors.white10 : Colors.grey.shade50;
+      } else {
+        displayBg = widget.isDark
+            ? widget.color.withOpacity(0.25)
+            : Color.alphaBlend(widget.color.withOpacity(0.1), widget.bgColor);
+      }
+    }
+
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: GestureDetector(
+        onTap: widget.onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: displayBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: widget.isActive ? widget.color : baseBorder,
+              width: widget.isActive ? 2 : (widget.isAddNew ? 2 : 1),
+              style: BorderStyle.solid,
             ),
-            if (isActive)
-              Positioned(
-                top: 4,
-                right: 4,
-                child: Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
+            boxShadow: [
+              if (widget.isActive || _isHovered)
+                BoxShadow(
+                  color: widget.isAddNew
+                      ? Colors.transparent
+                      : widget.color.withOpacity(widget.isActive ? 0.3 : 0.2),
+                  blurRadius: widget.isActive ? 8 : 12,
+                  offset:
+                      widget.isActive ? const Offset(0, 2) : const Offset(0, 4),
+                ),
+            ],
+          ),
+          child:
+              widget.isAddNew ? _buildAddNewContent() : _buildStandardContent(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddNewContent() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          widget.icon,
+          size: 38,
+          color: widget.color,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          widget.title,
+          textAlign: TextAlign.center,
+          style: GoogleFonts.outfit(
+            fontSize: 13,
+            fontWeight: FontWeight.bold,
+            color: widget.isDark ? Colors.white54 : Colors.grey.shade500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStandardContent() {
+    return Stack(
+      children: [
+        Align(
+          alignment: Alignment.center,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                widget.icon,
+                size: 38,
+                color: widget.color,
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  widget.title,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.outfit(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        widget.isDark ? Colors.white : const Color(0xFF1F2937),
+                    height: 1.1,
                   ),
                 ),
               ),
-          ],
+            ],
+          ),
         ),
-      ),
+        if (widget.isActive)
+          Positioned(
+            top: 4,
+            right: 4,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: widget.color,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }
