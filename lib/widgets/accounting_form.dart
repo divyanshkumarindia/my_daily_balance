@@ -2127,40 +2127,77 @@ class _AccountingFormState extends State<AccountingForm> {
           if (isOpeningBalancesExpanded) ...[
             const SizedBox(height: 12),
             // Default balance cards (non-deletable)
+            // Default balance cards (non-deletable)
             _buildBalanceCard(
                 isDark,
                 'cash',
                 model.getBalanceCardTitle('cash',
-                    defaultValue: model.t('balance_title_cash')),
+                    defaultValue: model.duration == DurationType.Daily
+                        ? "Yesterday's Cash (B/F)"
+                        : model.duration == DurationType.Weekly
+                            ? "Last Week's Cash (B/F)"
+                            : model.duration == DurationType.Monthly
+                                ? "Last Month's Cash (B/F)"
+                                : "Last Year's Cash (B/F)"),
                 model.getBalanceCardDescription('cash'),
                 false,
                 Icons.account_balance_wallet_outlined,
                 const Color(0xFF10B981), // Green
-                model.t('label_prev_day_closing'),
+                model.duration == DurationType.Daily
+                    ? "PREVIOUS DAY'S CLOSING"
+                    : model.duration == DurationType.Weekly
+                        ? "PREVIOUS WEEK'S CLOSING"
+                        : model.duration == DurationType.Monthly
+                            ? "PREVIOUS MONTH'S CLOSING"
+                            : "PREVIOUS YEAR'S CLOSING",
                 model.openingCash),
             const SizedBox(height: 12),
             _buildBalanceCard(
                 isDark,
                 'bank',
                 model.getBalanceCardTitle('bank',
-                    defaultValue: model.t('balance_title_bank')),
+                    defaultValue: model.duration == DurationType.Daily
+                        ? "Yesterday's Bank (B/F)"
+                        : model.duration == DurationType.Weekly
+                            ? "Last Week's Bank (B/F)"
+                            : model.duration == DurationType.Monthly
+                                ? "Last Month's Bank (B/F)"
+                                : "Last Year's Bank (B/F)"),
                 model.getBalanceCardDescription('bank'),
                 false,
                 Icons.account_balance_outlined,
                 const Color(0xFF3B82F6), // Blue
-                model.t('label_prev_day_closing'),
+                model.duration == DurationType.Daily
+                    ? "PREVIOUS DAY'S CLOSING"
+                    : model.duration == DurationType.Weekly
+                        ? "PREVIOUS WEEK'S CLOSING"
+                        : model.duration == DurationType.Monthly
+                            ? "PREVIOUS MONTH'S CLOSING"
+                            : "PREVIOUS YEAR'S CLOSING",
                 model.openingBank),
             const SizedBox(height: 12),
             _buildBalanceCard(
                 isDark,
                 'other',
                 model.getBalanceCardTitle('other',
-                    defaultValue: model.t('balance_title_other')),
+                    defaultValue: model.duration == DurationType.Daily
+                        ? "Yesterday's Other Balance (B/F)"
+                        : model.duration == DurationType.Weekly
+                            ? "Last Week's Other Balance (B/F)"
+                            : model.duration == DurationType.Monthly
+                                ? "Last Month's Other Balance (B/F)"
+                                : "Last Year's Other Balance (B/F)"),
                 model.getBalanceCardDescription('other'),
                 false,
                 Icons.savings_outlined,
                 const Color(0xFFF59E0B), // Amber
-                model.t('label_prev_day_closing'),
+                model.duration == DurationType.Daily
+                    ? "PREVIOUS DAY'S CLOSING"
+                    : model.duration == DurationType.Weekly
+                        ? "PREVIOUS WEEK'S CLOSING"
+                        : model.duration == DurationType.Monthly
+                            ? "PREVIOUS MONTH'S CLOSING"
+                            : "PREVIOUS YEAR'S CLOSING",
                 model.openingOther),
 
             // Custom balance cards (deletable)
