@@ -908,13 +908,18 @@ class _AccountingFormState extends State<AccountingForm> {
                         [
                           // Table Header
                           _buildTableRow(
-                            ['Particulars', 'Amount ($currencySymbol)'],
+                            [
+                              'Particulars',
+                              'Cash ($currencySymbol)',
+                              'Bank ($currencySymbol)',
+                              'Total ($currencySymbol)'
+                            ],
                             isDark,
                             isHeader: true,
                           ),
                           // Opening Balance
                           _buildTableRow(
-                            ['Opening Balances B/F', ''],
+                            ['Opening Balances B/F', '', '', ''],
                             isDark,
                             isBold: true,
                           ),
@@ -923,6 +928,8 @@ class _AccountingFormState extends State<AccountingForm> {
                             _buildTableRow(
                               [
                                 '   Cash Balance B/F',
+                                _formatAmount(model.openingCash),
+                                '0.00',
                                 _formatAmount(model.openingCash)
                               ],
                               isDark,
@@ -932,6 +939,8 @@ class _AccountingFormState extends State<AccountingForm> {
                             _buildTableRow(
                               [
                                 '   Bank Balance B/F',
+                                '0.00',
+                                _formatAmount(model.openingBank),
                                 _formatAmount(model.openingBank)
                               ],
                               isDark,
@@ -941,6 +950,8 @@ class _AccountingFormState extends State<AccountingForm> {
                             _buildTableRow(
                               [
                                 '   Other Balance B/F',
+                                '0.00',
+                                _formatAmount(model.openingOther),
                                 _formatAmount(model.openingOther)
                               ],
                               isDark,
@@ -952,7 +963,12 @@ class _AccountingFormState extends State<AccountingForm> {
                             final title = model.getBalanceCardTitle(entry.key,
                                 defaultValue: 'Custom Balance');
                             return _buildTableRow(
-                              ['   $title', _formatAmount(entry.value)],
+                              [
+                                '   $title',
+                                '0.00',
+                                _formatAmount(entry.value),
+                                _formatAmount(entry.value)
+                              ],
                               isDark,
                             );
                           }),
@@ -970,6 +986,8 @@ class _AccountingFormState extends State<AccountingForm> {
                                 _buildTableRow(
                                   [
                                     model.receiptLabels[entry.key] ?? entry.key,
+                                    _formatAmount(cash),
+                                    _formatAmount(bank),
                                     _formatAmount(cash + bank)
                                   ],
                                   isDark,
@@ -989,6 +1007,8 @@ class _AccountingFormState extends State<AccountingForm> {
                           _buildTableRow(
                             [
                               'Total Receipts',
+                              _formatAmount(totalReceiptsCash),
+                              _formatAmount(totalReceiptsBank),
                               _formatAmount(
                                   totalReceiptsCash + totalReceiptsBank)
                             ],
@@ -1012,7 +1032,12 @@ class _AccountingFormState extends State<AccountingForm> {
                         [
                           // Table Header
                           _buildTableRow(
-                            ['Particulars', 'Amount ($currencySymbol)'],
+                            [
+                              'Particulars',
+                              'Cash ($currencySymbol)',
+                              'Bank ($currencySymbol)',
+                              'Total ($currencySymbol)'
+                            ],
                             isDark,
                             isHeader: true,
                           ),
@@ -1030,6 +1055,8 @@ class _AccountingFormState extends State<AccountingForm> {
                                 _buildTableRow(
                                   [
                                     model.paymentLabels[entry.key] ?? entry.key,
+                                    _formatAmount(cash),
+                                    _formatAmount(bank),
                                     _formatAmount(cash + bank)
                                   ],
                                   isDark,
@@ -1042,6 +1069,8 @@ class _AccountingFormState extends State<AccountingForm> {
                           _buildTableRow(
                             [
                               'Closing Balance C/F',
+                              _formatAmount(closingCash),
+                              _formatAmount(closingBank),
                               _formatAmount(totalClosing)
                             ],
                             isDark,
@@ -1058,6 +1087,8 @@ class _AccountingFormState extends State<AccountingForm> {
                           _buildTableRow(
                             [
                               'Total Payments',
+                              _formatAmount(totalPaymentsCash + closingCash),
+                              _formatAmount(totalPaymentsBank + closingBank),
                               _formatAmount(totalPaymentsCash +
                                   totalPaymentsBank +
                                   totalClosing)
@@ -1267,9 +1298,9 @@ class _AccountingFormState extends State<AccountingForm> {
       ),
       child: Row(
         children: [
-          // Particulars (70%)
+          // Particulars (40%)
           Expanded(
-            flex: 70,
+            flex: 40,
             child: Text(
               cells[0],
               style: TextStyle(
@@ -1283,11 +1314,39 @@ class _AccountingFormState extends State<AccountingForm> {
               ),
             ),
           ),
-          // Amount (30%)
+          // Cash (20%)
           Expanded(
-            flex: 30,
+            flex: 20,
             child: Text(
               cells[1],
+              style: TextStyle(
+                fontSize: isHeader ? 12 : 13,
+                fontWeight:
+                    isHeader || isBold ? FontWeight.bold : FontWeight.w500,
+                color: color ?? (isDark ? Colors.white : Colors.black87),
+              ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          // Bank (20%)
+          Expanded(
+            flex: 20,
+            child: Text(
+              cells[2],
+              style: TextStyle(
+                fontSize: isHeader ? 12 : 13,
+                fontWeight:
+                    isHeader || isBold ? FontWeight.bold : FontWeight.w500,
+                color: color ?? (isDark ? Colors.white : Colors.black87),
+              ),
+              textAlign: TextAlign.right,
+            ),
+          ),
+          // Total (20%)
+          Expanded(
+            flex: 20,
+            child: Text(
+              cells[3],
               style: TextStyle(
                 fontSize: isHeader ? 12 : 13,
                 fontWeight:

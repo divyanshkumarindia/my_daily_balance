@@ -354,7 +354,7 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.15), width: 1),
+        border: Border.all(color: color.withOpacity(0.15), width: 1),
       ),
       child: Column(
         children: [
@@ -430,7 +430,7 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.15), width: 1),
+        border: Border.all(color: color.withOpacity(0.15), width: 1),
       ),
       child: Column(
         children: [
