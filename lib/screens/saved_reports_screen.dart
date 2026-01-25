@@ -195,7 +195,8 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                   cardSize,
                   _buildCategoryCard(
                     context,
-                    title: model.t('card_personal'),
+                    title: model.pageHeaderTitles['family'] ??
+                        model.t('card_personal'),
                     icon: Icons.people_outline,
                     color: const Color(0xFF60A5FA),
                     bgColor: const Color(0xFFEFF6FF),
@@ -203,7 +204,8 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                     isActive: model.userType == UserType.personal,
                     onTap: () => _navigateToReports(
                       context,
-                      model.t('card_personal'),
+                      model.pageHeaderTitles['family'] ??
+                          model.t('card_personal'),
                       'Personal',
                       const Color(0xFF60A5FA),
                     ),
@@ -216,7 +218,8 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                   cardSize,
                   _buildCategoryCard(
                     context,
-                    title: model.t('card_business'),
+                    title: model.pageHeaderTitles['business'] ??
+                        model.t('card_business'),
                     icon: Icons.store_outlined,
                     color: const Color(0xFF10B981),
                     bgColor: const Color(0xFFECFDF5),
@@ -224,7 +227,8 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                     isActive: model.userType == UserType.business,
                     onTap: () => _navigateToReports(
                       context,
-                      model.t('card_business'),
+                      model.pageHeaderTitles['business'] ??
+                          model.t('card_business'),
                       'Business',
                       const Color(0xFF10B981),
                     ),
@@ -237,7 +241,8 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                   cardSize,
                   _buildCategoryCard(
                     context,
-                    title: model.t('card_institute'),
+                    title: model.pageHeaderTitles['institute'] ??
+                        model.t('card_institute'),
                     icon: Icons.school_outlined,
                     color: const Color(0xFF8B5CF6),
                     bgColor: const Color(0xFFF5F3FF),
@@ -245,7 +250,8 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                     isActive: model.userType == UserType.institute,
                     onTap: () => _navigateToReports(
                       context,
-                      model.t('card_institute'),
+                      model.pageHeaderTitles['institute'] ??
+                          model.t('card_institute'),
                       'Institute',
                       const Color(0xFF8B5CF6),
                     ),
@@ -258,7 +264,8 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                   cardSize,
                   _buildCategoryCard(
                     context,
-                    title: model.t('card_other'),
+                    title: model.pageHeaderTitles['other'] ??
+                        model.t('card_other'),
                     icon: Icons.category_outlined,
                     color: const Color(0xFFF59E0B),
                     bgColor: const Color(0xFFFFFBEB),
@@ -266,7 +273,7 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                     isActive: model.userType == UserType.other,
                     onTap: () => _navigateToReports(
                       context,
-                      model.t('card_other'),
+                      model.pageHeaderTitles['other'] ?? model.t('card_other'),
                       'Other',
                       const Color(0xFFF59E0B),
                     ),
@@ -276,24 +283,26 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
 
                 // 5. Custom Pages
                 int customIndex = 0;
-                _customPages.forEach((id, title) {
+                _customPages.forEach((id, defaultTitle) {
                   final color =
                       _customPalette[customIndex % _customPalette.length];
+                  final displayTitle =
+                      model.pageHeaderTitles[id] ?? defaultTitle;
+
                   items.add(_buildWrapper(
                     cardSize,
                     _buildCategoryCard(
                       context,
-                      title: title,
+                      title: displayTitle,
                       icon: Icons.star_outline_rounded,
                       color: color,
                       bgColor: color.withOpacity(0.05),
                       borderColor: color.withOpacity(0.2),
-                      isActive:
-                          false, // Custom pages don't track 'active' in model same way yet
+                      isActive: false,
                       onTap: () => _navigateToReports(
                         context,
-                        title,
-                        id, // Use ID as useCaseType
+                        displayTitle,
+                        id,
                         color,
                       ),
                       isDark: isDark,
