@@ -2274,8 +2274,6 @@ class _AccountingFormState extends State<AccountingForm> {
       IconData icon,
       Color iconColor,
       String subtitle,
-      double initialAmount) {
-      String subtitle,
       double initialAmount,
       {Key? key}) {
     return BalanceCard(

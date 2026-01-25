@@ -296,8 +296,8 @@ class _SavedReportsScreenState extends State<SavedReportsScreen> {
                       title: displayTitle,
                       icon: Icons.star_outline_rounded,
                       color: color,
-                      bgColor: color.withOpacity(0.05),
-                      borderColor: color.withOpacity(0.2),
+                      bgColor: color.withValues(alpha: 0.05),
+                      borderColor: color.withValues(alpha: 0.2),
                       isActive: false,
                       onTap: () => _navigateToReports(
                         context,
