@@ -2222,8 +2222,8 @@ class _AccountingFormState extends State<AccountingForm> {
                                           ),
                                         );
 
-                                        // Go back after successful save
-                                        Navigator.pop(context);
+                                        // Go back after successful save and pass data back
+                                        Navigator.pop(context, reportData);
                                       }
                                     } catch (e) {
                                       if (context.mounted) {

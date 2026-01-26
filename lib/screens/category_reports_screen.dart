@@ -186,8 +186,8 @@ class _CategoryReportsScreenState extends State<CategoryReportsScreen> {
     }
   }
 
-  void _openReport(Map<String, dynamic> report, DateTime? reportDate) {
-    Navigator.push(
+  void _openReport(Map<String, dynamic> report, DateTime? reportDate) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ReportViewerScreen(
@@ -200,6 +200,11 @@ class _CategoryReportsScreenState extends State<CategoryReportsScreen> {
         ),
       ),
     );
+
+    // Force refresh when coming back to ensure updated data (e.g. title/date) is shown
+    if (mounted) {
+      _refreshReports();
+    }
   }
 
   @override

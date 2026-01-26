@@ -234,7 +234,7 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
     if (_model.userType == UserType.institute) templateKey = 'institute';
     if (_model.userType == UserType.other) templateKey = 'other';
 
-    Navigator.push(
+    final result = await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AccountingTemplateScreen(
@@ -244,6 +244,22 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
         ),
       ),
     );
+
+    // If report was saved, update the view immediately
+    if (result != null && result is Map<String, dynamic> && mounted) {
+      setState(() {
+        // Re-import state to refresh UI
+        // We can use the existing model or re-initialize logic
+        _model.importState(result);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Report view updated'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   // --- UI Builders (Matched from AccountingForm) ---
