@@ -176,11 +176,12 @@ class _CategoryReportsScreenState extends State<CategoryReportsScreen> {
           _pendingDeleteIds.add(reportId);
         });
         await _reportService.deleteReport(reportId);
-        setState(() {
-          _pendingDeleteIds
-              .remove(reportId); // Remove from ignore list as it's gone
-          _animatingOut.remove(reportId);
-        });
+        // Don't remove from _pendingDeleteIds - let the stream update naturally
+        if (mounted) {
+          setState(() {
+            _animatingOut.remove(reportId);
+          });
+        }
       }
     }
   }
@@ -347,7 +348,19 @@ class _CategoryReportsScreenState extends State<CategoryReportsScreen> {
     DateTime? reportDate;
     String displayDate = 'Unknown Date';
 
-    final rawDate = report['report_date'] ?? report['date'];
+    // Prioritize 'saved_at' inside report_data (Snapshot Time), then created_at (Server Time)
+    var rawDate = report['created_at'];
+
+    // Check if report_data exists and has saved_at
+    if (report['report_data'] != null && report['report_data'] is Map) {
+      final data = report['report_data'];
+      if (data['saved_at'] != null) {
+        rawDate = data['saved_at'];
+      }
+    }
+
+    rawDate ??= report['report_date'] ?? report['date'];
+
     if (rawDate != null) {
       reportDate = DateTime.tryParse(rawDate.toString());
       if (reportDate != null) {
@@ -388,37 +401,36 @@ class _CategoryReportsScreenState extends State<CategoryReportsScreen> {
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Delete Button with Hover effect
+            // Delete Button
             IconButton(
               onPressed: () => _confirmAndDelete(report),
-              icon: const Icon(Icons.delete_outline, size: 22),
-              color: isDark ? Colors.grey[400] : Colors.grey[600],
-              hoverColor: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.1),
-              highlightColor: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.1),
-              splashColor: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.1),
+              icon: const Icon(Icons.delete_outline, size: 20),
+              color: isDark ? Colors.grey[400] : Colors.grey[700],
+              style: IconButton.styleFrom(
+                backgroundColor: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.grey
+                        .withValues(alpha: 0.15), // Always visible background
+                hoverColor: Colors.red.withValues(alpha: 0.15),
+                highlightColor: Colors.red.withValues(alpha: 0.1),
+              ),
               tooltip: 'Delete Permanently',
             ),
-            const SizedBox(width: 24), // Increased spacing
+            const SizedBox(width: 16),
             // Chevron
             IconButton(
               onPressed: () => _openReport(report, reportDate),
-              icon: const Icon(Icons.chevron_right),
-              color: isDark ? Colors.grey[500] : Colors.grey[400],
-              hoverColor: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.1),
-              highlightColor: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.1),
-              splashColor: isDark
-                  ? Colors.white.withValues(alpha: 0.1)
-                  : Colors.black.withValues(alpha: 0.1),
+              icon: const Icon(Icons.chevron_right, size: 22),
+              color: isDark ? Colors.grey[400] : Colors.grey[700],
+              style: IconButton.styleFrom(
+                backgroundColor: isDark
+                    ? Colors.white.withValues(alpha: 0.1)
+                    : Colors.grey
+                        .withValues(alpha: 0.15), // Always visible background
+                hoverColor: isDark
+                    ? Colors.white.withValues(alpha: 0.2)
+                    : Colors.black.withValues(alpha: 0.1),
+              ),
               tooltip: 'View Report',
             ),
           ],

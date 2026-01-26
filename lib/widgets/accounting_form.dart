@@ -56,6 +56,7 @@ class _AccountingFormState extends State<AccountingForm> {
   late TextEditingController periodController;
   late TextEditingController periodStartController;
   late TextEditingController periodEndController;
+  bool _reportJustSaved = false;
 
   @override
   void initState() {
@@ -678,21 +679,87 @@ class _AccountingFormState extends State<AccountingForm> {
     }
   }
 
-  // Helper: Build action button for report dialogs
-  Widget _buildActionButton(
-      String label, IconData icon, Color color, VoidCallback onPressed) {
-    return ElevatedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 16),
-      label: Text(label, style: const TextStyle(fontSize: 13)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        elevation: 1,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ),
-    );
+  // Save Report to Supabase
+  Future<void> _saveReportToSupabase(
+      BuildContext context, AccountingModel model) async {
+    try {
+      // Export current state
+      final reportData = model.exportState();
+
+      // Add saved_at timestamp
+      reportData['saved_at'] = DateTime.now().toIso8601String();
+
+      // Determine report type
+      String reportType = 'Detailed';
+
+      // Get use case type (capitalize first letter to match DB constraint)
+      String useCaseType = model.userType.name[0].toUpperCase() +
+          model.userType.name.substring(1);
+
+      await _reportService.saveReport(
+        reportType,
+        reportData,
+        useCaseType: useCaseType,
+      );
+
+      // Update state to show checkmark
+      if (mounted) {
+        setState(() {
+          _reportJustSaved = true;
+        });
+
+        // Reset after 2 seconds
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            setState(() {
+              _reportJustSaved = false;
+            });
+          }
+        });
+      }
+
+      // Show success message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white),
+                const SizedBox(width: 12),
+                Text('Report saved successfully!'),
+              ],
+            ),
+            backgroundColor: const Color(0xFF10B981),
+            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Show error message
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error, color: Colors.white),
+                const SizedBox(width: 12),
+                Expanded(child: Text('Failed to save report: $e')),
+              ],
+            ),
+            backgroundColor: AppTheme.paymentColor,
+            duration: Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   // Show Detailed Report Dialog
@@ -843,38 +910,89 @@ class _AccountingFormState extends State<AccountingForm> {
                     ),
                   ),
                 ),
-                child: Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                child: Column(
                   children: [
-                    _buildPremiumActionButton(
-                      'Download Excel',
-                      Icons.file_download,
-                      AppTheme.receiptColor,
-                      () {
-                        Navigator.pop(context);
-                        ReportGenerator.generateAndShareExcel(context, model);
-                      },
+                    // Action Buttons Row
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildPremiumActionButton(
+                            'Download Excel',
+                            Icons.file_download,
+                            AppTheme.receiptColor,
+                            () {
+                              Navigator.pop(context);
+                              ReportGenerator.generateAndShareExcel(
+                                  context, model);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildPremiumActionButton(
+                            'Download PDF',
+                            Icons.picture_as_pdf,
+                            AppTheme.paymentColor,
+                            () {
+                              Navigator.pop(context);
+                              ReportGenerator.generateAndSharePdf(
+                                  context, model);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _buildPremiumActionButton(
+                            'Print',
+                            Icons.print,
+                            const Color(0xFF6366F1), // Indigo color
+                            () {
+                              Navigator.pop(context);
+                              ReportGenerator.printReport(context, model);
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                    _buildPremiumActionButton(
-                      'Download PDF',
-                      Icons.picture_as_pdf,
-                      AppTheme.paymentColor,
-                      () {
-                        Navigator.pop(context);
-                        ReportGenerator.generateAndSharePdf(context, model);
-                      },
-                    ),
-                    _buildActionButton(
-                      'Print',
-                      Icons.print,
-                      isDark
-                          ? const Color(0xFF6B7280)
-                          : const Color(0xFF374151),
-                      () {
-                        Navigator.pop(context);
-                        ReportGenerator.printReport(context, model);
-                      },
+                    const SizedBox(height: 12),
+                    // Save Report Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _saveReportToSupabase(context, model);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _reportJustSaved
+                              ? const Color(
+                                  0xFF059669) // Darker green when saved
+                              : const Color(0xFF10B981),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 14),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              _reportJustSaved
+                                  ? Icons.check_circle
+                                  : Icons.save,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              _reportJustSaved ? 'Saved!' : 'Save Report',
+                              style: const TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -943,39 +1061,36 @@ class _AccountingFormState extends State<AccountingForm> {
                             isDark,
                             isBold: true,
                           ),
-                          // Cash Balance B/F (show only if > 0)
-                          if (model.openingCash > 0)
-                            _buildTableRow(
-                              [
-                                '   Cash Balance B/F',
-                                _formatAmount(model.openingCash),
-                                '0.00',
-                                _formatAmount(model.openingCash)
-                              ],
-                              isDark,
-                            ),
-                          // Bank Balance B/F (show only if > 0)
-                          if (model.openingBank > 0)
-                            _buildTableRow(
-                              [
-                                '   Bank Balance B/F',
-                                '0.00',
-                                _formatAmount(model.openingBank),
-                                _formatAmount(model.openingBank)
-                              ],
-                              isDark,
-                            ),
-                          // Other Balance B/F (show only if > 0)
-                          if (model.openingOther > 0)
-                            _buildTableRow(
-                              [
-                                '   Other Balance B/F',
-                                '0.00',
-                                _formatAmount(model.openingOther),
-                                _formatAmount(model.openingOther)
-                              ],
-                              isDark,
-                            ),
+                          // Cash Balance B/F - Always show
+                          _buildTableRow(
+                            [
+                              '   Cash Balance B/F',
+                              _formatAmount(model.openingCash),
+                              '0.00',
+                              _formatAmount(model.openingCash)
+                            ],
+                            isDark,
+                          ),
+                          // Bank Balance B/F - Always show
+                          _buildTableRow(
+                            [
+                              '   Bank Balance B/F',
+                              '0.00',
+                              _formatAmount(model.openingBank),
+                              _formatAmount(model.openingBank)
+                            ],
+                            isDark,
+                          ),
+                          // Other Balance B/F - Always show
+                          _buildTableRow(
+                            [
+                              '   Other Balance B/F',
+                              '0.00',
+                              _formatAmount(model.openingOther),
+                              _formatAmount(model.openingOther)
+                            ],
+                            isDark,
+                          ),
                           // Custom Balance Boxes (show only if > 0)
                           ...model.customOpeningBalances.entries
                               .where((e) => e.value > 0)
@@ -2050,6 +2165,153 @@ class _AccountingFormState extends State<AccountingForm> {
 
                           const SizedBox(height: 24),
 
+                          // Save Edited Button (only in edit mode)
+                          if (widget.initialState != null)
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: () async {
+                                    try {
+                                      // Export current state
+                                      final reportData = model.exportState();
+
+                                      // Add saved_at timestamp
+                                      reportData['saved_at'] =
+                                          DateTime.now().toIso8601String();
+
+                                      // Get report type and use case type
+                                      String reportType = 'Detailed';
+                                      String useCaseType =
+                                          model.userType.name[0].toUpperCase() +
+                                              model.userType.name.substring(1);
+
+                                      // Save or Update the report
+                                      if (widget.reportId != null) {
+                                        await _reportService.updateReport(
+                                          widget.reportId!,
+                                          reportData: reportData,
+                                          reportType: reportType,
+                                        );
+                                      } else {
+                                        await _reportService.saveReport(
+                                          reportType,
+                                          reportData,
+                                          useCaseType: useCaseType,
+                                        );
+                                      }
+
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Row(
+                                              children: [
+                                                Icon(Icons.check_circle,
+                                                    color: Colors.white),
+                                                SizedBox(width: 12),
+                                                Text(
+                                                    'Changes saved successfully!'),
+                                              ],
+                                            ),
+                                            backgroundColor: Color(0xFF10B981),
+                                            duration: Duration(seconds: 2),
+                                          ),
+                                        );
+
+                                        // Go back after successful save
+                                        Navigator.pop(context);
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          SnackBar(
+                                            content: Row(
+                                              children: [
+                                                const Icon(Icons.error,
+                                                    color: Colors.white),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                    child: Text(
+                                                        'Failed to save: $e')),
+                                              ],
+                                            ),
+                                            backgroundColor:
+                                                AppTheme.paymentColor,
+                                            duration:
+                                                const Duration(seconds: 3),
+                                          ),
+                                        );
+                                      }
+                                    }
+                                  },
+                                  icon: const Icon(Icons.save, size: 20),
+                                  label: const Text(
+                                    'Save Edited Report',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF10B981),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 16,
+                                    ),
+                                    elevation: 2,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                          if (widget.initialState != null)
+                            const SizedBox(height: 16),
+
+                          // Generate Report Button (positioned after Save Edited Report)
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  _showDetailedReport(context, model);
+                                },
+                                icon: const Icon(Icons.article, size: 20),
+                                label: const Text(
+                                  'Generate Balance Report',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.receiptColor,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                    horizontal: 16,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  elevation: 2,
+                                ),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+
                           // Opening Balances Section
                           _buildOpeningBalancesSection(isDark, model),
                           const SizedBox(height: 24),
@@ -2060,44 +2322,6 @@ class _AccountingFormState extends State<AccountingForm> {
 
                           // Expenses Section
                           _buildExpensesSection(isDark, model),
-                          const SizedBox(height: 24),
-
-                          // Report Buttons
-                          Row(
-                            children: [
-                              // Detailed View Report Button
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  onPressed: () {
-                                    _showDetailedReport(context, model);
-                                  },
-                                  icon: const Icon(Icons.article, size: 20),
-                                  label: const Text(
-                                    'Generate Balance Report',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppTheme.receiptColor,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                      horizontal: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 2,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-
                           const SizedBox(height: 24),
 
                           // Financial Summary
@@ -2181,7 +2405,8 @@ class _AccountingFormState extends State<AccountingForm> {
                             ? "PREVIOUS MONTH'S CLOSING"
                             : "PREVIOUS YEAR'S CLOSING",
                 model.openingCash,
-                key: const Key('balance_cash')),
+                key: const ValueKey(
+                    'balance_cash')), // Static key prevents rebuild loop
             const SizedBox(height: 12),
             _buildBalanceCard(
                 isDark,
@@ -2206,7 +2431,8 @@ class _AccountingFormState extends State<AccountingForm> {
                             ? "PREVIOUS MONTH'S CLOSING"
                             : "PREVIOUS YEAR'S CLOSING",
                 model.openingBank,
-                key: const Key('balance_bank')),
+                key: const ValueKey(
+                    'balance_bank')), // Static key prevents rebuild loop
             const SizedBox(height: 12),
             _buildBalanceCard(
                 isDark,
@@ -2231,7 +2457,8 @@ class _AccountingFormState extends State<AccountingForm> {
                             ? "PREVIOUS MONTH'S CLOSING"
                             : "PREVIOUS YEAR'S CLOSING",
                 model.openingOther,
-                key: const Key('balance_other')),
+                key: const ValueKey(
+                    'balance_other')), // Static key prevents rebuild loop
 
             // Custom balance cards (deletable)
             ...model.customOpeningBalances.keys.map((key) {
@@ -4958,12 +5185,16 @@ class _AccountingFormState extends State<AccountingForm> {
             children: [
               Icon(icon, size: 18, color: color),
               const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  color: color,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ),
             ],
@@ -5064,11 +5295,35 @@ class _AccountingFormState extends State<AccountingForm> {
           ElevatedButton(
             onPressed: () async {
               if (nameController.text.isNotEmpty) {
-                final stateMap = model.exportState();
-                stateMap['saved_view_type'] =
-                    reportType; // Persist view type explicitly
+                if (!context.mounted) return;
+                Navigator.pop(context); // Close dialog IMMEDIATELY
 
-                // Save/Update to Supabase (cloud only)
+                // Show saving indicator
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Row(
+                      children: [
+                        SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white)),
+                        SizedBox(width: 12),
+                        Text(model.t('msg_saving_report')),
+                      ],
+                    ),
+                    backgroundColor: const Color(0xFF2563EB), // Blue
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+
+                // Perform save in background
+                final stateMap = model.exportState();
+                stateMap['saved_view_type'] = reportType;
+
+                // Add explicit created_at to match exactly what we saved (just in case)
+                // However, ReportService overrides this likely. But this ensures logic consistency.
+
                 try {
                   if (widget.reportId != null) {
                     await _reportService.updateReport(
@@ -5084,18 +5339,29 @@ class _AccountingFormState extends State<AccountingForm> {
                           .activeUseCaseString,
                     );
                   }
+
+                  // Success feedback
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(model.t('msg_save_success')),
+                        backgroundColor: const Color(0xFF10B981),
+                      ),
+                    );
+                  }
                 } catch (e) {
                   print('Remote save error: $e');
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Failed to save report: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
-
-                if (!context.mounted) return;
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(model.t('msg_save_success')),
-                    backgroundColor: const Color(0xFF10B981),
-                  ),
-                );
               }
             },
             style: ButtonStyle(

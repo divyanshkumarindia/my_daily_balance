@@ -39,15 +39,28 @@ class _BalanceCardState extends State<BalanceCard> {
   void initState() {
     super.initState();
     // Use saved description or empty string (will show as ghost text)
-    descriptionController = TextEditingController(
-        text: (widget.initialDescription != null &&
-                widget.initialDescription!.isNotEmpty)
-            ? widget.initialDescription
-            : '');
+    // Use saved description or empty string (will show as ghost text)
+    String initialDesc = (widget.initialDescription != null &&
+            widget.initialDescription!.isNotEmpty)
+        ? widget.initialDescription!
+        : '';
+
+    // Clear default descriptions so hints show instead
+    final lowerDesc = initialDesc.toLowerCase();
+    if (lowerDesc == 'cash' || lowerDesc == 'bank' || lowerDesc == 'other') {
+      initialDesc = '';
+    }
+
+    descriptionController = TextEditingController(text: initialDesc);
+
     // Initialize amount if provided
     String initialAmountText = '';
-    if (widget.initialAmount != null && widget.initialAmount! != 0.0) {
-      if (widget.initialAmount == widget.initialAmount!.roundToDouble()) {
+    if (widget.initialAmount != null) {
+      if (widget.initialAmount == 0.0) {
+        // Show empty for 0 so ghost text appears
+        initialAmountText = '';
+      } else if (widget.initialAmount ==
+          widget.initialAmount!.roundToDouble()) {
         initialAmountText = widget.initialAmount!.toInt().toString();
       } else {
         initialAmountText = widget.initialAmount!.toString();
@@ -64,19 +77,47 @@ class _BalanceCardState extends State<BalanceCard> {
         descriptionController.text = widget.initialDescription ?? '';
       }
     }
-    if (widget.initialAmount != oldWidget.initialAmount) {
-      String newText = '';
-      if (widget.initialAmount != null && widget.initialAmount! != 0.0) {
-        if (widget.initialAmount == widget.initialAmount!.roundToDouble()) {
-          newText = widget.initialAmount!.toInt().toString();
-        } else {
-          newText = widget.initialAmount!.toString();
-        }
-      }
-      if (amountController.text != newText) {
-        amountController.text = newText;
+
+    // Prepare the new string value from the model
+    String newText = '';
+    if (widget.initialAmount != null && widget.initialAmount! != 0.0) {
+      if (widget.initialAmount == widget.initialAmount!.roundToDouble()) {
+        newText = widget.initialAmount!.toInt().toString();
+      } else {
+        newText = widget.initialAmount!.toString();
       }
     }
+
+    // Check current input
+    final currentText = amountController.text;
+
+    // Logic to decide if we should update the controller:
+    // 1. If visual text matches, do nothing.
+    if (currentText == newText) return;
+
+    // 2. If the user is currently typing and the values are numerically identical,
+    //    do NOT update. (e.g. user typed "5." and model has "5.0" -> effectively "5")
+    //    This preserves "5." so the user can continue typing decimals.
+    final currentVal = double.tryParse(currentText);
+    final modelVal = widget.initialAmount;
+
+    // Treat empty/null as 0.0 for comparison
+    final effectiveCurrent = currentVal ?? 0.0;
+    final effectiveModel = modelVal ?? 0.0;
+
+    // If they represent the same number, keep user's input (don't overwrite "5." with "5")
+    if (effectiveCurrent == effectiveModel) {
+      return;
+    }
+
+    // 3. Otherwise (values differ), Force Update.
+    //    This covers the case where model is 500 and text is "0" or empty.
+    amountController.text = newText;
+
+    // Move cursor to end to prevent jumping to start
+    amountController.selection = TextSelection.fromPosition(
+      TextPosition(offset: amountController.text.length),
+    );
   }
 
   @override

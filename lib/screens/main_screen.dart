@@ -78,7 +78,6 @@ class _MainScreenState extends State<MainScreen> {
                       1, model.t('title_saved_reports'), Icons.bookmark_border),
                   _buildNavItem(
                       2, model.t('nav_settings'), Icons.settings_outlined),
-                  _buildNavItem(3, 'Logout', Icons.logout_rounded),
                 ],
               );
             },
@@ -103,14 +102,10 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNavItem(int index, String label, IconData icon) {
     final isSelected = _currentIndex == index;
-    // Logout button (index 3) is never "selected" in the traditional sense, or maybe it uses a different color?
-    // User requested "home button in left, then saved Reports, then settings and then add a new button for logout".
-    // We'll keep standard behavior but handle tap for index 3 differently.
 
     final color = isSelected ? const Color(0xFF60A5FA) : Colors.white;
-    // Make logout red-ish or different? Or just white. Let's keep it consistent.
-    final iconColor = index == 3 ? Colors.redAccent.shade100 : color;
-    final textColor = index == 3 ? Colors.redAccent.shade100 : color;
+    final iconColor = color;
+    final textColor = color;
 
     return Expanded(
       child: GestureDetector(
@@ -143,19 +138,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   void _handleNavigation(int index) async {
-    if (index == 3) {
-      // Logout logic
-      await AuthService().signOut();
-      if (mounted) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const LoginScreen()),
-          (route) => false,
-        );
-      }
-    } else {
-      setState(() {
-        _currentIndex = index;
-      });
-    }
+    setState(() {
+      _currentIndex = index;
+    });
   }
 }
