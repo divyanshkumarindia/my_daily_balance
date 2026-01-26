@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../state/accounting_model.dart';
+import '../models/accounting.dart';
 import '../widgets/accounting_form.dart';
 
 /// Template route that renders the shared `AccountingForm` widget.
@@ -22,12 +25,22 @@ class AccountingTemplateScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AccountingForm(
-      templateKey: templateKey,
-      customTitle: customTitle,
-      customPageId: customPageId,
-      initialState: initialState,
-      reportId: reportId,
+    // Wrap in a ChangeNotifierProvider to ensure a specific, fresh model instance
+    // is available for this form, especially important when editing an existing report
+    // so that the imported state doesn't conflict with any global state.
+    // We initialize with a default UserType; importState will overwrite it if initialState is present.
+    return ChangeNotifierProvider<AccountingModel>(
+      create: (_) => AccountingModel(
+        userType: UserType.personal,
+        shouldLoadFromStorage: false,
+      ),
+      child: AccountingForm(
+        templateKey: templateKey,
+        customTitle: customTitle,
+        customPageId: customPageId,
+        initialState: initialState,
+        reportId: reportId,
+      ),
     );
   }
 }

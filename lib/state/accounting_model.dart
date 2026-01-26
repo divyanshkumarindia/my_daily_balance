@@ -33,7 +33,7 @@ class AccountingModel extends ChangeNotifier {
   Map<String, String> balanceCardTitles = {};
   Map<String, String> balanceCardDescriptions = {};
 
-  AccountingModel({required this.userType})
+  AccountingModel({required this.userType, bool shouldLoadFromStorage = true})
       : firmName = userTypeConfigs[userType]!.firmNamePlaceholder,
         currency = 'INR',
         duration = DurationType.Daily,
@@ -41,9 +41,11 @@ class AccountingModel extends ChangeNotifier {
         periodStartDate = '',
         periodEndDate = '' {
     _initializeAccounts();
-    loadSettings();
-    _migrateRemoveSavedReports(); // Clean up old saved reports data
-    loadFromCloud(); // Try to sync from cloud on startup
+    if (shouldLoadFromStorage) {
+      loadSettings();
+      _migrateRemoveSavedReports(); // Clean up old saved reports data
+      loadFromCloud(); // Try to sync from cloud on startup
+    }
   }
 
   // One-time migration to remove legacy saved_reports
@@ -787,7 +789,7 @@ class AccountingModel extends ChangeNotifier {
     };
   }
 
-  void importState(Map<String, dynamic> data) {
+  void importState(Map<String, dynamic> data, {bool notify = true}) {
     try {
       // 1. Restore basic fields
       if (data['userType'] != null) {
@@ -848,7 +850,7 @@ class AccountingModel extends ChangeNotifier {
         });
       }
 
-      notifyListeners();
+      if (notify) notifyListeners();
     } catch (e) {
       if (kDebugMode) print('Error importing state: $e');
       rethrow; // Allow UI to handle error

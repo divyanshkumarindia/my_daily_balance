@@ -66,7 +66,8 @@ class _AccountingFormState extends State<AccountingForm> {
 
     // If initial state is provided (Edit Mode), load it immediately
     if (widget.initialState != null) {
-      model.importState(widget.initialState!);
+      // Pass notify: false to prevent triggering a rebuild while building
+      model.importState(widget.initialState!, notify: false);
     }
 
     // Initialize controller with model value if exists

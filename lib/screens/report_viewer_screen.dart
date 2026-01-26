@@ -41,7 +41,11 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
   Future<void> _initializeModel() async {
     // Create a fresh model instance.
     // We pass UserType.personal initially, but importState will overwrite it.
-    _model = AccountingModel(userType: UserType.personal);
+    // Disable auto-loading from storage to prevent overwriting report data.
+    _model = AccountingModel(
+      userType: UserType.personal,
+      shouldLoadFromStorage: false,
+    );
 
     _model.importState(widget.reportData);
 
