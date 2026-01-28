@@ -61,7 +61,7 @@ class MyApp extends StatelessWidget {
             if (user != null) {
               return const MainScreen();
             }
-            return const WelcomeScreen();
+            return const WelcomeScreen(); 
           }
 
           final session = snapshot.data?.session;
