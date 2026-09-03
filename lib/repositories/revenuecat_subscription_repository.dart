@@ -38,9 +38,7 @@ class RevenueCatSubscriptionRepository implements SubscriptionRepository {
       }
 
       String apiKey;
-      if (Platform.isIOS) {
-        apiKey = dotenv.env['REVENUECAT_IOS_KEY'] ?? '';
-      } else if (Platform.isAndroid) {
+      if (Platform.isAndroid) {
         apiKey = dotenv.env['REVENUECAT_ANDROID_KEY'] ?? '';
       } else {
         // Desktop / Web — fall back to Android key or skip
